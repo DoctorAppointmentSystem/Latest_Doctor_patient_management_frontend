@@ -1,0 +1,25 @@
+@import "tailwindcss";
+
+@theme {
+  
+  --color-primary : #1D3557; /* button text color */ /* Action button bg color */
+  --color-secondary : #A9A9A9; /*  color */
+  --color-background : #E0E0E0; /* lightgray color */
+  --color-acent : #B2F1A3;  /* button bg color */
+  --color-highlight : #FFA07A; /* button hover bg color */
+
+
+
+
+  /* --color-buttonbg : #B2F1A3;
+  --color-buttontext : #1D3557;
+  --color-buttonhoverbg : #FFA07A;
+  --color-lightgray : #E0E0E0;
+  --color-actionbuttonbg : #1D3557; */
+  
+}
+
+.action-color {
+  
+}
+

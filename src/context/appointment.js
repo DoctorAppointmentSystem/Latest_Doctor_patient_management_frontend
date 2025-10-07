@@ -1,0 +1,15 @@
+export const defaultAppointmentData = {
+  _id: null,
+  doctor: "",
+  serviceType: "",
+  patientId: null,
+  charges: 0,
+  claimable: 0,
+  discount_type: "",
+  discount_remarks: "",
+  amountPaid: 0,
+  manualToken: "",
+  createdAt: null,
+  updatedAt: null,
+  __v: 0,
+};

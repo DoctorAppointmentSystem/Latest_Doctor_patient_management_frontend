@@ -1,0 +1,52 @@
+import React from 'react'
+
+function Visits() {
+  return (
+    <div className="w-full flex flex-col gap-4">
+        <div className="bg-white rounded-lg p-6 shadow-xl flex items-center justify-between">
+        <input
+          type="Number"
+          placeholder="Search Patient"
+          className="w-[33%] border-1 border-black p-4 rounded-lg"
+        />
+        <input
+          type="text"
+          placeholder="Search Patient"
+          className="w-[33%] border-1 border-black p-4 rounded-lg"
+        />
+        <div className="w-[33%] bg-acent hover:bg-highlight text-primary p-4 rounded-lg flex items-center justify-center">
+          Embend Search
+        </div>
+      </div>
+
+      <div className="w-full flex items-center justify-center">
+        <input
+          type="text"
+          placeholder="Patient Name"
+          className="w-[90%] border-1 border-black p-4 rounded-lg"
+        />
+      </div>
+
+      {/* <table className=" w-full text-primary">
+        <thead className="border-1 border-black">
+          <th className="border-1 border-black p-2">Token</th>
+          <th className="border-1 border-black p-2">Name</th>
+          <th className="border-1 border-black p-2">Age</th>
+          <th className="border-1 border-black p-2">unknown</th>
+          <th className="border-1 border-black p-2">unknown</th>
+        </thead>
+        <tbody>
+          <tr className="border-1 border-black">
+            <td className="border-1 border-black p-2">Token</td>
+            <td className="border-1 border-black p-2">Name</td>
+            <td className="border-1 border-black p-2">Age</td>
+            <td className="border-1 border-black p-2">unknown</td>
+            <td className="border-1 border-black p-2">unknown</td>
+          </tr>
+        </tbody>
+      </table>  */}
+    </div>
+  )
+}
+
+export default Visits;
