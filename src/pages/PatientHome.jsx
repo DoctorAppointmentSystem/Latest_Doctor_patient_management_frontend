@@ -58,10 +58,6 @@ const Navigation = memo(({ collapsed }) => {
       const response = await createVisit(payload);
       console.log("Backend response:", response);
 
-      if (![200, 201].includes(response.status)) {
-  throw new Error("Failed to save patient and visit data");
-}
-
 
       alert("✅ Patient & Visit saved successfully!");
 

@@ -7,24 +7,102 @@ export const defaultVisitData = {
   },
 
   visionAndRefraction: {
-      va: { right: {}, left: {} },
-      iop: { right: {}, left: {}, narration: "", selectedMethod: "" },
-      oldGlasses: { right: {}, left: {}, ipdD: "", ipdN: "", remarks: "" },
-      autoRefraction: { right: {}, left: {}, ipdD: "", ipdN: "", remarks: "" },
-      cycloAutoRefraction: { right: {}, left: {}, ipdD: "", ipdN: "", remarks: "" },
-      refraction: { right: {}, left: {}, ipdD: "", ipdN: "", type: "", remarks: "" },
-      keratometry: { right: {}, left: {}, methodUsed: "", narration: "" },
-      retinoscopy: { right: {}, left: {}, distance: "", method: "", dilatedWith: "", narration: "" },
-      opticDisc: { right: {}, left: {}, narration: "" },
-      siteOfIncision: { right: {}, left: {}, narration: "" },
-      orthopticAssessment: { eom: "", hb: "", narration: "" },
-      anteriorChamber: [],
-      eom: { right: [], left: [] },
-      hyphema: { right: "", left: "", both: "", narration: "" },
-      lens: { right: {}, left: {}, narration: "" },
-      gonioscopy: { right: {}, left: {} },
-      hypopyon: { right: "", left: "", narration: "" },
+    va: {
+      right: { value: "", condition1: "", condition2: "", condition3: "", condition4: "" },
+      left: { value: "", condition1: "", condition2: "", condition3: "", condition4: "" },
     },
+
+    iop: {
+      right: { value: "", pachymetry: "", correctionFactor: "", iopFinal: "" },
+      left: { value: "", pachymetry: "", correctionFactor: "", iopFinal: "" },
+      narration: "",
+      selectedMethod: "",
+    },
+
+    oldGlasses: {
+      right: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+      left: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+      ipdD: "",
+      ipdN: "",
+      remarks: "",
+    },
+
+    autoRefraction: {
+      right: { sph: "", cyl: "", axis: "", textField: "" },
+      left: { sph: "", cyl: "", axis: "", textField: "" },
+      ipdD: "",
+      ipdN: "",
+      remarks: "",
+    },
+
+    cycloAutoRefraction: {
+      right: { sph: "", cyl: "", axis: "", textField: "" },
+      left: { sph: "", cyl: "", axis: "", textField: "" },
+      ipdD: "",
+      ipdN: "",
+      remarks: "",
+    },
+
+    refraction: {
+      right: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+      left: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+      ipdD: "",
+      ipdN: "",
+      type: "",
+      remarks: "",
+    },
+
+    keratometry: {
+      right: { k1: "", k1angle: "", k2: "", k2angle: "", al: "", p: "", aConstant: "", iol: "", aimIol: "" },
+      left: { k1: "", k1angle: "", k2: "", k2angle: "", al: "", p: "", aConstant: "", iol: "", aimIol: "" },
+      methodUsed: "",
+      narration: "",
+    },
+
+    retinoscopy: {
+      right: { sph: "", cyl: "", angle: "", reflexes: "" },
+      left: { sph: "", cyl: "", angle: "", reflexes: "" },
+      distance: "",
+      method: "",
+      dilatedWith: "",
+      narration: "",
+    },
+
+    opticDisc: {
+      right: { vertical: "", horizontal: "", narration: "" },
+      left: { vertical: "", horizontal: "", narration: "" },
+      narration: "",
+    },
+
+    siteOfIncision: {
+      right: { angle: "" },
+      left: { angle: "" },
+      narration: "",
+    },
+
+    orthopticAssessment: { eom: "", hb: "", narration: "" },
+
+    anteriorChamber: [
+      { eye: "B/L", flare: "", cells: "", acDetails: "" }
+    ],
+
+    eom: { right: [], left: [] },
+
+    hyphema: { right: "", left: "", both: "", narration: "" },
+
+    lens: {
+      right: { nuclear: "", cortical: "", posterior: "" },
+      left: { nuclear: "", cortical: "", posterior: "" },
+      narration: "",
+    },
+
+    gonioscopy: {
+      right: { superior: "", medial: "", lateral: "", inferior: "" },
+      left: { superior: "", medial: "", lateral: "", inferior: "" },
+    },
+
+    hypopyon: { right: "", left: "", narration: "" },
+  },
 
   examination: {
     lens: { right: "", left: "" },

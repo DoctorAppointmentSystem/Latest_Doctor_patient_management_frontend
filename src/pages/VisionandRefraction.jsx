@@ -5,7 +5,7 @@ import { VisitContext } from "../context";
 const assessments = [
   "VA", "IOP", "Old Glasses", "Auto Refraction", "Cyclo Auto Refraction",
   "Refraction", "Keratometry", "Retinoscopy", "Optic Disc", "Site Of Incision",
-  "Orthoptic Assessment", "Anterior Chamber", "EOM", "Hyphema", "Lens",
+  "Orthoptic Assessment", "Anterior Chamber", "EOM","Hyphema", "Lens",
   "Gonioscopy", "Hypopyon"
 ];
 
@@ -116,7 +116,8 @@ const EyeAssessmentPage = () => {
     const payload = {
       visionAndRefraction: visit.visionAndRefraction
     };
-    setVisit();
+    console.log(payload);
+    setVisit(payload);
     console.log("Payload for backend:", JSON.stringify(payload, null, 2));
     // Send payload to backend here, e.g., via fetch or axios
     // fetch('/api/submit', { method: 'POST', body: JSON.stringify(payload) });
@@ -127,7 +128,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["VA (R)", "Condition", "é Condition", "é Condition", "é Condition"]}
+          inputs={["value", "condition1", "condition2", "condition3","condition4"]}
           onChange={handleInputChange}
           section="va"
           side="right"
