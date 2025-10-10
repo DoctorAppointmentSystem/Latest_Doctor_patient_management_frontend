@@ -1,7 +1,12 @@
 import { useState, useContext, useEffect } from "react";
-import { VisitContext } from "../context"; // adjust path if needed
+import { AppointmentContext, PatientContext } from "../context"; // adjust path if needed
+import { createVisit } from "../api/visits";
 
 function ADDNewVisit() {
+  // Add the new loading state
+  const [isLoading, setIsLoading] = useState(false);
+
+  // ... (all your other state and functions like systemHistory, handleChange, etc. remain the same)
   // Systemic History
   const [systemHistory, setSystemHistory] = useState([
     { disease: "", eye: "", duration: "", enabled: false },
@@ -26,7 +31,9 @@ function ADDNewVisit() {
     { disease: "", eye: "", duration: "", enabled: false },
   ]);
 
-  const { visitData, setVisitData } = useContext(VisitContext);
+  // const { visitData } = useContext(VisitContext);
+  const { patientData } = useContext(PatientContext);
+  const { appointmentData } = useContext(AppointmentContext);
 
   const handleAddDisease = () => {
     setPresentingCompaints([
@@ -70,7 +77,11 @@ function ADDNewVisit() {
     }
   };
 
-  const handleSubmit = () => {
+
+  // UPDATED handleSubmit function
+  const handleSubmit = async () => {
+    setIsLoading(true); // Start loading
+
     const historyPayload = {
       presentingComplaints: presentingCompaints.filter(
         (item) => item.disease || item.eye || item.duration
@@ -81,28 +92,43 @@ function ADDNewVisit() {
       systemHistory: systemHistory.filter(
         (item) => item.disease || item.eye || item.duration
       ),
-      newDisease: [], // not used here yet
+      newDisease: [],
     };
 
-    console.log("Final Visit Data:", historyPayload);
-
-    // ✅ Merge into VisitContext without losing other sections
-    setVisitData((prev) => ({
-      ...prev,
+    const payload = {
+      patientId: patientData._id,
+      appointmentId: appointmentData._id,
       history: historyPayload,
-    }));
+    };
 
-    alert("History is updated in Visit!");
+    try {
+      console.log("Sending payload to backend:", payload);
+      const response = await createVisit(payload);
+      alert("History is updated in Visit!");
+      console.log("Backend response:", response);
+    } catch (error) {
+      console.error("Error submitting visit data:", error);
+      alert("Failed to save history. Please try again.");
+    } finally {
+      setIsLoading(false); // Stop loading
+    }
   };
 
-  // Log updated visitData correctly
-  useEffect(() => {
-    console.log("Updated visitData:", visitData);
-  }, [visitData]);
+  // If loading, show the spinner/loader instead of the form
+  if (isLoading) {
+    return (
+      <div className="w-full h-full flex flex-col justify-center items-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary"></div>
+        <p className="mt-4 text-primary text-lg">Saving Visit...</p>
+      </div>
+    );
+  }
 
+  // Otherwise, return the form as normal
   return (
     <div className="w-full h-full flex flex-col">
-      {/* Systemic History */}
+      {/* ... (all your JSX for Systemic History, Ocular History, etc. remains here) ... */}
+            {/* Systemic History */}
       <div className="w-full flex flex-col gap-4 p-4">
         <h2 className="text-primary text-[26px] font-bold">Systemic History</h2>
         {systemHistory.map((item, index) => (
@@ -282,13 +308,15 @@ function ADDNewVisit() {
         </div>
       </div>
 
-      {/* Submit Button */}
+
+      {/* Submit Button - UPDATED */}
       <div className="p-4">
         <button
           onClick={handleSubmit}
-          className="bg-primary text-white px-4 py-2 rounded-md"
+          disabled={isLoading} // Disable button while loading
+          className="bg-primary text-white px-4 py-2 rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          Save History
+          {isLoading ? "Saving..." : "Save History"}
         </button>
       </div>
     </div>

@@ -1,11 +1,12 @@
 import React, { useContext, useState } from "react";
 import { defaultVisitData } from "../context/visitData";
-import { VisitContext } from "../context";
+import { AppointmentContext, PatientContext, VisitContext } from "../context";
+import { createVisit } from "../api/visits";
 
 const assessments = [
   "VA", "IOP", "Old Glasses", "Auto Refraction", "Cyclo Auto Refraction",
   "Refraction", "Keratometry", "Retinoscopy", "Optic Disc", "Site Of Incision",
-  "Orthoptic Assessment", "Anterior Chamber", "EOM","Hyphema", "Lens",
+  "Orthoptic Assessment", "Anterior Chamber", "EOM", "Hyphema", "Lens",
   "Gonioscopy", "Hypopyon"
 ];
 
@@ -95,7 +96,9 @@ const BottomRow = ({ onChange, section }) => (
 const EyeAssessmentPage = () => {
   const [activeSection, setActiveSection] = useState("");
   const [visit, setVisit] = useState(defaultVisitData);
-  const { visitData, setVisitData } = useContext(VisitContext);
+  // const { visitData, setVisitData } = useContext(VisitContext);
+    const { patientData, clearPatientData } = useContext(PatientContext);
+    const { appointmentData, clearAppointmentData } = useContext(AppointmentContext);
 
   const toggleSection = (item) => setActiveSection(prev => prev === item ? "" : item);
 
@@ -112,15 +115,28 @@ const EyeAssessmentPage = () => {
     }));
   };
 
-  const handleSubmit = () => {
-    const payload = {
-      visionAndRefraction: visit.visionAndRefraction
-    };
-    console.log(payload);
-    setVisit(payload);
-    console.log("Payload for backend:", JSON.stringify(payload, null, 2));
-    // Send payload to backend here, e.g., via fetch or axios
-    // fetch('/api/submit', { method: 'POST', body: JSON.stringify(payload) });
+  const handleSubmit = async () => {
+
+    try {
+      const payload = {
+        patientId: patientData._id,
+        appointmentId: appointmentData._id,
+        visionAndRefraction: visit.visionAndRefraction,
+      };
+
+      console.log("Sending payload to backend:", payload);
+
+      const response = await createVisit(payload);
+      console.log("Backend response:", response);
+
+
+      alert("✅ Patient & Visit saved successfully!");
+
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("❌ " + err.message);
+    }
+
   };
 
   const sectionConfigs = {
@@ -128,7 +144,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["value", "condition1", "condition2", "condition3","condition4"]}
+          inputs={["value", "condition1", "condition2", "condition3", "condition4"]}
           onChange={handleInputChange}
           section="va"
           side="right"

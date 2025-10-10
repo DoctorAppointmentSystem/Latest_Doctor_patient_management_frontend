@@ -61,10 +61,6 @@ const Navigation = memo(({ collapsed }) => {
 
       alert("✅ Patient & Visit saved successfully!");
 
-      // clear contexts after successful save
-      // clearPatientData();
-      // clearVisitData();
-
     } catch (err) {
       console.error("Save error:", err);
       alert("❌ " + err.message);
