@@ -1,4 +1,7 @@
 export const defaultVisitData = {
+  visitId: "",
+  patientId: "",
+  appointmentId: "",
   history: {
     presentingComplaints: [],
     ocularHistory: [],

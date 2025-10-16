@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from "react";
-import { AppointmentContext, PatientContext } from "../context"; // adjust path if needed
+import { AppointmentContext, PatientContext, VisitContext } from "../context"; // adjust path if needed
 import { createVisit } from "../api/visits";
 
 function ADDNewVisit() {
@@ -30,6 +30,8 @@ function ADDNewVisit() {
     { disease: "", eye: "", duration: "", enabled: false },
     { disease: "", eye: "", duration: "", enabled: false },
   ]);
+
+  const { visitData, setVisitData } = useContext(VisitContext);
 
   // const { visitData } = useContext(VisitContext);
   const { patientData } = useContext(PatientContext);
@@ -106,6 +108,10 @@ function ADDNewVisit() {
       const response = await createVisit(payload);
       alert("History is updated in Visit!");
       console.log("Backend response:", response);
+      console.log("Visit created with ID:", response.data.data._id);
+      setVisitData({
+        ...visitData, visitId: response.data.data._id
+      }); 
     } catch (error) {
       console.error("Error submitting visit data:", error);
       alert("Failed to save history. Please try again.");
@@ -310,13 +316,13 @@ function ADDNewVisit() {
 
 
       {/* Submit Button - UPDATED */}
-      <div className="p-4">
+      <div className="p-4 w-full flex justify-end">
         <button
           onClick={handleSubmit}
           disabled={isLoading} // Disable button while loading
           className="bg-primary text-white px-4 py-2 rounded-md disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
-          {isLoading ? "Saving..." : "Save History"}
+        Save History
         </button>
       </div>
     </div>

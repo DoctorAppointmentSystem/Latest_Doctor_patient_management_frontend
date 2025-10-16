@@ -1,63 +1,113 @@
-// RxForm.jsx
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
+import { AppointmentContext, PatientContext } from "../context";
+import { createVisit } from "../api/visits";
 
 export default function PrescriptionPage() {
+  // State for the individual medicine being added/edited
   const [selected, setSelected] = useState({
     medicine: "",
     dosage: "",
-    for_: "",
+    eye: "B", // Defaulted 'eye' to 'B'
     duration: "",
+    isFreeProvided: false, // Added to match the backend model
   });
 
-  const [rxList, setRxList] = useState([]); // all prescribed medicines
-  const [editIndex, setEditIndex] = useState(null); // track which item is being edited
-  const [nextVisitDate, setNextVisitDate] = useState(""); // track calendar date
+  const [rxList, setRxList] = useState([]);
+  const [editIndex, setEditIndex] = useState(null);
+  
+  // New state variables for remarks and next visit
+  const [remarks, setRemarks] = useState("");
+  const [nextVisit, setNextVisit] = useState({ date: "", after: "" });
+
+    const { patientData } = useContext(PatientContext);
+    const { appointmentData } = useContext(AppointmentContext);
 
   const handleChange = (field) => (e) => {
     setSelected((prev) => ({ ...prev, [field]: e.target.value }));
   };
+  
+  const handleNextVisitChange = (field) => (e) => {
+    setNextVisit((prev) => ({...prev, [field]: e.target.value }));
+  };
 
-  const addToRx = () => {
-    if (selected.medicine && selected.dosage && selected.for_ && selected.duration) {
+  const addToRx = (isFree = false) => {
+    if (selected.medicine && selected.dosage && selected.duration) {
+      const newMedicine = { ...selected, isFreeProvided: isFree };
+
       if (editIndex !== null) {
-        // update existing item
+        // Update existing item
         const updatedList = [...rxList];
-        updatedList[editIndex] = selected;
+        updatedList[editIndex] = newMedicine;
         setRxList(updatedList);
         setEditIndex(null);
       } else {
-        // add new item
-        setRxList((prev) => [...prev, selected]);
+        // Add new item
+        setRxList((prev) => [...prev, newMedicine]);
       }
 
-      // reset form
+      // Reset form
       setSelected({
         medicine: "",
         dosage: "",
-        for_: "",
+        eye: "B",
         duration: "",
+        isFreeProvided: false,
       });
     } else {
-      alert("⚠️ Please fill all fields before adding to Rx");
+      alert("⚠️ Please fill all medicine fields before adding.");
     }
   };
 
   const handleEdit = (index) => {
-    setSelected(rxList[index]); // load item into form
-    setEditIndex(index); // track which item is being edited
+    setSelected(rxList[index]);
+    setEditIndex(index);
   };
 
   const handleRemove = (index) => {
     setRxList((prev) => prev.filter((_, i) => i !== index));
     if (editIndex === index) {
-      // if currently editing removed item → reset form
       setSelected({
         medicine: "",
         dosage: "",
-        for_: "",
+        eye: "B",
         duration: "",
+        isFreeProvided: false,
       });
       setEditIndex(null);
+    }
+  };
+
+  // Function to create the payload and log it
+  const handleSubmit = async () => {
+    const payloadPre = {
+      medicines: rxList,
+      remarks: remarks,
+      nextVisit: {
+        date: nextVisit.date ? new Date(nextVisit.date).toISOString() : null,
+        after: nextVisit.after,
+      },
+    };
+
+    console.log("Final Payload to be sent:", JSON.stringify(payloadPre, null, 2));
+try {
+      const payload = {
+        patientId: patientData._id,
+        appointmentId: appointmentData._id,
+        prescription: payloadPre,
+        complete: true,
+      };
+
+      console.log("Sending payload to backend:", payload);
+
+      const response = await createVisit(payload);
+      console.log("Backend response:", response);
+
+
+      alert("✅ Patient & Visit saved successfully!");
+
+    } catch (err) {
+      console.error("Save error:", err);
+      alert("❌ " + err.message);
     }
   };
 
@@ -73,22 +123,25 @@ export default function PrescriptionPage() {
             onChange={handleChange("medicine")}
           />
 
-          <div className="flex flex-wrap gap-2 mt-2">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
             <input
-              className="flex-1 border border-gray-300 rounded p-2 outline-primary"
-              placeholder="Enter Dosage"
+              className="border border-gray-300 rounded p-2 outline-primary"
+              placeholder="Enter Dosage (e.g., 1 drop 3 times a day)"
               value={selected.dosage}
               onChange={handleChange("dosage")}
             />
+            <select
+              className="border border-gray-300 rounded p-2 outline-primary bg-white"
+              value={selected.eye}
+              onChange={handleChange("eye")}
+            >
+              <option value="B">Both Eyes (B)</option>
+              <option value="R">Right Eye (R)</option>
+              <option value="L">Left Eye (L)</option>
+            </select>
             <input
-              className="flex-1 border border-gray-300 rounded p-2 outline-primary"
-              placeholder="Enter For (e.g. Pain, Fever)"
-              value={selected.for_}
-              onChange={handleChange("for_")}
-            />
-            <input
-              className="flex-1 border border-gray-300 rounded p-2 outline-primary"
-              placeholder="Enter Duration"
+              className="border border-gray-300 rounded p-2 outline-primary"
+              placeholder="Enter Duration (e.g., 7 days)"
               value={selected.duration}
               onChange={handleChange("duration")}
             />
@@ -99,32 +152,18 @@ export default function PrescriptionPage() {
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={addToRx}
+            onClick={() => addToRx(false)}
             className="flex-1 bg-acent text-primary font-medium rounded p-3 hover:bg-highlight"
           >
             {editIndex !== null ? "Update Rx" : "Add to Rx"}
           </button>
           <button
             type="button"
+            onClick={() => addToRx(true)}
             className="flex-1 border border-background text-gray-700 rounded p-3 bg-background"
           >
-            Add to Rx as free provided
+            Add as Free Provided
           </button>
-        </div>
-
-        {/* Summary / Remarks */}
-        <div className="mt-4 flex gap-2">
-          <button
-            type="button"
-            className="w-[40%] border border-primary text-primary rounded px-4 py-2 hover:bg-background"
-          >
-            Summary
-          </button>
-          <input
-            type="text"
-            placeholder="Rx Header remarks Prior to Rx"
-            className="w-[50%] border border-background rounded p-2 md:w-full outline-primary"
-          />
         </div>
       </div>
 
@@ -142,9 +181,16 @@ export default function PrescriptionPage() {
                 key={index}
                 className="flex justify-between items-center border p-2 rounded"
               >
-                <span>
-                  <b>{rx.medicine}</b> — {rx.dosage}, {rx.for_}, {rx.duration}
-                </span>
+                <div>
+                  <span>
+                    <b>{rx.medicine}</b> — {rx.dosage} ({rx.eye}) for {rx.duration}
+                  </span>
+                  {rx.isFreeProvided && (
+                    <span className="ml-2 text-xs font-semibold bg-green-100 text-green-700 px-2 py-1 rounded-full">
+                      Free
+                    </span>
+                  )}
+                </div>
                 <div className="flex gap-3">
                   <button
                     className="text-primary hover:underline"
@@ -168,18 +214,40 @@ export default function PrescriptionPage() {
         <textarea
           className="w-full mt-4 border border-gray-300 rounded p-2 h-24 outline-primary"
           placeholder="Additional Remarks"
+          value={remarks}
+          onChange={(e) => setRemarks(e.target.value)}
         ></textarea>
       </div>
       {/* Next Visit Date */}
-        <div className="mt-4 bg-white w-full p-4 rounded-lg shadow-md">
-          <label className="block mb-1 font-medium">Next Visit Date</label>
-          <input
-            type="date"
-            className="w-full border border-gray-300 rounded p-2 outline-primary"
-            value={nextVisitDate}
-            onChange={(e) => setNextVisitDate(e.target.value)}
-          />
+      <div className="mt-4 bg-white w-full p-4 rounded-lg shadow-md">
+        <label className="block mb-2 font-medium">Next Visit</label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <input
+                type="date"
+                className="w-full border border-gray-300 rounded p-2 outline-primary"
+                value={nextVisit.date}
+                onChange={handleNextVisitChange("date")}
+            />
+            <input
+                type="text"
+                placeholder="Follow-up after (e.g., 2 Weeks)"
+                className="w-full border border-gray-300 rounded p-2 outline-primary"
+                value={nextVisit.after}
+                onChange={handleNextVisitChange("after")}
+            />
         </div>
+      </div>
+
+      {/* Save Button */}
+      <div className="flex justify-end mt-4">
+        <button
+          type="button"
+          onClick={handleSubmit}
+          className="bg-primary text-white font-bold py-2 px-6 rounded-lg hover:bg-hightlight"
+        >
+          Save Prescription
+        </button>
+      </div>
     </div>
   );
 }

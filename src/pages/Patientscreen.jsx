@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import calculateDOBFromAge from "../services/dobCalculator";
+import { Link, useNavigate } from "react-router-dom";
+import { createPatient, getAllPatients } from "../api/patient";
 
 function Patientscreen() {
   const [patientAdd, setPatientAdd] = useState(false);
@@ -30,7 +31,7 @@ function Patientscreen() {
     history: "",
   });
 
-
+  const navigate = useNavigate();
 
   const handleOpenPatient = () => {
     setPatientAdd((prev) => !prev);
@@ -53,10 +54,8 @@ function Patientscreen() {
       setLoading(true);
       try {
         // Send search query to backend (name or phone)
-        const res = await fetch(
-          `http://localhost:3000/api/patients?${category}=${searchQuery}`
-        );
-        const data = await res.json();
+        const res = await getAllPatients(category, searchQuery);
+        const data = await res.data;
         setPatients(Array.isArray(data.data) ? data.data : []);
       } catch (error) {
         console.error("Error fetching patients:", error);
@@ -105,18 +104,12 @@ function Patientscreen() {
         formData
       );
 
-      const res = await fetch("http://localhost:3000/api/patients", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      const res = await createPatient(payload);
 
-      const data = await res.json(); // always parse response first
+      const data = res.data // always parse response first
+      const pId = data.data._id;
+      localStorage.setItem("selectedPatientId", pId);
       console.log("Data received from API:", data);
-
-      if (!res.ok) {
-        throw new Error(data.message || "Failed to create patient");
-      }
 
       alert("Patient created successfully!");
       setPatientAdd(false);
@@ -143,6 +136,8 @@ function Patientscreen() {
         referenced: "",
         history: "",
       });
+
+      navigate(`/appointment`); 
     } catch (error) {
       console.error("Error creating patient:", error);
       alert(error.message);

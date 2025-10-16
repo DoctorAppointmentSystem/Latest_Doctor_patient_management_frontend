@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import { defaultVisitData } from "../context/visitData";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
-import { createVisit } from "../api/visits";
+import { createVisit, updateVisit } from "../api/visits";
 
 const assessments = [
   "VA", "IOP", "Old Glasses", "Auto Refraction", "Cyclo Auto Refraction",
@@ -96,7 +96,7 @@ const BottomRow = ({ onChange, section }) => (
 const EyeAssessmentPage = () => {
   const [activeSection, setActiveSection] = useState("");
   const [visit, setVisit] = useState(defaultVisitData);
-  // const { visitData, setVisitData } = useContext(VisitContext);
+  const { visitData, setVisitData } = useContext(VisitContext);
     const { patientData, clearPatientData } = useContext(PatientContext);
     const { appointmentData, clearAppointmentData } = useContext(AppointmentContext);
 
@@ -119,17 +119,14 @@ const EyeAssessmentPage = () => {
 
     try {
       const payload = {
-        patientId: patientData._id,
-        appointmentId: appointmentData._id,
         visionAndRefraction: visit.visionAndRefraction,
       };
 
       console.log("Sending payload to backend:", payload);
 
-      const response = await createVisit(payload);
+      // const response = await createVisit(payload);
+      const response = updateVisit(visitData.visitId, payload);
       console.log("Backend response:", response);
-
-
       alert("✅ Patient & Visit saved successfully!");
 
     } catch (err) {
@@ -673,12 +670,14 @@ const EyeAssessmentPage = () => {
             </li>
           ))}
         </ul>
+        <div className="w-full flex justify-end">
         <button
           className="mt-6 bg-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-highlight transition"
           onClick={handleSubmit}
         >
           Submit
         </button>
+        </div>
       </div>
     </div>
   );

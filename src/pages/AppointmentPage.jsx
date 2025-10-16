@@ -2,8 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { PatientContext } from "../context";
 
-const doctors = ["Dr Ahmad…", "Dr X…", "Dr Y…", "Dr Z…", "Dr A…", "Dr B…"];
-const services = ["OPD", "Emergency", "Surgery", "Consultation", "Follow-up"];
+const doctors = ["Dr X…", "Dr Y…", "Dr Z…", "Dr A…", "Dr B…"];
+const services = ["Emergency", "Surgery", "Consultation", "Follow-up"];
 const sources = ["Self", "Referral"];
 const bdms = ["BDM One", "BDM Two"];
 
@@ -15,8 +15,8 @@ function AppointmentPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const [selectedDoctor, setSelectedDoctor] = useState("");
-  const [selectedService, setSelectedService] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState("Dr Ahmad…");
+  const [selectedService, setSelectedService] = useState("OPD");
 
   const {patientData, setPatientData} = useContext(PatientContext);
 
@@ -122,7 +122,7 @@ function AppointmentPage() {
               value={selectedDoctor}
               onChange={(e) => setSelectedDoctor(e.target.value)}
             >
-              <option value="" className="hover:bg-highlight">Select Doctor</option>
+              <option value="Dr Ahmad…" className="hover:bg-highlight">Dr Ahmad…</option>
               {doctors.map((d) => (
                 <option key={d} value={d}>{d}</option>
               ))}
@@ -136,7 +136,7 @@ function AppointmentPage() {
               value={selectedService}
               onChange={(e) => setSelectedService(e.target.value)}
             >
-              <option value="" className="">Select Service</option>
+              <option value="OPD" className="">OPD</option>
               {services.map((s) => (
                 <option key={s} value={s}>{s}</option>
               ))}

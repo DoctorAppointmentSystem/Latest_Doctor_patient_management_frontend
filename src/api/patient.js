@@ -1,5 +1,24 @@
 import axiosInstance from "./axiosInstance";
 
+export const createPatient = async (patientData) => {
+    try {
+        const response = await axiosInstance.post('/patients', patientData);
+        return response;
+    } catch (error) {
+        console.error('Error creating patient:', error);
+        throw error;
+    }
+};
+
+export const getAllPatients = async (category, searchQuery) => {
+    try {
+        const response = await axiosInstance.get(`/patients?${category}=${searchQuery}`);
+        return response;
+    } catch (error) {
+        console.error('Error fetching patients:', error);
+        throw error;
+    }
+};
 
 export const getPatientsById = async (id) => {
     try {
