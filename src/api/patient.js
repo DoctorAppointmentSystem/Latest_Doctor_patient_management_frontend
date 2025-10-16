@@ -11,13 +11,24 @@ export const createPatient = async (patientData) => {
 };
 
 export const getAllPatients = async (category, searchQuery) => {
-    try {
+    if (!category || !searchQuery) {
+        try {
+        const response = await axiosInstance.get('/patients');
+        return response;
+    } catch (error) {
+        console.error('Error fetching patients:', error);
+        throw error;
+    }
+    } else {
+         try {
         const response = await axiosInstance.get(`/patients?${category}=${searchQuery}`);
         return response;
     } catch (error) {
         console.error('Error fetching patients:', error);
         throw error;
     }
+    }
+   
 };
 
 export const getPatientsById = async (id) => {

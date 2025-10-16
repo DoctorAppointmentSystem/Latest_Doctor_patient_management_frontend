@@ -204,11 +204,8 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
-      {/* Added: Mobile menu overlay */}
-      {/* <Navbar/> */}
       <Overlay />
 
-      {/* Updated: Responsive sidebar */}
       <aside
         className={`
           fixed top-0 h-full bg-primary text-background transition-all duration-300 z-50
@@ -228,7 +225,6 @@ const Layout = () => {
         <Navigation collapsed={collapsed && !isMobile} />
       </aside>
 
-      {/* Updated: Responsive main content */}
       <main 
         className={`
           flex-1 transition-all duration-300
@@ -248,18 +244,6 @@ const Layout = () => {
               )}
               Navbar
             </div>
-            
-             {/* <div className="flex-1 flex flex-col md:flex-row items-center gap-4 w-full">
-              <SearchBar />
-              <CreateDropdown />
-            </div>
-            <div className="flex items-center">
-              <img
-                src="https://via.placeholder.com/32"
-                alt="User"
-                className="w-8 h-8 rounded-full"
-              />
-            </div> */}
           </div> 
         </header>
         <div className="">

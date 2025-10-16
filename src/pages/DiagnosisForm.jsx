@@ -1,6 +1,6 @@
 import { useContext, useState } from "react";
-import { createVisit } from "../api/visits";
-import { AppointmentContext, PatientContext } from "../context";
+import { createVisit, updateVisit } from "../api/visits";
+import { AppointmentContext, PatientContext, VisitContext } from "../context";
 
 const DiagnosisForm = () => {
   const [activeSection, setActiveSection] = useState("diagnosis"); // Start with the first section open
@@ -29,6 +29,7 @@ const DiagnosisForm = () => {
 
     const { patientData } = useContext(PatientContext);
     const { appointmentData } = useContext(AppointmentContext);
+    const { visitData, setVisitData } = useContext(VisitContext);
 
   // Generic handler to update state for any section
   const handleStateChange = (setter, index, field, value) => {
@@ -62,7 +63,7 @@ const DiagnosisForm = () => {
     
           console.log("Sending payload to backend:", payload);
     
-          const response = await createVisit(payload);
+          const response = await updateVisit(visitData.visitId, payload);
           console.log("Backend response:", response);
     
     

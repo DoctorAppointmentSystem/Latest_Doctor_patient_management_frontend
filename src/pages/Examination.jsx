@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
-import { createVisit } from '../api/visits'; // Assuming your API function is here
-import { AppointmentContext, PatientContext } from '../context'; // Assuming your contexts are here
+import { createVisit, updateVisit } from '../api/visits'; // Assuming your API function is here
+import { AppointmentContext, PatientContext, VisitContext } from '../context'; // Assuming your contexts are here
 
 function Examination() {
   // --- STATE MANAGEMENT ---
@@ -71,8 +71,10 @@ function Examination() {
 
   const { patientData } = useContext(PatientContext);
   const { appointmentData } = useContext(AppointmentContext);
+  const { visitData, setVisitData } = useContext(VisitContext);
 
   const [isLoading, setIsLoading] = useState(false);
+
 
   const handleStateChange = (setter, index, field, value) => {
     setter(prev => {
@@ -116,9 +118,10 @@ function Examination() {
         examination: payloadExamination,
       };
 
+      console.log(visitData.visitId)
       console.log("Sending payload to backend:", JSON.stringify(payload, null, 2));
 
-      const response = await createVisit(payload);
+      const response = await updateVisit(visitData.visitId, payload);
       console.log("Backend response:", response);
 
       alert("✅ Patient & Visit saved successfully!");

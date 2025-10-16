@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
-import { AppointmentContext, PatientContext } from "../context";
-import { createVisit } from "../api/visits";
+import { AppointmentContext, PatientContext, VisitContext } from "../context";
+import { createVisit, updateVisit } from "../api/visits";
 
 export default function PrescriptionPage() {
   // State for the individual medicine being added/edited
@@ -21,6 +21,7 @@ export default function PrescriptionPage() {
 
     const { patientData } = useContext(PatientContext);
     const { appointmentData } = useContext(AppointmentContext);
+    const { visitData, setVisitData } = useContext(VisitContext);
 
   const handleChange = (field) => (e) => {
     setSelected((prev) => ({ ...prev, [field]: e.target.value }));
@@ -99,7 +100,7 @@ try {
 
       console.log("Sending payload to backend:", payload);
 
-      const response = await createVisit(payload);
+      const response = await updateVisit(visitData.visitId, payload);
       console.log("Backend response:", response);
 
 
