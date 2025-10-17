@@ -1,380 +1,696 @@
-// import React, { useEffect, useRef } from "react";
-// import { useReactToPrint } from "react-to-print";
-// import { getVisitById } from "../api/visits";
-
-// export const ReportPage = () => {
-//   const reportRef = useRef();
-//   const visitId = "68e94852f9abd1dcc9fcceaf"; // Example visit ID, replace with actual ID as needed
-
-//   const handlePrint = useReactToPrint({
-//     contentRef: reportRef, 
-//   });
-
-
-
-  // useEffect(() => {
-  //   const fetchVisitData = async () => {
-  //     try {
-  //         const data = await getVisitById(visitId); 
-  //         console.log("Fetched visit data:", data);
-  //     }
-  //     catch (error) {
-  //       console.error("Error fetching visit data:", error);
-  //     }
-  //   };
-
-  //   fetchVisitData();
-  // }, []);
-
-//   return (
-//     <div className="w-full">
-//       {/* Print Button */}
-//       <div className="flex justify-end fixed w-full p-4 bg-primary">
-//         <button
-//           onClick={handlePrint}
-//           className="px-4 py-2 bg-acent text-primary rounded-lg shadow hover:bg-highlight"
-//         >
-//           Print Report
-//         </button>
-//       </div>
-
-//       <div className="h-16">
-
-//       </div>
-
-//       {/* Printable Area */}
-//       <div
-//         ref={reportRef}
-//         className="w-full mx-auto p-6 bg-white rounded-lg flex flex-col mt-2"
-//       >
-//         <div className="flex justify-between items-center mb-4">
-//           <div>
-//             <p>Professor</p>
-//             <h1 className="text-3xl font-bold"> Dr. Ahmad Zeeshan Jamil</h1>
-//             <div className="text-sm">
-//               <p>MBBS, FRCS (Glasgow)</p>
-//               <p>FCPS, FCPS (VRO)</p>
-//               <p>MCPS, ICO (UK)</p>
-//             </div>
-//             <p className="text-sm">Sahiwal Medical College Sahiwal</p>
-//           </div>
-
-//           <div>logo</div>
-
-//           <div className="text-right">
-//             <p>پروفیسر</p>
-//             <h1 className="text-3xl font-bold"> ڈاکٹر احمد ذیشان جمیل</h1>
-//             <div className="text-sm">
-//               <p>ایم بی بی ایس، ایف آر سی ایس (گلاسگو)</p>
-//               <p>ایف سی پی ایس، ایف سی پی ایس (وی آر او)</p>
-//               <p>ایم سی پی ایس، آئی سی او (یو کے)</p>
-//             </div>
-//             <p className="text-sm">ساہیوال میڈیکل کالج، ساہیوال</p>
-//           </div>
-//         </div>
-
-//         <div className="border border-gray-300 p-4 rounded-lg flex justify-between items-center">
-//           <div>
-//             <p className="flex gap-2">
-//               <span className="font-bold">User Name</span> (40-years Male){" "}
-//               <div className="flex gap-2">
-//               <h3 className="font-bold">City :</h3>
-//               <span>Sahiwal</span>
-//               </div>
-//             </p>
-//             <p className="text-[15px]">
-//               <p>
-//                 Mob +923030458064 <span className="mx-2">(W/O) AltafHussain</span> Visit : sep 25,2025
-//               </p>
-//             </p>
-//           </div>
-//           <div className="flex flex-col gap-2">
-//             <p className="border p-1 rounded-lg">June 20, 2025 6:52 p.m.</p>
-//             <p className="border p-1 rounded-lg w-[70%]">VCO Taken ✓</p>
-//           </div>
-//         </div>
-
-//         <div className="border-t border-gray-300 my-4"></div>
-//         <div className="flex justify-between items-start">
-//           <div>
-//             <p>Test (40-years Male) | First Visit: June 20, 2025</p>
-//             <p>
-//               Systemic Disease History: DM from 10 years, HTN from 10 years
-//             </p>
-//             <p>VA: R 6/9, L 6/9</p>
-//             <p>Old Glasses</p>
-//             <div className="grid grid-cols-2 gap-4 mt-2">
-//               <div>
-//                 <p>Right Eye</p>
-//                 <p>Sph -0.00, Cyl -1.00, Axis 90</p>
-//               </div>
-//               <div>
-//                 <p>Left Eye</p>
-//                 <p>Sph -0.00, Cyl -1.00, Axis 90</p>
-//               </div>
-//             </div>
-//             <div className="mt-4">
-//               <h3>Keratometry</h3>
-//               <div className="grid grid-cols-5 gap-4">
-//                 <div>Right Eye</div>
-//                 <div>K1 44.0</div>
-//                 <div>K2 44.0</div>
-//                 <div>AL</div>
-//                 <div>P</div>
-//                 <div>AC</div>
-//                 <div>Aim</div>
-//                 <div>Left Eye</div>
-//                 <div>K1 44.0</div>
-//                 <div>K2 44.0</div>
-//                 <div>AL</div>
-//                 <div>P</div>
-//                 <div>AC</div>
-//                 <div>Aim</div>
-//               </div>
-//             </div>
-//             <div className="mt-4">
-//               <h3>IOP</h3>
-//               <div className="grid grid-cols-4 gap-4">
-//                 <div>For</div>
-//                 <div>IOP</div>
-//                 <div>Pachymetry</div>
-//                 <div>CF</div>
-//                 <div>Final</div>
-//                 <div>(R)</div>
-//                 <div>12</div>
-//                 <div></div>
-//                 <div></div>
-//                 <div></div>
-//                 <div>(L)</div>
-//                 <div>12</div>
-//                 <div></div>
-//                 <div></div>
-//                 <div></div>
-//               </div>
-//               <p>Method:</p>
-//             </div>
-//           </div>
-//           <div className="text-right">
-//             <p>June 20, 2025 6:52 p.m.</p>
-//             <p>VCO Taken ✓</p>
-//             <h3>Rx</h3>
-//             <ol className="list-decimal list-inside">
-//               <li>2BLINK EYE DROPS</li>
-//               <li>ACYCLOVIR 200 TABLET</li>
-//             </ol>
-//             <p>Next Visit after 7 days</p>
-//           </div>
-//         </div>
-//         <div className="border-t border-gray-300 my-4"></div>
-//         <div className="flex justify-between items-end">
-//           <div>
-//             <img
-//               src="/qr.png" // ✅ replace with your own image in public folder
-//               alt="QR Code"
-//               className="w-20 h-20"
-//             />
-//             <p>03407030076</p>
-//           </div>
-//           <div className="text-right">
-//             <p>سوئم رکن فیڈریشن آف پاکستان</p>
-//             <p>UAN: (040)111555558, 03407037661</p>
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-
-
-
-import React, { useEffect, useRef } from "react";
-import { useReactToPrint } from "react-to-print";
+import React, { useRef, useEffect, useState, useContext } from "react";
+import { getVisitById } from "../api/visits"; // ✅ Make sure this path exists
+import { getPatientsById } from "../api/patient";
+import { VisitContext } from "../context";
 
 export const ReportPage = () => {
   const reportRef = useRef();
-  const visitId = "68e94852f9abd1dcc9fcceaf";
+  // const visitId = "68f1441e20559deddd254c3e"; // Example visit ID
+  const [visitDataPage, setVisitDataPage] = useState(null);
+  const [patientData, setPatientData] = useState(null);
+  const { visitData, setVisitData } = useContext(VisitContext);
+  const visitId = visitData?.visitId; // Dynamically get visitId from context
 
-  const handlePrint = useReactToPrint({
-    content: () => reportRef.current,
-    documentTitle: "Patient-Report",
-  });
+  const handlePrint = () => {
+    window.print();
+  };
 
-    useEffect(() => {
+  useEffect(() => {
     const fetchVisitData = async () => {
       try {
-          const data = await getVisitById(visitId); 
-          console.log("Fetched visit data:", data);
-      }
-      catch (error) {
+        const data = await getVisitById(visitId);
+        console.log("Fetched visit data:", data.data);
+
+        setVisitDataPage(data.data);
+
+      } catch (error) {
         console.error("Error fetching visit data:", error);
       }
     };
 
     fetchVisitData();
-  }, []);
+
+  }, [visitId]);
+
+  useEffect(() => {
+    if (visitDataPage) {
+      const fetchPatientData = async () => {
+        try {
+          const patientId = visitDataPage.patientId._id;
+          console.log("Patient ID from visit data:", patientId);
+
+          const response = await getPatientsById(patientId);
+          console.log("Fetched patient data:", response.data);
+          setPatientData(response.data.data);
+
+        } catch (error) {
+          console.error("Error fetching patient data:", error);
+        }
+      };
+
+      fetchPatientData();
+    }
+  }, [visitDataPage]);
+
+  useEffect(() => {
+    if (visitDataPage) {
+      console.log("✅ Updated Visit Data State:", visitDataPage);
+      console.log("✅ Corresponding Patient Data State:", patientData);
+    }
+  }, [visitDataPage, patientData]);
 
   return (
-    <div className="bg-gray-200 p-8">
-      {/* --- Print Button (Hidden on Print) --- */}
-      <div className="flex justify-end mb-4 print:hidden">
-        <button
-          onClick={handlePrint}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700"
+    <>
+      {/* ✅ FIXED: Removed jsx/global attributes */}
+      <style>
+        {`
+          @media print {
+            body {
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+            }
+            .printable-area {
+              box-shadow: none !important;
+              margin: 0;
+              border: none;
+            }
+            .no-break-inside {
+              break-inside: avoid;
+            }
+          }
+          @page {
+            size: A4;
+            margin: 1cm;
+          }
+        `}
+      </style>
+
+      <div className="bg-gray-200 font-sans p-4 sm:p-8">
+        {/* --- Print Button --- */}
+        <div className="flex justify-center sm:justify-end mb-4 print:hidden">
+          <button
+            onClick={handlePrint}
+            className="px-6 py-2 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-highlight focus:outline-none  transition-colors duration-200"
+          >
+            Print or Save Report
+          </button>
+        </div>
+
+        {/* --- Printable Report --- */}
+        <div
+          ref={reportRef}
+          className="printable-area w-[210mm] min-h-[297mm] mx-auto p-8 bg-white shadow-2xl text-sm"
         >
-          Print Report
-        </button>
-      </div>
-
-      {/* --- Printable Area (A4 Paper Size) --- */}
-      <div
-        ref={reportRef}
-        className="w-[210mm] min-h-[297mm] mx-auto p-6 bg-white shadow-lg text-sm"
-      >
-        {/* --- Header --- */}
-        <header className="flex justify-between items-start mb-4">
-          <div className="text-left">
-            <p className="font-semibold">Professor</p>
-            <h1 className="text-2xl font-bold"> Dr. Ahmad Zeeshan Jamil</h1>
-            <p>MBBS, FRCS (Glasgow)</p>
-            <p>FCPS, FCPS (VRO)</p>
-            <p>MCPS, ICO (UK)</p>
-            <p>Sahiwal Medical College Sahiwal</p>
-          </div>
-          <div className="w-24 h-24 flex items-center justify-center">
-            {/* Replace with your logo */}
-                      </div>
-          <div className="text-right font-['Noto_Nastaliq_Urdu']">
-            <p className="font-semibold">پروفیسر</p>
-            <h1 className="text-2xl font-bold"> ڈاکٹر احمد ذیشان جمیل</h1>
-            <p>ایم بی بی ایس، ایف آر سی ایس (گلاسگو)</p>
-            <p>ایف سی پی ایس، ایف سی پی ایس (وی آر او)</p>
-            <p>ایم سی پی ایس، آئی سی او (یو کے)</p>
-            <p>ساہیوال میڈیکل کالج، ساہیوال</p>
-          </div>
-        </header>
-
-        {/* --- Patient Details --- */}
-        <section className="border border-black p-2 rounded-md flex justify-between items-center text-xs">
-          <div>
-            <p><span className="font-bold">Rukshanda Yasmeen</span> (52-years Female) | <span className="font-bold">City:</span> Sahiwal</p>
-            <p>Mob: +92 3346119871 | (W/O) Altaf Hussain | First Visit: Sept 9, 2025</p>
-          </div>
-          <div className="text-right">
-            <p>Pt. Id. 9</p>
-          </div>
-        </section>
-
-        {/* --- Main Content --- */}
-        <main className="grid grid-cols-2 gap-x-6 mt-1 flex-grow">
-          {/* --- Left Column --- */}
-          <div className="space-y-3">
-            <div className="border border-black rounded-md p-2">
-              <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1">Systemic Disease History</h3>
-              <p>DM from 15 years, HTN from 15 years.</p>
-            </div>
-
-            <div className="border border-black rounded-md p-2 grid grid-cols-2">
-                <div><span className="font-bold">VA:</span></div>
-                <div>
-                  <p>(R) 6/18</p>
-                  <p>(L) 6/24</p>
+          <div className="flex flex-col justify-between h-full min-h-[270mm]">
+            {/* --- Main Content --- */}
+            <div>
+              {/* --- Header --- */}
+              <header className="flex justify-between items-start pb-4 border-b-2 border-gray-800">
+                <div className="text-left text-xs">
+                  <p className="font-semibold text-gray-700">Professor</p>
+                  <h1 className="text-xl font-bold text-black">Dr. Ahmad Zeeshan Jamil</h1>
+                  <p className="text-gray-600">MBBS, FRCS (Glasgow)</p>
+                  <p className="text-gray-600">FCPS, FCPS (VRO)</p>
+                  <p className="text-gray-600">MCPS, ICO (UK)</p>
+                  <p className="mt-1 text-gray-600">Sahiwal Medical College Sahiwal</p>
                 </div>
+
+                <div className="w-24 h-24 flex items-center justify-center text-gray-400">
+                  {/* Logo Placeholder */}
+                </div>
+
+                <div className="text-right text-xs" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
+                  <p className="font-semibold text-gray-700">پروفیسر</p>
+                  <h1 className="text-xl font-bold text-black">ڈاکٹر احمد ذیشان جمیل</h1>
+                  <p className="text-gray-600">ایم بی بی ایس، ایف آر سی ایس (گلاسگو)</p>
+                  <p className="text-gray-600">ایف سی پی ایس، ایف سی پی ایس (وی آر او)</p>
+                  <p className="text-gray-600">ایم سی پی ایس، آئی سی او (یو کے)</p>
+                  <p className="mt-1 text-gray-600">ساہیوال میڈیکل کالج، ساہیوال</p>
+                </div>
+              </header>
+
+              {/* --- Patient Details --- */}
+              <section className="border border-gray-400 mt-4 p-2 rounded-md flex justify-between items-center text-xs">
+                <div>
+                  <p>
+                    <span className="font-bold">{patientData?.patient_name}</span> ({patientData?.age}-years {patientData?.gender})
+
+                    <span className="font-bold">City:</span> {patientData?.city} |
+                  </p>
+                  <p className="text-gray-700">
+                    Mob: +92{patientData?.phone_number} | {patientData?.guardian.relation} {patientData?.guardian.name} | First Visit: {patientData?.updatedAt ? new Date(patientData.updatedAt).toLocaleDateString() : 'N/A'}
+                  </p>
+                </div>
+                <div className="text-right">
+                  <p className="font-bold">Pt. Id. 9</p>
+                </div>
+              </section>
+
+              {/* --- Main Grid --- */}
+              <main className="grid grid-cols-2 gap-x-6 mt-3 flex-grow">
+                {/* --- Left Column --- */}
+                <div className="space-y-3 text-xs">
+                  <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                      Disease History
+                    </h3>
+
+                    <div className="rounded-md p-2 no-break-inside">
+
+                      {visitDataPage?.history?.systemHistory?.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.history.systemHistory.map((item, index) => (
+                            <li key={index}>
+                              {item.enabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — {item.duration}  ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+
+                      ) : (
+                        <p>No systemic diseases reported.</p>
+                      )}
+                      {visitDataPage?.history?.ocularHistory?.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.history.ocularHistory.map((item, index) => (
+                            <li key={index}>
+                              {item.enabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — {item.duration}  ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No ocular diseases reported.</p>
+                      )}
+                      {visitDataPage?.history?.presentingComplaints?.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.history.presentingComplaints.map((item, index) => (
+                            <li key={index}>
+                              {item.enabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — {item.duration}  ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No presenting Complaints reported.</p>
+                      )}
+                    </div>
+
+                  </div>
+                  <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                      Vision & Refraction
+                    </h3>
+                    <table className="w-full text-center text-[10px]">
+                      <thead className="font-bold">
+                        <tr>
+                          <td></td>
+                          <td>SPH</td>
+                          <td>CYL</td>
+                          <td>AXIS</td>
+                          <td>VA</td>
+                          <td>Add</td>
+                          <td>N.V</td>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="font-bold">R</td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td>6/18</td>
+                          <td>+2.75</td>
+                          <td>N8</td>
+                        </tr>
+                        <tr>
+                          <td className="font-bold">L</td>
+                          <td></td>
+                          <td></td>
+                          <td></td>
+                          <td>6/24</td>
+                          <td>+2.75</td>
+                          <td>N8</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div className="border border-gray-300 rounded-md p-2 space-y-1 no-break-inside">
+                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                      Examination
+                    </h3>
+                    <div>
+                      {visitDataPage?.examination?.ac.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.ac.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No ac reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.cdRatio.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.cdRatio.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No cdRatio reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.conjunctiva.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.conjunctiva.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No conjunctiva reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.cornea.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.cornea.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No cornea reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.findings.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.findings.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No findings reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.fundus.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.fundus.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No fundus reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.iris.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.iris.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No iris reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.lens.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.lens.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No lens reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.lids.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.lids.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No lids reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.opticDisk.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.opticDisk.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No opticDisk reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.otherExternalFindings.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.otherExternalFindings.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No otherExternalFindings reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.pupil.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.pupil.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No pupil reported.</p>
+                      )}
+
+                      {visitDataPage?.examination?.vitreous.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.examination.vitreous.map((item, index) => (
+                            <li key={index}>
+                              {item.notesEnabled ? (
+                                <>
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.disease} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No vitreous reported.</p>
+                      )}
+                    </div>
+                    
+                  </div>
+
+                  <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                      Diagnosis
+                    </h3>
+                    <div>
+                      {visitDataPage?.diagnosis?.diagnoses.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.diagnosis.diagnoses.map((item, index) => (
+                            <li key={index}>
+                              {item.isFinal ? (
+                                <>
+                                  <span className="font-bold">{item.text} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.text} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No presenting Complaints reported.</p>
+                      )}
+
+                      {visitDataPage?.diagnosis?.managementPlans.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.diagnosis.managementPlans.map((item, index) => (
+                            <li key={index}>
+                              {item.isFinal ? (
+                                <>
+                                  <span className="font-bold">{item.text} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.text} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No management Plans reported.</p>
+                      )}
+
+                      {visitDataPage?.diagnosis?.treatmentPlans.length > 0 ? (
+                        <ul className="list-disc list-inside">
+                          {visitDataPage.diagnosis.treatmentPlans.map((item, index) => (
+                            <li key={index}>
+                              {item.isFinal ? (
+                                <>
+                                  <span className="font-bold">{item.text} — ({item.eye})</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.text} — ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No treatment Plans reported.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* --- Right Column --- */}
+                <div className="space-y-3 no-break-inside">
+                  <div className="border border-gray-300 rounded-md p-2 min-h-[400px]">
+                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                      Rx
+                    </h3>
+                    <div className="text-xs pt-2">
+                      <div>
+                        {visitDataPage?.prescription?.medicines.length > 0 ? (
+                        <ul className="list-disc list-inside flex flex-col gap-2">
+                          {visitDataPage.prescription.medicines.map((item, index) => (
+                            <li key={index} className="flex gap-4 items-center">
+                              {item.isFreeProvided ? (
+                                <>
+                                  <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span> <span className=" bg-acent text-primary font-medium rounded-4xl px-2 py-1">free</span>
+                                </>
+                              ) : (
+                                <>
+                                  <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span>
+                                </>
+                              )}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p>No presenting Complaints reported.</p>
+                      )}
+                      </div>
+                      <p
+                        className="text-right pt-1"
+                        style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}
+                      >
+                        ایک قطرہ ہر دو گھنٹے بعد دونوں آنکھوں میں ۔ ایک ماہ
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                      IOP
+                    </h3>
+                    <div className="grid grid-cols-5 text-center font-semibold text-[10px]">
+                      <span>For</span>
+                      <span>IOP</span>
+                      <span>Pachymetry</span>
+                      <span>CF</span>
+                      <span>Final</span>
+                    </div>
+                    <div className="grid grid-cols-5 text-center text-[11px]">
+                      <span>(R)</span>
+                      <span>15</span>
+                      <span>-</span>
+                      <span>-</span>
+                      <span>-</span>
+                      <span>(L)</span>
+                      <span>15</span>
+                      <span>-</span>
+                      <span>-</span>
+                      <span>-</span>
+                    </div>
+                    <p className="mt-1 text-[11px]">
+                      <span className="font-bold">Method:</span> Applanation Tonometry
+                    </p>
+                  </div>
+                </div>
+              </main>
             </div>
 
-            <div className="border border-black rounded-md p-2">
-              <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1">IOP</h3>
-              <div className="grid grid-cols-5 text-center font-semibold">
-                <span>For</span><span>IOP</span><span>Pachymetry</span><span>CF</span><span>Final</span>
+            {/* --- Footer --- */}
+            <footer className="mt-auto pt-4 border-t-2 border-gray-800 flex justify-between items-end text-[10px]">
+              <div className="text-left">
+                <div className="w-20 h-20 border border-gray-400 flex items-center justify-center text-gray-400 mb-1">
+                  QR Code
+                </div>
+                <p>02734919528JEC</p>
               </div>
-              <div className="grid grid-cols-5 text-center">
-                <span>(R)</span><span>15</span><span></span><span></span><span></span>
-                <span>(L)</span><span>15</span><span></span><span></span><span></span>
+
+              <div className="text-center" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
+                <p>وامق ہسپتال نزد پرانی چونگی، ساہیوال</p>
+                <p>
+                  <span className="font-sans font-bold">اوقات کلینک:</span> شام 3 تا 6 بجے
+                </p>
+                <p>بروز سوموار، منگل، بدھ، جمعرات، ہفتہ</p>
+                <p>آنے سے پہلے صبح 9 سے 10 بجے تک رابطہ کرکے تشریف لائیں</p>
+                <p className="font-sans font-bold text-xs mt-1">03407030076</p>
               </div>
-              <p className="mt-2"><span className="font-bold">Method:</span></p>
-            </div>
 
-            <div className="border border-black rounded-md p-2">
-              <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1">History</h3>
-              <p><span className="font-bold">Ocular History:</span> (B/L) Intravitreal anti VEGF elsewhere, Retinal Laser elsewhere.</p>
-              <p><span className="font-bold">Presenting Complaints:</span> (B/L) Decreased vision.</p>
-            </div>
-
-            <div className="border border-black rounded-md p-2 space-y-1">
-              <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1">Examination</h3>
-              <p><span className="font-bold">Lens:</span> (B/L) Cataract.</p>
-              <p><span className="font-bold">AC:</span> (B/L) Clear.</p>
-              <p><span className="font-bold">Pupil:</span> (B/L) PERLA.</p>
-              <p><span className="font-bold">Cornea:</span> (B/L) Clear.</p>
-              <p><span className="font-bold">Vitreous:</span> (R) Vitreous haemorrhage. (L) Taut posteror hyaloid.</p>
-              <p><span className="font-bold">Fundus:</span> (L) Macular exudation, Macular micraneurysms. (B/L) Laser marks.</p>
-              <p><span className="font-bold">Optic Disk:</span> (L) Temporal Pallor.</p>
-            </div>
-
-            <div className="border border-black rounded-md p-2">
-              <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1">Diagnosis</h3>
-              <p><span className="font-bold">Diagnosis:</span> Diabetic Retinopathy.</p>
-            </div>
+              <div className="text-right">
+                <p style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>منڈیگمری، پوہڑ، ساہیوال</p>
+                <p style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>اچ نزد برول جمعہ</p>
+                <p className="font-sans font-bold mt-1">UAN: (040)111555</p>
+              </div>
+            </footer>
           </div>
-
-          {/* --- Right Column --- */}
-          <div className="space-y-3">
-            <div className="border border-black rounded-md p-2 min-h-[150px]">
-              <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1">Rx</h3>
-              <p>1- NEPOPT EYE DROPS</p>
-              <p className="font-['Noto_Nastaliq_Urdu'] text-right">ایک قطرہ ہر دو گھنٹے بعد دونوں آنکھوں میں ۔ ایک ماہ</p>
-            </div>
-
-            <div className="border border-black rounded-md p-2 space-y-2 text-xs">
-              <p>Referred to medical specialist for the management of systemic disease/s</p>
-              <p><span className="font-bold">Advised:</span></p>
-              <p>CBC, HbA1c, Blood sugar random, Fasting lipid profile, RFT's.</p>
-              <p><span className="font-bold">Advised:</span></p>
-              <p>Intravitreal anti VEGF injections (Patizra/Eylea/Vabysmo) in left eye. Three injections, one injection each month.</p>
-              <p>Dilated fundi examination before and after each intravitreal injection.</p>
-              <p>followed by Macular focal laser Left eye + PRP enhancement both eyes.</p>
-            </div>
-
-            <div className="border border-black rounded-md p-2">
-              <table className="w-full text-center text-xs">
-                <thead>
-                  <tr className="font-bold">
-                    <td></td><td>SPH</td><td>CYL</td><td>AXIS</td><td>VA</td><td>Add</td><td>N.V</td>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td className="font-bold">R</td><td></td><td></td><td></td><td>6/18</td><td>+2.75</td><td>N8</td>
-                  </tr>
-                  <tr>
-                    <td className="font-bold">L</td><td></td><td></td><td></td><td>6/24</td><td>+2.75</td><td>N8</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </main>
-
-        {/* --- Footer --- */}
-        <footer className="mt-auto pt-4 flex justify-between items-end">
-          <div className="text-left">
-            <div className="w-20 h-20 border border-black flex items-center justify-center text-gray-400">QR Code</div>
-            <p className="text-xs">02734919528JEC</p>
-          </div>
-          <div className="text-center text-xs font-['Noto_Nastaliq_Urdu']">
-            <p>وامق ہسپتال نزد پرانی چونگی، ساہیوال</p>
-            <p><span className="font-sans font-bold">اوقات کلینک:</span> شام 3 تا 6 بجے</p>
-            <p>بروز سوموار، منگل، بدھ، جمعرات، ہفتہ</p>
-            <p>ا آنے سے پہلے صبح 9 سے 10 بجے تک رابطہ کرکے تشریف لائیں</p>
-            <p className="font-sans font-bold">03407030076</p>
-          </div>
-          <div className="text-right text-xs">
-            <p className="font-['Noto_Nastaliq_Urdu']">منڈیگمری، پوہڑ، ساہیوال</p>
-            <p className="font-['Noto_Nastaliq_Urdu']">اچ نزد برول جمعہ</p>
-            <p><span className="font-bold">UAN:</span> (040)111555</p>
-          </div>
-        </footer>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
+
+export default ReportPage;

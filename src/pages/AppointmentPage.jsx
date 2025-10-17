@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { PatientContext } from "../context";
+import { PatientContext, AppointmentContext } from "../context";
 
 const doctors = ["Dr X…", "Dr Y…", "Dr Z…", "Dr A…", "Dr B…"];
 const services = ["Emergency", "Surgery", "Consultation", "Follow-up"];
@@ -14,11 +14,14 @@ function AppointmentPage() {
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [token, setToken] = useState("");
+
 
   const [selectedDoctor, setSelectedDoctor] = useState("Dr Ahmad…");
   const [selectedService, setSelectedService] = useState("OPD");
 
-  const {patientData, setPatientData} = useContext(PatientContext);
+  const { patientData, setPatientData } = useContext(PatientContext);
+  const { appointmentData, setAppointmentData } = useContext(AppointmentContext);
 
   useEffect(() => {
     const storedId = localStorage.getItem("selectedPatientId");
@@ -33,7 +36,7 @@ function AppointmentPage() {
         if (!res.ok) throw new Error("Failed to fetch patient");
         const data = await res.json();
         setPatient(data.data);
-        setPatientData({_id: data.data._id, name: data.data.patient_name, doctor: "", service: ""});
+        setPatientData({ _id: data.data._id, name: data.data.patient_name, doctor: "", service: "" });
       } catch (err) {
         setError(err.message);
       } finally {
@@ -49,8 +52,8 @@ function AppointmentPage() {
       alert("Please select both doctor and service.");
       return;
     }
-
-    setPatientData({...patientData, doctor: selectedDoctor, service: selectedService});
+    setAppointmentData({...appointmentData, manualToken: token, doctor: selectedDoctor, serviceType: selectedService, patientId: patient._id });
+    setPatientData({ ...patientData, doctor: selectedDoctor, service: selectedService });
     // Pass the selected doctor and service to the next page
     navigate("/cashReport");
     // navigate(
@@ -100,8 +103,14 @@ function AppointmentPage() {
             <p className="text-sm">
               Address: {patient?.address} {patient?.city}
             </p>
-            <p className="text-2xl font-bold">
-              Ledger Balance: <span className="text-white">0.0</span>
+            <p className="text-2xl font-bold flex items-center justify-end gap-2">
+              <span>Token:</span>
+              <input
+                type="text"
+                value={token}
+                onChange={(e) => setToken(e.target.value)}
+                className="w-24 text-center border-2 border-primary rounded-md outline-none transition-all duration-200"
+              />
             </p>
           </div>
         </div>
