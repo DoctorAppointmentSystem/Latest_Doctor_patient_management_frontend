@@ -61,20 +61,20 @@ const Navigation = memo(({ collapsed }) => {
       pagelink:"/patientlist",
     //   subItems: ["General", "Security", "Notifications"]
     },
-    { icon: MdRecentActors, label: "Patients Recent OPD",pagelink:"/PatientRecentOPD" },
-    { icon: FiBell, label: "Today's Reservation", pagelink:"/todaysreservation" },
-    { 
-      icon: FiUser, 
-      label: "Prefrences",
-      subItems: ["Personal Info", "Account Settings", "Privacy"],
-      pagelink:"/prefrences"
-    },
-    { 
-      icon: FaCalendarPlus, 
-      label: "OPD",
-      subItems: ["Personal Info", "Account Settings", "Privacy"],
-      pagelink:"/OPD"
-    }
+    // { icon: MdRecentActors, label: "Patients Recent OPD",pagelink:"/PatientRecentOPD" },
+    // { icon: FiBell, label: "Today's Reservation", pagelink:"/todaysreservation" },
+    // { 
+    //   icon: FiUser, 
+    //   label: "Prefrences",
+    //   subItems: ["Personal Info", "Account Settings", "Privacy"],
+    //   pagelink:"/prefrences"
+    // },
+    // { 
+    //   icon: FaCalendarPlus, 
+    //   label: "OPD",
+    //   subItems: ["Personal Info", "Account Settings", "Privacy"],
+    //   pagelink:"/OPD"
+    // }
   ];
 
   const handleItemClick = (label) => {
