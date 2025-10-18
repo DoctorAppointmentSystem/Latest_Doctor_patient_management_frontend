@@ -20,7 +20,7 @@ import Examination from "../pages/Examination"
 import DiagnosisForm from "./DiagnosisForm";
 import PrescriptionPage from "./Prescriptionpage";
 import TodayReservation from "./TodaysReservation";
-import Patientscreen from "./patientscreen";
+import Patientscreen from "./Patientsscreen";
 import PatientTokenPage from "./PatientTokenPage";
 import ShowCashReportPage from "./ShowCashReportPage";
 import { PatientContext } from "../context";
