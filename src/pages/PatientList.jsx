@@ -509,7 +509,7 @@ function PatientList() {
               <div className="w-full flex flex-col gap-4">
                 <div className="flex items-center gap-2">
                   <h2 className="text-2xl font-semibold text-primary">Today's Appointments</h2>
-                  <button className="px-4 py-2 border-2 border-primary text-primary rounded-lg">Show Checked Out</button>
+                  {/* <button className="px-4 py-2 border-2 border-primary text-primary rounded-lg">Show Checked Out</button> */}
                 </div>
                 <table className="w-full text-primary border-collapse">
                   <thead className="border-1 border-black bg-gray-100">

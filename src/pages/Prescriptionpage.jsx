@@ -92,8 +92,6 @@ export default function PrescriptionPage() {
     console.log("Final Payload to be sent:", JSON.stringify(payloadPre, null, 2));
 try {
       const payload = {
-        patientId: patientData._id,
-        appointmentId: appointmentData._id,
         prescription: payloadPre,
         complete: true,
       };

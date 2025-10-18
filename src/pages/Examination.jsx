@@ -72,6 +72,7 @@ function Examination() {
   const { patientData } = useContext(PatientContext);
   const { appointmentData } = useContext(AppointmentContext);
   const { visitData, setVisitData } = useContext(VisitContext);
+  const visitId = visitData?.visitId;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -85,6 +86,7 @@ function Examination() {
   };
 
   const handleSubmit = async () => {
+    console.log("visitId:", visitId);
     setIsLoading(true);
     const allSections = [
         { name: 'lens', data: lens },
@@ -113,15 +115,13 @@ function Examination() {
 
     try {
       const payload = {
-        patientId: patientData._id,
-        appointmentId: appointmentData._id,
         examination: payloadExamination,
       };
 
       console.log(visitData.visitId)
       console.log("Sending payload to backend:", JSON.stringify(payload, null, 2));
 
-      const response = await updateVisit(visitData.visitId, payload);
+      const response = await updateVisit(visitId, payload);
       console.log("Backend response:", response);
 
       alert("✅ Patient & Visit saved successfully!");

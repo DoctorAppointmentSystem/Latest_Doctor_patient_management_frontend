@@ -56,8 +56,6 @@ const DiagnosisForm = () => {
     
     try {
           const payload = {
-            patientId: patientData._id,
-            appointmentId: appointmentData._id,
             diagnosis: payloadForm,
           };
     

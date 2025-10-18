@@ -1,14 +1,103 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { defaultVisitData } from "../context/visitData";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
-import { createVisit, updateVisit } from "../api/visits";
+import { createVisit, getVisitById, updateVisit } from "../api/visits";
 
-const assessments = [
-  "VA", "IOP", "Old Glasses", "Auto Refraction", "Cyclo Auto Refraction",
-  "Refraction", "Keratometry", "Retinoscopy", "Optic Disc", "Site Of Incision",
-  "Orthoptic Assessment", "Anterior Chamber", "EOM", "Hyphema", "Lens",
-  "Gonioscopy", "Hypopyon"
-];
+/* -------------------- helpers & defaults -------------------- */
+
+// create a full default visionAndRefraction object matching your schema shape
+const defaultVisionAndRefraction = () => ({
+  va: {
+    right: { value: "", condition1: "", condition2: "", condition3: "", condition4: "" },
+    left:  { value: "", condition1: "", condition2: "", condition3: "", condition4: "" },
+  },
+  iop: {
+    right: { value: "", pachymetry: "", correctionFactor: "", iopFinal: "" },
+    left:  { value: "", pachymetry: "", correctionFactor: "", iopFinal: "" },
+    narration: "",
+    selectedMethod: "",
+  },
+  oldGlasses: {
+    right: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+    left:  { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+    ipdD: "", ipdN: "", remarks: "",
+  },
+  autoRefraction: {
+    right: { sph: "", cyl: "", axis: "", textField: "" },
+    left:  { sph: "", cyl: "", axis: "", textField: "" },
+    ipdD: "", ipdN: "", remarks: "",
+  },
+  cycloAutoRefraction: {
+    right: { sph: "", cyl: "", axis: "", textField: "" },
+    left:  { sph: "", cyl: "", axis: "", textField: "" },
+    ipdD: "", ipdN: "", remarks: "",
+  },
+  refraction: {
+    right: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+    left:  { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+    ipdD: "", ipdN: "", type: "", remarks: "",
+  },
+  keratometry: {
+    right: { k1: "", k1angle: "", k2: "", k2angle: "", al: "", p: "", aConstant: "", iol: "", aimIol: "" },
+    left:  { k1: "", k1angle: "", k2: "", k2angle: "", al: "", p: "", aConstant: "", iol: "", aimIol: "" },
+    methodUsed: "", narration: "",
+  },
+  retinoscopy: {
+    right: { sph: "", cyl: "", angle: "", reflexes: "" },
+    left:  { sph: "", cyl: "", angle: "", reflexes: "" },
+    distance: "", method: "", dilatedWith: "", narration: ""
+  },
+  opticDisc: {
+    right: { vertical: "", horizontal: "", narration: "" },
+    left:  { vertical: "", horizontal: "", narration: "" },
+    narration: ""
+  },
+  siteOfIncision: { right: { angle: "" }, left: { angle: "" }, narration: "" },
+  orthopticAssessment: { eom: "", hb: "", narration: "" },
+  anteriorChamber: [], // array of entries { eye, flare, cells, acDetails }
+  eom: { right: [], left: [] }, // arrays of strings
+  hyphema: { right: "", left: "", both: "", narration: "" },
+  lens: { right: { nuclear: "", cortical: "", posterior: "" }, left: { nuclear: "", cortical: "", posterior: "" }, narration: "" },
+  gonioscopy: { right: { superior: "", medial: "", lateral: "", inferior: "" }, left: { superior: "", medial: "", lateral: "", inferior: "" } },
+  hypopyon: { right: "", left: "", narration: "" },
+  narration: "" // top-level narration
+});
+
+// isPlainObject helper
+const isPlainObject = v => v && typeof v === "object" && !Array.isArray(v) && !(v instanceof Date);
+
+// deep merge: merges nested plain objects, preserves missing sibling fields, uses source arrays/primitives when provided
+function deepMergeKeep(target = {}, source = {}) {
+  const out = { ...target };
+  for (const key of Object.keys(source)) {
+    const sVal = source[key];
+    const tVal = out[key];
+    if (isPlainObject(sVal) && isPlainObject(tVal)) {
+      out[key] = deepMergeKeep(tVal, sVal);
+    } else if (isPlainObject(sVal) && tVal === undefined) {
+      out[key] = deepMergeKeep({}, sVal);
+    } else {
+      // arrays/primitives/explicit null/empty arrays: take source
+      out[key] = sVal;
+    }
+  }
+  return out;
+}
+
+// Build payload for visionAndRefraction by merging default + existing visit + current UI state
+function buildVisionPayload(existingVision = {}, uiVision = {}) {
+  const defaults = defaultVisionAndRefraction();
+  const mergedExisting = deepMergeKeep(defaults, existingVision || {});
+  const merged = deepMergeKeep(mergedExisting, uiVision || {});
+  // defensive: ensure arrays are arrays
+  if (!merged.eom) merged.eom = { right: [], left: [] };
+  if (!Array.isArray(merged.eom.right)) merged.eom.right = merged.eom.right ? [merged.eom.right] : [];
+  if (!Array.isArray(merged.eom.left)) merged.eom.left = merged.eom.left ? [merged.eom.left] : [];
+  if (!Array.isArray(merged.anteriorChamber)) merged.anteriorChamber = merged.anteriorChamber ? [...merged.anteriorChamber] : [];
+  return merged;
+}
+
+/* -------------------- small UI helpers components -------------------- */
 
 const InputGrid = ({ title, inputs, selectOptions, gridCols = "grid-cols-3 md:grid-cols-5", onChange, section, side }) => (
   <div>
@@ -93,47 +182,96 @@ const BottomRow = ({ onChange, section }) => (
   </div>
 );
 
+/* -------------------- main component -------------------- */
+
+const assessments = [
+  "VA", "IOP", "Old Glasses", "Auto Refraction", "Cyclo Auto Refraction",
+  "Refraction", "Keratometry", "Retinoscopy", "Optic Disc", "Site Of Incision",
+  "Orthoptic Assessment", "Anterior Chamber", "EOM", "Hyphema", "Lens",
+  "Gonioscopy", "Hypopyon"
+];
+
 const EyeAssessmentPage = () => {
   const [activeSection, setActiveSection] = useState("");
   const [visit, setVisit] = useState(defaultVisitData);
+  const [serverVisit, setServerVisit] = useState(null); // holds fetched server version
   const { visitData, setVisitData } = useContext(VisitContext);
-    const { patientData, clearPatientData } = useContext(PatientContext);
-    const { appointmentData, clearAppointmentData } = useContext(AppointmentContext);
+  const { patientData, clearPatientData } = useContext(PatientContext);
+  const { appointmentData, clearAppointmentData } = useContext(AppointmentContext);
+  const visitId = visitData?.visitId;
 
   const toggleSection = (item) => setActiveSection(prev => prev === item ? "" : item);
 
+  // update handler: merges into UI state (only changes what user edits)
   const handleInputChange = (section, side, field, value) => {
-    setVisit(prev => ({
-      ...prev,
-      visionAndRefraction: {
-        ...prev.visionAndRefraction,
-        [section]: {
-          ...prev.visionAndRefraction[section],
-          ...(side ? { [side]: { ...prev.visionAndRefraction[section][side], [field]: value } } : { [field]: value })
-        }
+    setVisit(prev => {
+      const vision = { ...(prev.visionAndRefraction || defaultVisionAndRefraction()) };
+      if (side) {
+        vision[section] = { ...(vision[section] || {}) };
+        vision[section][side] = { ...(vision[section]?.[side] || {}), [field]: value };
+      } else {
+        vision[section] = { ...(vision[section] || {}), [field]: value };
       }
-    }));
+      return { ...prev, visionAndRefraction: vision };
+    });
   };
 
-  const handleSubmit = async () => {
+  // helper: append anterior chamber entry
+  const addAnteriorChamberEntry = (eye, entry) => {
+    setVisit(prev => {
+      const vision = { ...(prev.visionAndRefraction || defaultVisionAndRefraction()) };
+      vision.anteriorChamber = [...(vision.anteriorChamber || []), { eye, ...entry }];
+      return { ...prev, visionAndRefraction: vision };
+    });
+  };
 
+  // fetch existing visit
+  useEffect(() => {
+    const fetchVisitData = async () => {
+      try {
+        const response = await getVisitById(visitId);
+        const data = response?.data?.data || response?.data || null;
+        if (data) {
+          setServerVisit(data);
+          // merge server data into UI state but keep our structure defaults
+          const mergedVision = buildVisionPayload(data.visionAndRefraction || {}, (visit.visionAndRefraction || {}));
+          setVisit(prev => ({ ...prev, ...data, visionAndRefraction: mergedVision }));
+        }
+      } catch (err) {
+        console.error("fetch visit error:", err);
+      }
+    };
+    fetchVisitData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visitId]);
+
+  const handleSubmit = async () => {
     try {
+      // build merged payload: server values (if any) + UI edits
+      const existingVision = serverVisit?.visionAndRefraction || {};
+      const uiVision = visit?.visionAndRefraction || {};
+      const visionPayload = buildVisionPayload(existingVision, uiVision);
+
       const payload = {
-        visionAndRefraction: visit.visionAndRefraction,
+        visionAndRefraction: visionPayload,
+        // include other sections if you collect them (history/examination/prescription)
+        // history: visit.history ? deepMergeKeep(serverVisit?.history || {}, visit.history) : undefined,
       };
 
       console.log("Sending payload to backend:", payload);
-
-      // const response = await createVisit(payload);
-      const response = updateVisit(visitData.visitId, payload);
-      console.log("Backend response:", response);
-      alert("✅ Patient & Visit saved successfully!");
-
+      const response = await updateVisit(visitId, payload);
+      console.log("Backend response:", response?.data || response);
+      // update serverVisit with returned data so subsequent edits merge correctly
+      const updatedData = response?.data?.data || response?.data || null;
+      if (updatedData) {
+        setServerVisit(updatedData);
+        setVisit(prev => ({ ...prev, ...updatedData, visionAndRefraction: buildVisionPayload(updatedData.visionAndRefraction || {}, prev.visionAndRefraction || {}) }));
+      }
+      alert("✅ Visit updated successfully!");
     } catch (err) {
       console.error("Save error:", err);
-      alert("❌ " + err.message);
+      alert("❌ " + (err?.message || "Update failed"));
     }
-
   };
 
   const sectionConfigs = {
@@ -148,7 +286,7 @@ const EyeAssessmentPage = () => {
         />
         <InputGrid
           title="== OS =="
-          inputs={["VA (L)", "Condition", "é Condition", "é Condition", "é Condition"]}
+          inputs={["value", "condition1", "condition2", "condition3", "condition4"]}
           onChange={handleInputChange}
           section="va"
           side="left"
@@ -159,7 +297,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["(R) IOP", "Pachymetry R", "(R) Correction Factor", "IOP Final R"]}
+          inputs={["value", "pachymetry", "correctionFactor", "iopFinal"]}
           gridCols="grid-cols-1 sm:grid-cols-4"
           onChange={handleInputChange}
           section="iop"
@@ -167,7 +305,7 @@ const EyeAssessmentPage = () => {
         />
         <InputGrid
           title="== OS =="
-          inputs={["(L) IOP", "Pachymetry L", "(L) Correction Factor", "IOP Final L"]}
+          inputs={["value", "pachymetry", "correctionFactor", "iopFinal"]}
           gridCols="grid-cols-1 sm:grid-cols-4"
           onChange={handleInputChange}
           section="iop"
@@ -208,7 +346,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["VA (R)", "Condition", "é Condition", "é Condition", "é Condition"]}
+          inputs={["sph", "cyl", "axis", "textField"]}
           onChange={handleInputChange}
           section="autoRefraction"
           side="right"
@@ -216,7 +354,7 @@ const EyeAssessmentPage = () => {
         <div className="flex flex-col gap-4">
           <InputGrid
             title="== OS =="
-            inputs={["VA (L)", "Condition", "é Condition", "é Condition", "é Condition"]}
+            inputs={["sph", "cyl", "axis", "textField"]}
             onChange={handleInputChange}
             section="autoRefraction"
             side="left"
@@ -229,7 +367,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["VA (R)", "Condition", "é Condition", "é Condition", "é Condition"]}
+          inputs={["sph", "cyl", "axis", "textField"]}
           onChange={handleInputChange}
           section="cycloAutoRefraction"
           side="right"
@@ -237,7 +375,7 @@ const EyeAssessmentPage = () => {
         <div className="flex flex-col gap-4">
           <InputGrid
             title="== OS =="
-            inputs={["VA (L)", "Condition", "é Condition", "é Condition", "é Condition"]}
+            inputs={["sph", "cyl", "axis", "textField"]}
             onChange={handleInputChange}
             section="cycloAutoRefraction"
             side="left"
@@ -277,7 +415,7 @@ const EyeAssessmentPage = () => {
                 className="border rounded p-2 w-[25%]"
                 onChange={(e) => handleInputChange("keratometry", "right", "k1", e.target.value)}
               />
-              <select className="border rounded p-2 w-[25%]" onChange={(e) => handleInputChange("keratometry", "right", "k1_angle", e.target.value)}>
+              <select className="border rounded p-2 w-[25%]" onChange={(e) => handleInputChange("keratometry", "right", "k1angle", e.target.value)}>
                 <option>– angle° –</option>
               </select>
               <input
@@ -286,7 +424,7 @@ const EyeAssessmentPage = () => {
                 className="border rounded p-2 w-[25%]"
                 onChange={(e) => handleInputChange("keratometry", "right", "k2", e.target.value)}
               />
-              <select className="border rounded p-2 w-[25%]" onChange={(e) => handleInputChange("keratometry", "right", "k2_angle", e.target.value)}>
+              <select className="border rounded p-2 w-[25%]" onChange={(e) => handleInputChange("keratometry", "right", "k2angle", e.target.value)}>
                 <option>– angle° –</option>
               </select>
             </div>
@@ -326,7 +464,7 @@ const EyeAssessmentPage = () => {
                 className="border rounded p-2 w-[25%]"
                 onChange={(e) => handleInputChange("keratometry", "left", "k1", e.target.value)}
               />
-              <select className="border rounded p-2 w-[25%]" onChange={(e) => handleInputChange("keratometry", "left", "k1_angle", e.target.value)}>
+              <select className="border rounded p-2 w-[25%]" onChange={(e) => handleInputChange("keratometry", "left", "k1angle", e.target.value)}>
                 <option>– angle° –</option>
               </select>
               <input
@@ -335,7 +473,7 @@ const EyeAssessmentPage = () => {
                 className="border rounded p-2 w-[25%]"
                 onChange={(e) => handleInputChange("keratometry", "left", "k2", e.target.value)}
               />
-              <select className="border rounded p-2 w-[25%]" onChange={(e) => handleInputChange("keratometry", "left", "k2_angle", e.target.value)}>
+              <select className="border rounded p-2 w-[25%]" onChange={(e) => handleInputChange("keratometry", "left", "k2angle", e.target.value)}>
                 <option>– angle° –</option>
               </select>
             </div>
@@ -385,7 +523,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["VA (R)", "Condition", "é Condition", "é Condition", "é Condition"]}
+          inputs={["sph", "cyl", "angle", "reflexes"]}
           onChange={handleInputChange}
           section="retinoscopy"
           side="right"
@@ -393,7 +531,7 @@ const EyeAssessmentPage = () => {
         <div className="flex flex-col gap-4">
           <InputGrid
             title="== OS =="
-            inputs={["VA (L)", "Condition", "é Condition", "é Condition", "é Condition"]}
+            inputs={["sph", "cyl", "angle", "reflexes"]}
             onChange={handleInputChange}
             section="retinoscopy"
             side="left"
@@ -426,7 +564,7 @@ const EyeAssessmentPage = () => {
           </div>
           <input
             type="text"
-            placeholder="Dilated with"
+            placeholder="Narration"
             className="border rounded p-2 w-full"
             onChange={(e) => handleInputChange("retinoscopy", null, "narration", e.target.value)}
           />
@@ -437,7 +575,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["--select for (R) Vertical--", "--select for (R) Horizontal--", "--select narration for (R)--"]}
+          inputs={["vertical", "horizontal", "narration"]}
           selectOptions={["0.3", "0.4", "0.5"]}
           onChange={handleInputChange}
           section="opticDisc"
@@ -445,7 +583,7 @@ const EyeAssessmentPage = () => {
         />
         <InputGrid
           title="== OS =="
-          inputs={["--select for (L) Vertical--", "--select for (L) Horizontal--", "--select narration for (L)--"]}
+          inputs={["vertical", "horizontal", "narration"]}
           selectOptions={["0.3", "0.4", "0.5"]}
           onChange={handleInputChange}
           section="opticDisc"
@@ -463,46 +601,26 @@ const EyeAssessmentPage = () => {
     "Orthoptic Assessment": <BottomRow onChange={handleInputChange} section="orthopticAssessment" />,
     "Anterior Chamber": (
       <div className="space-y-6">
-        <InputGrid
-          title="== OD =="
-          inputs={["--select for (R) Vertical--", "--select for (R) Horizontal--", "--select narration for (R)--"]}
-          selectOptions={["0.3", "0.4", "0.5"]}
-          onChange={(e, side, field, value) => setVisit(prev => ({
-            ...prev,
-            visionAndRefraction: {
-              ...prev.visionAndRefraction,
-              anteriorChamber: [
-                ...(prev.visionAndRefraction.anteriorChamber || []),
-                { side: "right", [field]: value }
-              ]
-            }
-          }))}
-          section="anteriorChamber"
-          side="right"
-        />
-        <input
-          type="text"
-          placeholder="Narration"
-          className="border rounded p-2 w-full"
-          onChange={(e) => handleInputChange("anteriorChamber", null, "narration", e.target.value)}
-        />
-        <InputGrid
-          title="== OS =="
-          inputs={["--select for (L) Vertical--", "--select for (L) Horizontal--", "--select narration for (L)--"]}
-          selectOptions={["0.3", "0.4", "0.5"]}
-          onChange={(e, side, field, value) => setVisit(prev => ({
-            ...prev,
-            visionAndRefraction: {
-              ...prev.visionAndRefraction,
-              anteriorChamber: [
-                ...(prev.visionAndRefraction.anteriorChamber || []),
-                { side: "left", [field]: value }
-              ]
-            }
-          }))}
-          section="anteriorChamber"
-          side="left"
-        />
+        <div>
+          <InputGrid
+            title="== OD =="
+            inputs={["flare", "cells", "acDetails"]}
+            selectOptions={["None", "Mild", "Moderate", "Severe"]}
+            onChange={(section, side, field, value) => addAnteriorChamberEntry("R", { [field]: value })}
+            section="anteriorChamber"
+            side="right"
+          />
+        </div>
+        <div>
+          <InputGrid
+            title="== OS =="
+            inputs={["flare", "cells", "acDetails"]}
+            selectOptions={["None", "Mild", "Moderate", "Severe"]}
+            onChange={(section, side, field, value) => addAnteriorChamberEntry("L", { [field]: value })}
+            section="anteriorChamber"
+            side="left"
+          />
+        </div>
         <input
           type="text"
           placeholder="Narration"
@@ -515,7 +633,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={Array(9).fill(".........")}
+          inputs={Array(9).fill("movement")}
           selectOptions={["Normal", "Restricted"]}
           gridCols="grid-cols-1 sm:grid-cols-3"
           onChange={(section, side, field, value) => setVisit(prev => ({
@@ -523,8 +641,8 @@ const EyeAssessmentPage = () => {
             visionAndRefraction: {
               ...prev.visionAndRefraction,
               eom: {
-                ...prev.visionAndRefraction.eom,
-                right: [...(prev.visionAndRefraction.eom.right || []), value]
+                ...((prev.visionAndRefraction && prev.visionAndRefraction.eom) || { right: [], left: [] }),
+                right: [...((prev.visionAndRefraction && prev.visionAndRefraction.eom && prev.visionAndRefraction.eom.right) || []), value]
               }
             }
           }))}
@@ -534,7 +652,7 @@ const EyeAssessmentPage = () => {
         <div className="flex flex-col gap-4">
           <InputGrid
             title="== OS =="
-            inputs={Array(9).fill(".........")}
+            inputs={Array(9).fill("movement")}
             selectOptions={["Normal", "Restricted"]}
             gridCols="grid-cols-1 sm:grid-cols-3"
             onChange={(section, side, field, value) => setVisit(prev => ({
@@ -542,8 +660,8 @@ const EyeAssessmentPage = () => {
               visionAndRefraction: {
                 ...prev.visionAndRefraction,
                 eom: {
-                  ...prev.visionAndRefraction.eom,
-                  left: [...(prev.visionAndRefraction.eom.left || []), value]
+                  ...((prev.visionAndRefraction && prev.visionAndRefraction.eom) || { right: [], left: [] }),
+                  left: [...((prev.visionAndRefraction && prev.visionAndRefraction.eom && prev.visionAndRefraction.eom.left) || []), value]
                 }
               }
             }))}
@@ -563,9 +681,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["--select for (R) Vertical--", "--select for (R) Horizontal--", "--select narration for (R)--"]}
-          selectOptions={["0.3", "0.4", "0.5"]}
-          gridCols="grid-cols-1 sm:grid-cols-3"
+          inputs={["value", "narration"]}
           onChange={handleInputChange}
           section="hyphema"
           side="right"
@@ -582,16 +698,14 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title="== OD =="
-          inputs={["--select for (R) Vertical--", "--select for (R) Horizontal--", "--select narration for (R)--"]}
-          selectOptions={["NO1 NC1", "NO2 NC2", "NO3 NC3", "NO4 NC4", "NO5 NC5"]}
+          inputs={["nuclear", "cortical", "posterior"]}
           onChange={handleInputChange}
           section="lens"
           side="right"
         />
         <InputGrid
           title="== OS =="
-          inputs={["--select for (L) Vertical--", "--select for (L) Horizontal--", "--select narration for (L)--"]}
-          selectOptions={["0.3", "0.4", "0.5"]}
+          inputs={["nuclear", "cortical", "posterior"]}
           onChange={handleInputChange}
           section="lens"
           side="left"
@@ -612,10 +726,10 @@ const EyeAssessmentPage = () => {
             <select
               key={i}
               className="border rounded p-2"
-              onChange={(e) => handleInputChange("gonioscopy", i % 2 === 0 ? "right" : "left", i % 2 === 0 ? "vertical" : "horizontal", e.target.value)}
+              onChange={(e) => handleInputChange("gonioscopy", i % 2 === 0 ? "right" : "left", i % 2 === 0 ? "superior" : "medial", e.target.value)}
             >
               <option>{i % 2 === 0 ? "--select for (R) Vertical--" : "--select for (R) Horizontal--"}</option>
-              {["0.3", "0.4", "0.5"].map((opt, j) => (
+              {["Open", "Closed", "Narrow"].map((opt, j) => (
                 <option key={j} value={opt}>{opt}</option>
               ))}
             </select>
@@ -633,9 +747,7 @@ const EyeAssessmentPage = () => {
       <div className="space-y-6">
         <InputGrid
           title=""
-          inputs={["--select for (R) Vertical--", "--select for (R) Horizontal--"]}
-          selectOptions={["0.3", "0.4", "0.5"]}
-          gridCols="grid-cols-1 sm:grid-cols-3"
+          inputs={["value", "narration"]}
           onChange={handleInputChange}
           section="hypopyon"
           side="right"
@@ -671,12 +783,12 @@ const EyeAssessmentPage = () => {
           ))}
         </ul>
         <div className="w-full flex justify-end">
-        <button
-          className="mt-6 bg-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-highlight transition"
-          onClick={handleSubmit}
-        >
-          Submit
-        </button>
+          <button
+            className="mt-6 bg-primary text-white font-semibold py-2 px-4 rounded-md hover:bg-highlight transition"
+            onClick={handleSubmit}
+          >
+            Submit
+          </button>
         </div>
       </div>
     </div>
