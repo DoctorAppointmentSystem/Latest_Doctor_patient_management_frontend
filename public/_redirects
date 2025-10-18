@@ -1,4 +1,4 @@
-/* /patientlist 200
+<!-- /* /patientlist 200
 /dailycashreport /DailyCashReport.jsx 200
 /* /addpatient 200
 /* /appointment 200
@@ -15,4 +15,6 @@
 /* /cashReport 200
 /* /examination 200
 /* /diagnosisform 200
-/* /Prescriptionpage 200
+/* /Prescriptionpage 200 -->
+
+/* /index.html    200
