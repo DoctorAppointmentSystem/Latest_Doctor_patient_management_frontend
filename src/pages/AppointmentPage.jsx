@@ -32,7 +32,7 @@ function AppointmentPage() {
     const fetchPatient = async () => {
       if (!storedId) return;
       try {
-        const res = await fetch(`http://localhost:3000/api/patients/${storedId}`);
+        const res = await fetch(`https://patientmanagementsystem.duckdns.org/api/patients/${storedId}`);
         if (!res.ok) throw new Error("Failed to fetch patient");
         const data = await res.json();
         setPatient(data.data);
