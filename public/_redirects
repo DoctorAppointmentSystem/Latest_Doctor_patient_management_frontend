@@ -1,10 +1,10 @@
 /* /patientlist 200
-/* /dailycashreport 200
-/* addpatient 200
-/* appointment 200
-/* discounttypes 200
-/* patientscreen 200
-/* cashReport 200
+/* /dailycashreport.jsx 200
+/* /addpatient 200
+/* /appointment 200
+/* /discounttypes 200
+/* /patientscreen 200
+/* /cashReport 200
 /* /patientpage/:id 200
 /* /token 200
 /* /report 200
