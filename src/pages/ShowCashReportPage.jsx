@@ -68,7 +68,7 @@ const ShowCashReportPage = () => {
 
       console.log("📌 Sending appointment to API:", appointmentData);
 
-      const res = await fetch("http://localhost:3000/api/appointments", {
+      const res = await fetch("https://patientmanagementsystem.duckdns.org/api/appointments", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(appointmentData),
