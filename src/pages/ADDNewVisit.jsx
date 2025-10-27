@@ -135,119 +135,6 @@ function ADDNewVisit() {
     <div className="w-full h-full flex flex-col">
       {/* ... (all your JSX for Systemic History, Ocular History, etc. remains here) ... */}
             {/* Systemic History */}
-      <div className="w-full flex flex-col gap-4 p-4">
-        <h2 className="text-primary text-[26px] font-bold">Systemic History</h2>
-        {systemHistory.map((item, index) => (
-          <div key={index} className="w-full flex gap-4">
-            <div className="w-full flex gap-4">
-              <input
-                type="text"
-                placeholder="Disease"
-                value={item.disease}
-                onChange={(e) =>
-                  handleChange("systemic", index, "disease", e.target.value)
-                }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
-              />
-
-              {/* Side dropdown */}
-              <select
-                value={item.eye}
-                onChange={(e) =>
-                  handleChange("systemic", index, "eye", e.target.value)
-                }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white"
-              >
-                <option value="">For L/R/B</option>
-                <option value="R">R</option>
-                <option value="L">L</option>
-                <option value="B">B</option>
-              </select>
-
-              <input
-                type="text"
-                placeholder="Duration"
-                value={item.duration}
-                onChange={(e) =>
-                  handleChange("systemic", index, "duration", e.target.value)
-                }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
-              />
-            </div>
-
-            {/* Checkbox toggle */}
-            <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={item.enabled}
-                onChange={() => handleCheckboxChange("systemic", index)}
-                className="sr-only peer"
-              />
-              <div className="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-highlight flex items-center justify-start p-1 peer-checked:justify-end">
-                <div className="dot w-3 h-3 bg-white rounded-full transition"></div>
-              </div>
-            </label>
-          </div>
-        ))}
-      </div>
-
-      {/* Ocular History */}
-      <div className="w-full flex flex-col gap-4 p-4">
-        <h2 className="text-primary text-[26px] font-bold">Ocular History</h2>
-        {ocularHistory.map((item, index) => (
-          <div key={index} className="w-full flex gap-4">
-            <div className="w-full flex gap-4">
-              <input
-                type="text"
-                placeholder="Disease"
-                value={item.disease}
-                onChange={(e) =>
-                  handleChange("ocular", index, "disease", e.target.value)
-                }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
-              />
-
-              {/* Side dropdown */}
-              <select
-                value={item.eye}
-                onChange={(e) =>
-                  handleChange("ocular", index, "eye", e.target.value)
-                }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white"
-              >
-                <option value="">For L/R/B</option>
-                <option value="R">R</option>
-                <option value="L">L</option>
-                <option value="B">B</option>
-              </select>
-
-              <input
-                type="text"
-                placeholder="Duration"
-                value={item.duration}
-                onChange={(e) =>
-                  handleChange("ocular", index, "duration", e.target.value)
-                }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
-              />
-            </div>
-
-            {/* Checkbox toggle */}
-            <label className="inline-flex items-center cursor-pointer">
-              <input
-                type="checkbox"
-                checked={item.enabled}
-                onChange={() => handleCheckboxChange("ocular", index)}
-                className="sr-only peer"
-              />
-              <div className="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-highlight flex items-center justify-start p-1 peer-checked:justify-end">
-                <div className="dot w-3 h-3 bg-white rounded-full transition"></div>
-              </div>
-            </label>
-          </div>
-        ))}
-      </div>
-
       {/* Presenting Complaints */}
       <div className="w-full flex flex-col gap-4 p-4">
         <h2 className="text-primary text-[26px] font-bold">
@@ -313,6 +200,124 @@ function ADDNewVisit() {
           + Add new disease History
         </div>
       </div>
+
+
+      {/* Ocular History */}
+      <div className="w-full flex flex-col gap-4 p-4">
+        <h2 className="text-primary text-[26px] font-bold">Ocular History</h2>
+        {ocularHistory.map((item, index) => (
+          <div key={index} className="w-full flex gap-4">
+            <div className="w-full flex gap-4">
+              <input
+                type="text"
+                placeholder="Disease"
+                value={item.disease}
+                onChange={(e) =>
+                  handleChange("ocular", index, "disease", e.target.value)
+                }
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
+              />
+
+              {/* Side dropdown */}
+              <select
+                value={item.eye}
+                onChange={(e) =>
+                  handleChange("ocular", index, "eye", e.target.value)
+                }
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white"
+              >
+                <option value="">For L/R/B</option>
+                <option value="R">R</option>
+                <option value="L">L</option>
+                <option value="B">B</option>
+              </select>
+
+              <input
+                type="text"
+                placeholder="Duration"
+                value={item.duration}
+                onChange={(e) =>
+                  handleChange("ocular", index, "duration", e.target.value)
+                }
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
+              />
+            </div>
+
+            {/* Checkbox toggle */}
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={item.enabled}
+                onChange={() => handleCheckboxChange("ocular", index)}
+                className="sr-only peer"
+              />
+              <div className="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-highlight flex items-center justify-start p-1 peer-checked:justify-end">
+                <div className="dot w-3 h-3 bg-white rounded-full transition"></div>
+              </div>
+            </label>
+          </div>
+        ))}
+      </div>
+
+
+
+      <div className="w-full flex flex-col gap-4 p-4">
+        <h2 className="text-primary text-[26px] font-bold">Systemic History</h2>
+        {systemHistory.map((item, index) => (
+          <div key={index} className="w-full flex gap-4">
+            <div className="w-full flex gap-4">
+              <input
+                type="text"
+                placeholder="Disease"
+                value={item.disease}
+                onChange={(e) =>
+                  handleChange("systemic", index, "disease", e.target.value)
+                }
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
+              />
+
+              {/* Side dropdown */}
+              <select
+                value={item.eye}
+                onChange={(e) =>
+                  handleChange("systemic", index, "eye", e.target.value)
+                }
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white"
+              >
+                <option value="">For L/R/B</option>
+                <option value="R">R</option>
+                <option value="L">L</option>
+                <option value="B">B</option>
+              </select>
+
+              <input
+                type="text"
+                placeholder="Duration"
+                value={item.duration}
+                onChange={(e) =>
+                  handleChange("systemic", index, "duration", e.target.value)
+                }
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
+              />
+            </div>
+
+            {/* Checkbox toggle */}
+            <label className="inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={item.enabled}
+                onChange={() => handleCheckboxChange("systemic", index)}
+                className="sr-only peer"
+              />
+              <div className="w-10 h-5 bg-gray-300 rounded-full peer peer-checked:bg-highlight flex items-center justify-start p-1 peer-checked:justify-end">
+                <div className="dot w-3 h-3 bg-white rounded-full transition"></div>
+              </div>
+            </label>
+          </div>
+        ))}
+      </div>
+
+      
 
 
       {/* Submit Button - UPDATED */}

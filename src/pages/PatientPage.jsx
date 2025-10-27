@@ -13,6 +13,7 @@ import FamilyMembers from "./patientpages/FamilyMembers";
 import HistoryP from "./patientpages/HistoryP";
 import Intial from "./patientpages/Intial";
 import { PatientContext } from "../context";
+import Notes from "./patientpages/Notes";
 
 function PatientPage() {
   const { patientData, setPatientData, clearPatientData } = useContext(PatientContext);
@@ -23,6 +24,7 @@ function PatientPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState("intial");
   const [active, setActive] = useState("");
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -42,8 +44,26 @@ function PatientPage() {
   }, [id]);
 
   useEffect(() => {
+    if(patientData._id){
+    const fetchPatientData = async () => {
+      if (patientData._id) {
+        setOpen(false);
+        try {
+          const res = await getPatientsById(patientData._id);
+          setPatientData(res.data?.data || res.data);
+        } catch (error) {
+          console.error("Error fetching patient data:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    fetchPatientData();
+  }
+  else {
     const fetchPatientData = async () => {
       if (patientId) {
+        setOpen(true);
         try {
           const res = await getPatientsById(patientId);
           setPatientData(res.data?.data || res.data);
@@ -55,6 +75,7 @@ function PatientPage() {
       }
     };
     fetchPatientData();
+  }
   }, [patientId]);
 
   if (loading) {
@@ -95,13 +116,14 @@ function PatientPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button onClick={() => {setPage('profile'), setActive("profile")}} className="border-1 border-primary px-4 py-2 rounded-sm text-primary">
+          <button onClick={() => {setPage('profile'), setActive("profile")}} className="border-1 border-primary px-4 mr-4 py-2 rounded-sm text-primary">
             Edit Profile
           </button>
-
+          {open && ( 
           <Link to="/patient/addnewvisit" className="px-4 py-2 rounded-sm text-white">
             ADD new Visit
           </Link>
+)}
         </div>
       </div>
 
@@ -113,7 +135,7 @@ function PatientPage() {
         <button onClick={() => {setPage('visits'); setActive("visits")}} className={`py-2 px-4 rounded-[5px] ${active === "visits" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Visits
         </button>
-        <button onClick={() => {setPage('diagnostic'); setActive("diagnostic")}} className={`py-2 px-4 rounded-[5px] ${active === "diagnostic" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
+        {/* <button onClick={() => {setPage('diagnostic'); setActive("diagnostic")}} className={`py-2 px-4 rounded-[5px] ${active === "diagnostic" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Diagnostic
         </button>
         <button onClick={() => {setPage('procedure'); setActive("procedure")}} className={`py-2 px-4 rounded-[5px] ${active === "procedure" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
@@ -124,6 +146,9 @@ function PatientPage() {
         </button>
         <button onClick={() => {setPage('family_members'); setActive("family_members")}} className={`py-2 px-4 rounded-[5px] ${active === "family_members" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Family Members
+        </button> */}
+        <button onClick={() => {setPage('notes'); setActive("notes")}} className={`py-2 px-4 rounded-[5px] ${active === "notes" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
+          Notes
         </button>
         <button onClick={() => {setPage('appointments'); setActive("appointments")}} className={`py-2 px-4 rounded-[5px] ${active === "appointments" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Appointments
@@ -134,13 +159,14 @@ function PatientPage() {
       {page === "intial" && <Intial />}
       {page === "profile" && <Profile />}
       {page === "visits" && <Visits />}
-      {page === "diagnostic" && <Diagnostic />}
+      {/* {page === "diagnostic" && <Diagnostic />}
       {page === "procedure" && <Procedure />}
       {page === "history" && <HistoryP />}
-      {page === "family_members" && <FamilyMembers />}
+      {page === "family_members" && <FamilyMembers />} */}
       {page === "appointments" && <Appointment patientData={patientData}/>}
-      {page === "unknown1" && <div>Unknown Page</div>}
-      {page === "unknown2" && <div>Unknown Page</div>}
+      {page === "notes" && <Notes />}
+      {/* {page === "unknown1" && <div>Unknown Page</div>}
+      {page === "unknown2" && <div>Unknown Page</div>} */}
     </div>
   );
 }

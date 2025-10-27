@@ -95,25 +95,25 @@ const Navigation = memo(({ collapsed }) => {
       //   subItems: ["Personal Info", "Account Settings", "Privacy"],
       pagelink: "/patient/Prescriptionpage"
     },
-    {
-      icon: FiUser,
-      label: "Refresh Page",
+    // {
+    //   icon: FiUser,
+    //   label: "Refresh Page",
       //   subItems: ["Personal Info", "Account Settings", "Privacy"],
       //   pagelink:"/prefrences"
-    },
-    { icon: FiUser, label: "Save to patient list", onClick: handleSaveVisit },
+    // },
+    // { icon: FiUser, label: "Save to patient list", onClick: handleSaveVisit },
     {
       icon: FiUser,
       label: "Save & checkout",
       //   subItems: ["Personal Info", "Account Settings", "Privacy"],
       pagelink: "/report"
     },
-    {
-      icon: FiUser,
-      label: "Save & Print",
+    // {
+    //   icon: FiUser,
+    //   label: "Save & Print",
       //   subItems: ["Personal Info", "Account Settings", "Privacy"],
       //   pagelink:"/prefrences"
-    },
+    // },
   ];
 
   const handleItemClick = (label) => {

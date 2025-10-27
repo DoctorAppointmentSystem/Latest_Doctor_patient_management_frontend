@@ -148,9 +148,9 @@ function AppHome() {
       </div>
 
       {/* Create Entry Button */}
-      <button className="bg-acent text-primary px-4 py-2 rounded shadow text-sm hover:bg-highlight">
+      {/* <button className="bg-acent text-primary px-4 py-2 rounded shadow text-sm hover:bg-highlight">
         Create Entry
-      </button>
+      </button> */}
     </div>
   );
 }

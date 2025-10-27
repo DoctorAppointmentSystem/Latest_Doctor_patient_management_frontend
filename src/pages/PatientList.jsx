@@ -7,7 +7,7 @@ import { AppointmentContext, PatientContext } from "../context";
 import calculateDOBFromAge from "../services/dobCalculator";
 
 function PatientList() {
-  const { clearPatientData } = useContext(PatientContext);
+  const { PatientData, setPatientData, clearPatientData } = useContext(PatientContext);
   const navigate = useNavigate();
   const { setAppointmentData, defaultAppointmentData } = useContext(AppointmentContext);
   
@@ -116,6 +116,11 @@ function PatientList() {
   const handleAddVisit = (id) => {
     navigate(`/patientpage/${id}`);
     setAppointmentData({ ...defaultAppointmentData, _id: id });
+  };
+
+  const handlePatientDetail = (id) => {
+    navigate(`/patientpage/${id}`);
+    setPatientData({ ...PatientData, _id: id });
   };
   
   const handleCreatePatient = async (formData) => {
@@ -474,8 +479,11 @@ function PatientList() {
                       <td className="p-2 border">{p.gender}</td><td className="p-2 border">{p.age}</td>
                       <td className="p-2 border">{p.phone_number}</td>
                       <td className="p-2 border text-primary cursor-pointer">
-                        <Link to="/appointment" onClick={() => localStorage.setItem("selectedPatientId", p._id)} className="hover:underline">
-                          Create Appointment
+                        <Link to={`/patientpage/${p._id}`} 
+                        onClick={() => handlePatientDetail(p._id)}
+                        // onClick={() => localStorage.setItem("selectedPatientId", p._id)} 
+                        className="hover:underline">
+                          View Details
                         </Link>
                       </td>
                     </tr>
