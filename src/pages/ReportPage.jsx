@@ -576,7 +576,7 @@ export const ReportPage = () => {
                 <div className="w-20 h-20 border border-gray-400 flex items-center justify-center text-gray-400 mb-1">
                   QR Code
                 </div>
-                <p>02734919528JEC</p>
+                <p>0234325325WED</p>
               </div>
 
               <div className="text-center" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
