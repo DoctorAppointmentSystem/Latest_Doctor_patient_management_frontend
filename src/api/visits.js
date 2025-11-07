@@ -29,3 +29,23 @@ export const updateVisit = async (visitId, updatedData) => {
         throw error;
     }
 };
+
+export const getAllVisits = async () => {
+    try {
+        const response = await axiosInstance.get('/add-visits');
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching all visits:", error);
+        throw error;
+    }
+};
+
+export const getVisitsByPatientId = async (patientId) => {
+    try {
+        const response = await axiosInstance.get(`/add-visits/patient/${patientId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching visits by patient ID:", error);
+        throw error;
+    }
+};

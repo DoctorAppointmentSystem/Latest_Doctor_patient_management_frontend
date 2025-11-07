@@ -12,7 +12,7 @@ function Appointment({ patientData }) {
     const fetchAppointments = async () => {
       try {
         const res = await getAppointmentsByPatientId(patientData._id);
-        setAppointments(res.data?.data || []); // API se data array
+        setAppointments(res.data?.data || []);
         console.log("Appointments:", res.data);
       } catch (error) {
         console.error("Error fetching appointments:", error);

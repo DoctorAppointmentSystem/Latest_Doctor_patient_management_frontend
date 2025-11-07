@@ -1,5 +1,5 @@
 import { Link, Route, Routes } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
+import { use, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAppointmentsById } from "../api/appointments";
 import { getPatientsById } from "../api/patient";
@@ -14,9 +14,11 @@ import HistoryP from "./patientpages/HistoryP";
 import Intial from "./patientpages/Intial";
 import { PatientContext } from "../context";
 import Notes from "./patientpages/Notes";
+import { getVisitsByPatientId } from "../api/visits";
 
 function PatientPage() {
   const { patientData, setPatientData, clearPatientData } = useContext(PatientContext);
+  const [visitsData, setVisitsData] = useState([]);
   // const [patientData, setPatientData] = useState(null);
   const { id } = useParams();
   const [apptId, setAppId] = useState(id);
@@ -42,6 +44,7 @@ function PatientPage() {
     };
     fetchPatient();
   }, [id]);
+
 
   useEffect(() => {
     if(patientData._id){
@@ -135,18 +138,6 @@ function PatientPage() {
         <button onClick={() => {setPage('visits'); setActive("visits")}} className={`py-2 px-4 rounded-[5px] ${active === "visits" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Visits
         </button>
-        {/* <button onClick={() => {setPage('diagnostic'); setActive("diagnostic")}} className={`py-2 px-4 rounded-[5px] ${active === "diagnostic" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
-          Diagnostic
-        </button>
-        <button onClick={() => {setPage('procedure'); setActive("procedure")}} className={`py-2 px-4 rounded-[5px] ${active === "procedure" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
-          Procedure
-        </button>
-        <button onClick={() => {setPage('history'); setActive("history")}} className={`py-2 px-4 rounded-[5px] ${active === "history" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
-          History
-        </button>
-        <button onClick={() => {setPage('family_members'); setActive("family_members")}} className={`py-2 px-4 rounded-[5px] ${active === "family_members" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
-          Family Members
-        </button> */}
         <button onClick={() => {setPage('notes'); setActive("notes")}} className={`py-2 px-4 rounded-[5px] ${active === "notes" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Notes
         </button>
@@ -158,7 +149,7 @@ function PatientPage() {
       {page === "loading" && <Loader />}
       {page === "intial" && <Intial />}
       {page === "profile" && <Profile />}
-      {page === "visits" && <Visits />}
+      {page === "visits" && <Visits patientData={patientData} />}
       {/* {page === "diagnostic" && <Diagnostic />}
       {page === "procedure" && <Procedure />}
       {page === "history" && <HistoryP />}
