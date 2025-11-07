@@ -9,8 +9,8 @@ export const ReportPage = () => {
   const [visitDataPage, setVisitDataPage] = useState(null);
   const [patientData, setPatientData] = useState(null);
   const { visitData, setVisitData } = useContext(VisitContext);
-  const visitId = visitData?.visitId; // Dynamically get visitId from context
-
+  // const visitId = visitData?.visitId; 
+  const visitId = "68f132f820559deddd254be7";
   const handlePrint = () => {
     window.print();
   };
@@ -150,513 +150,422 @@ export const ReportPage = () => {
               <main className="grid grid-cols-2 gap-x-6 mt-3 flex-grow">
                 {/* --- Left Column --- */}
                 <div className="space-y-3 text-xs">
-                  <div className="border border-gray-300 rounded-md p-2 no-break-inside">
-                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                      Disease History
-                    </h3>
-
-                    <div className="rounded-md p-2 no-break-inside">
-
-                      {visitDataPage?.history?.systemHistory?.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.history.systemHistory.map((item, index) => (
-                            <li key={index}>
-                              {item.enabled ? (
-                                <>
+                  
+                  {(visitDataPage?.history?.systemHistory?.length > 0 ||
+                    visitDataPage?.history?.ocularHistory?.length > 0 ||
+                    visitDataPage?.history?.presentingComplaints?.length > 0) && (
+                    <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                        Disease History
+                      </h3>
+                      <div className="rounded-md p-2 no-break-inside">
+                        {visitDataPage?.history?.systemHistory?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.history.systemHistory.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">SystemHistory: </span>
+                                {item.enabled ? (
                                   <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
+                                ) : (
                                   <span>{item.disease} — {item.duration}  ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-
-                      ) : (
-                        <p>No systemic diseases reported.</p>
-                      )}
-                      {visitDataPage?.history?.ocularHistory?.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.history.ocularHistory.map((item, index) => (
-                            <li key={index}>
-                              {item.enabled ? (
-                                <>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.history?.ocularHistory?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.history.ocularHistory.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">OcularHistory: </span>
+                                {item.enabled ? (
                                   <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
+                                ) : (
                                   <span>{item.disease} — {item.duration}  ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No ocular diseases reported.</p>
-                      )}
-                      {visitDataPage?.history?.presentingComplaints?.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.history.presentingComplaints.map((item, index) => (
-                            <li key={index}>
-                              {item.enabled ? (
-                                <>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.history?.presentingComplaints?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.history.presentingComplaints.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">PresentingComplaints: </span>
+                                {item.enabled ? (
                                   <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
+                                ) : (
                                   <span>{item.disease} — {item.duration}  ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No presenting Complaints reported.</p>
-                      )}
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-
-                  </div>
-                  <div className="border border-gray-300 rounded-md p-2 no-break-inside">
-                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                      Vision & Refraction
-                    </h3>
-                    <table className="w-full text-center text-[10px]">
-                      <thead className="font-bold">
-                        <tr>
-                          <td></td>
-                          <td>SPH</td>
-                          <td>CYL</td>
-                          <td>AXIS</td>
-                          <td>VA</td>
-                          <td>Add</td>
-                          <td>N.V</td>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="font-bold">R</td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td>6/18</td>
-                          <td>+2.75</td>
-                          <td>N8</td>
-                        </tr>
-                        <tr>
-                          <td className="font-bold">L</td>
-                          <td></td>
-                          <td></td>
-                          <td></td>
-                          <td>6/24</td>
-                          <td>+2.75</td>
-                          <td>N8</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-
-                  <div className="border border-gray-300 rounded-md p-2 space-y-1 no-break-inside">
-                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                      Examination
-                    </h3>
-                    <div>
-                      {visitDataPage?.examination?.ac.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.ac.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No ac reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.cdRatio.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.cdRatio.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No cdRatio reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.conjunctiva.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.conjunctiva.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No conjunctiva reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.cornea.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.cornea.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No cornea reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.findings.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.findings.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No findings reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.fundus.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.fundus.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No fundus reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.iris.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.iris.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No iris reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.lens.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.lens.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No lens reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.lids.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.lids.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No lids reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.opticDisk.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.opticDisk.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No opticDisk reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.otherExternalFindings.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.otherExternalFindings.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No otherExternalFindings reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.pupil.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.pupil.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No pupil reported.</p>
-                      )}
-
-                      {visitDataPage?.examination?.vitreous.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.examination.vitreous.map((item, index) => (
-                            <li key={index}>
-                              {item.notesEnabled ? (
-                                <>
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.disease} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No vitreous reported.</p>
-                      )}
+                  )}
+                  {visitDataPage?.visionRefraction && (
+                    <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                        Vision & Refraction
+                      </h3>
+                      <table className="w-full text-center text-[10px]">
+                        <thead className="font-bold">
+                          <tr>
+                            <td></td>
+                            <td>SPH</td>
+                            <td>CYL</td>
+                            <td>AXIS</td>
+                            <td>VA</td>
+                            <td>Add</td>
+                            <td>N.V</td>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td className="font-bold">R</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>6/18</td>
+                            <td>+2.75</td>
+                            <td>N8</td>
+                          </tr>
+                          <tr>
+                            <td className="font-bold">L</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td>6/24</td>
+                            <td>+2.75</td>
+                            <td>N8</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
-                    
-                  </div>
+                  )}
 
-                  <div className="border border-gray-300 rounded-md p-2 no-break-inside">
-                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                      Diagnosis
-                    </h3>
-                    <div>
-                      {visitDataPage?.diagnosis?.diagnoses.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.diagnosis.diagnoses.map((item, index) => (
-                            <li key={index}>
-                              {item.isFinal ? (
-                                <>
-                                  <span className="font-bold">{item.text} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.text} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No presenting Complaints reported.</p>
-                      )}
-
-                      {visitDataPage?.diagnosis?.managementPlans.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.diagnosis.managementPlans.map((item, index) => (
-                            <li key={index}>
-                              {item.isFinal ? (
-                                <>
-                                  <span className="font-bold">{item.text} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.text} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No management Plans reported.</p>
-                      )}
-
-                      {visitDataPage?.diagnosis?.treatmentPlans.length > 0 ? (
-                        <ul className="list-disc list-inside">
-                          {visitDataPage.diagnosis.treatmentPlans.map((item, index) => (
-                            <li key={index}>
-                              {item.isFinal ? (
-                                <>
-                                  <span className="font-bold">{item.text} — ({item.eye})</span>
-                                </>
-                              ) : (
-                                <>
-                                  <span>{item.text} — ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No treatment Plans reported.</p>
-                      )}
+                  {(visitDataPage?.examination?.ac?.length > 0 ||
+                    visitDataPage?.examination?.cdRatio?.length > 0 ||
+                    visitDataPage?.examination?.conjunctiva?.length > 0 ||
+                    visitDataPage?.examination?.cornea?.length > 0 ||
+                    visitDataPage?.examination?.findings?.length > 0 ||
+                    visitDataPage?.examination?.fundus?.length > 0 ||
+                    visitDataPage?.examination?.iris?.length > 0 ||
+                    visitDataPage?.examination?.lens?.length > 0 ||
+                    visitDataPage?.examination?.lids?.length > 0 ||
+                    visitDataPage?.examination?.opticDisk?.length > 0 ||
+                    visitDataPage?.examination?.otherExternalFindings?.length > 0 ||
+                    visitDataPage?.examination?.pupil?.length > 0 ||
+                    visitDataPage?.examination?.vitreous?.length > 0) && (
+                    <div className="border border-gray-300 rounded-md p-2 space-y-1 no-break-inside">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                        Examination
+                      </h3>
+                      <div>
+                        {visitDataPage?.examination?.ac?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.ac.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">AC: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.cdRatio?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.cdRatio.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">CD Ratio: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.conjunctiva?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.conjunctiva.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Conjunctiva: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.cornea?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.cornea.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Cornea: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.findings?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.findings.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Findings: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.fundus?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.fundus.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Fundus: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.iris?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.iris.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Iris: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.lens?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.lens.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Lens: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.lids?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.lids.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Lids: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.opticDisk?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.opticDisk.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Optic Disk: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.otherExternalFindings?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.otherExternalFindings.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Other External Findings: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.pupil?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.pupil.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Pupil: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.examination?.vitreous?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.examination.vitreous.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Vitreous: </span>
+                                {item.notesEnabled ? (
+                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.disease} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                  </div>
+                  )}
+
+                  {(visitDataPage?.diagnosis?.diagnoses?.length > 0 ||
+                    visitDataPage?.diagnosis?.managementPlans?.length > 0 ||
+                    visitDataPage?.diagnosis?.treatmentPlans?.length > 0) && (
+                    <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                        Diagnosis
+                      </h3>
+                      <div>
+                        {visitDataPage?.diagnosis?.diagnoses?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.diagnosis.diagnoses.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Diagnosis: </span>
+                                {item.isFinal ? (
+                                  <span className="font-bold">{item.text} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.text} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.diagnosis?.managementPlans?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.diagnosis.managementPlans.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Management Plan: </span>
+                                {item.isFinal ? (
+                                  <span className="font-bold">{item.text} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.text} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {visitDataPage?.diagnosis?.treatmentPlans?.length > 0 && (
+                          <div className="list-inside">
+                            {visitDataPage.diagnosis.treatmentPlans.map((item, index) => (
+                              <div key={index}>
+                                <span className="font-extrabold">Treatment Plan: </span>
+                                {item.isFinal ? (
+                                  <span className="font-bold">{item.text} — ({item.eye})</span>
+                                ) : (
+                                  <span>{item.text} — ({item.eye})</span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* --- Right Column --- */}
                 <div className="space-y-3 no-break-inside">
-                  <div className="border border-gray-300 rounded-md p-2 min-h-[400px]">
-                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                      Rx
-                    </h3>
-                    <div className="text-xs pt-2">
-                      <div>
-                        {visitDataPage?.prescription?.medicines.length > 0 ? (
-                        <ul className="list-disc list-inside flex flex-col gap-2">
-                          {visitDataPage.prescription.medicines.map((item, index) => (
-                            <li key={index} className="flex gap-4 items-center">
-                              {item.isFreeProvided ? (
-                                <>
-                                  <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span> <span className=" bg-acent text-primary font-medium rounded-4xl px-2 py-1">free</span>
-                                </>
-                              ) : (
-                                <>
+                  {visitDataPage?.prescription?.medicines?.length > 0 && (
+                    <div className="border border-gray-300 rounded-md p-2 min-h-[400px]">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                        Rx
+                      </h3>
+                      <div className="text-xs pt-2">
+                        <div>
+                          <div className="list-inside flex flex-col gap-2">
+                            {visitDataPage.prescription.medicines.map((item, index) => (
+                              <div key={index} className="flex gap-4 items-center">
+                                {item.isFreeProvided ? (
+                                  <>
+                                    <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span> <span className=" bg-acent text-primary font-medium rounded-4xl px-2 py-1">free</span>
+                                  </>
+                                ) : (
                                   <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span>
-                                </>
-                              )}
-                            </li>
-                          ))}
-                        </ul>
-                      ) : (
-                        <p>No presenting Complaints reported.</p>
-                      )}
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                        <p
+                          className="text-right pt-1"
+                          style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}
+                        >
+                          ایک قطرہ ہر دو گھنٹے بعد دونوں آنکھوں میں ۔ ایک ماہ
+                        </p>
                       </div>
-                      <p
-                        className="text-right pt-1"
-                        style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}
-                      >
-                        ایک قطرہ ہر دو گھنٹے بعد دونوں آنکھوں میں ۔ ایک ماہ
+                    </div>
+                  )}
+
+                  {visitDataPage?.IOP && (
+                    <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                        IOP
+                      </h3>
+                      <div className="grid grid-cols-5 text-center font-semibold text-[10px]">
+                        <span>For</span>
+                        <span>IOP</span>
+                        <span>Pachymetry</span>
+                        <span>CF</span>
+                        <span>Final</span>
+                      </div>
+                      <div className="grid grid-cols-5 text-center text-[11px]">
+                        <span>(R)</span>
+                        <span>15</span>
+                        <span>-</span>
+                        <span>-</span>
+                        <span>-</span>
+                        <span>(L)</span>
+                        <span>15</span>
+                        <span>-</span>
+                        <span>-</span>
+                        <span>-</span>
+                      </div>
+                      <p className="mt-1 text-[11px]">
+                        <span className="font-bold">Method:</span> Applanation Tonometry
                       </p>
                     </div>
-                  </div>
-
-                  <div className="border border-gray-300 rounded-md p-2 no-break-inside">
-                    <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                      IOP
-                    </h3>
-                    <div className="grid grid-cols-5 text-center font-semibold text-[10px]">
-                      <span>For</span>
-                      <span>IOP</span>
-                      <span>Pachymetry</span>
-                      <span>CF</span>
-                      <span>Final</span>
-                    </div>
-                    <div className="grid grid-cols-5 text-center text-[11px]">
-                      <span>(R)</span>
-                      <span>15</span>
-                      <span>-</span>
-                      <span>-</span>
-                      <span>-</span>
-                      <span>(L)</span>
-                      <span>15</span>
-                      <span>-</span>
-                      <span>-</span>
-                      <span>-</span>
-                    </div>
-                    <p className="mt-1 text-[11px]">
-                      <span className="font-bold">Method:</span> Applanation Tonometry
-                    </p>
-                  </div>
+                  )}
                 </div>
               </main>
             </div>
