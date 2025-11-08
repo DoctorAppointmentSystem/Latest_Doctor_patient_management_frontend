@@ -9,8 +9,8 @@ export const ReportPage = () => {
   const [visitDataPage, setVisitDataPage] = useState(null);
   const [patientData, setPatientData] = useState(null);
   const { visitData, setVisitData } = useContext(VisitContext);
-  // const visitId = visitData?.visitId; 
-  const visitId = "68f132f820559deddd254be7";
+  const visitId = visitData?.visitId; 
+  // const visitId = "690df230ba53f506ba67bc84";
   const handlePrint = () => {
     window.print();
   };
@@ -204,47 +204,167 @@ export const ReportPage = () => {
                       </div>
                     </div>
                   )}
-                  {visitDataPage?.visionRefraction && (
+
+
+                  {visitDataPage?.visionAndRefraction && (
                     <div className="border border-gray-300 rounded-md p-2 no-break-inside">
                       <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
                         Vision & Refraction
                       </h3>
-                      <table className="w-full text-center text-[10px]">
-                        <thead className="font-bold">
-                          <tr>
-                            <td></td>
-                            <td>SPH</td>
-                            <td>CYL</td>
-                            <td>AXIS</td>
-                            <td>VA</td>
-                            <td>Add</td>
-                            <td>N.V</td>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td className="font-bold">R</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>6/18</td>
-                            <td>+2.75</td>
-                            <td>N8</td>
-                          </tr>
-                          <tr>
-                            <td className="font-bold">L</td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>6/24</td>
-                            <td>+2.75</td>
-                            <td>N8</td>
-                          </tr>
-                        </tbody>
-                      </table>
+                      <div className="space-y-2">
+                        {/* VA Section */}
+                        {(visitDataPage.visionAndRefraction.va?.right?.value || visitDataPage.visionAndRefraction.va?.left?.value) && (
+                          <div>
+                            <span className="font-bold">Visual Acuity (VA):</span>
+                            <div className="flex gap-4">
+                              {visitDataPage.visionAndRefraction.va.right?.value && (
+                                <span>Right: {visitDataPage.visionAndRefraction.va.right.value}</span>
+                              )}
+                              {visitDataPage.visionAndRefraction.va.left?.value && (
+                                <span>Left: {visitDataPage.visionAndRefraction.va.left.value}</span>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        {/* IOP Section */}
+                        {(visitDataPage.visionAndRefraction.iop?.right?.value || visitDataPage.visionAndRefraction.iop?.left?.value) && (
+                          <div>
+                            <span className="font-bold">IOP:</span>
+                            <div className="flex gap-4">
+                              {visitDataPage.visionAndRefraction.iop.right?.value && (
+                                <span>Right: {visitDataPage.visionAndRefraction.iop.right.value}</span>
+                              )}
+                              {visitDataPage.visionAndRefraction.iop.left?.value && (
+                                <span>Left: {visitDataPage.visionAndRefraction.iop.left.value}</span>
+                              )}
+                            </div>
+                            {visitDataPage.visionAndRefraction.iop.selectedMethod && (
+                              <div><span className="font-bold">Method:</span> {visitDataPage.visionAndRefraction.iop.selectedMethod}</div>
+                            )}
+                            {visitDataPage.visionAndRefraction.iop.narration && (
+                              <div><span className="font-bold">Narration:</span> {visitDataPage.visionAndRefraction.iop.narration}</div>
+                            )}
+                          </div>
+                        )}
+                        {/* Old Glasses Section */}
+                        {(visitDataPage.visionAndRefraction.oldGlasses?.right?.sph || visitDataPage.visionAndRefraction.oldGlasses?.left?.sph) && (
+                          <div>
+                            <span className="font-bold">Old Glasses:</span>
+                            <div className="flex gap-4">
+                              {visitDataPage.visionAndRefraction.oldGlasses.right?.sph && (
+                                <span>Right: SPH {visitDataPage.visionAndRefraction.oldGlasses.right.sph}, CYL {visitDataPage.visionAndRefraction.oldGlasses.right.cyl}, AXIS {visitDataPage.visionAndRefraction.oldGlasses.right.axis}, BCVA {visitDataPage.visionAndRefraction.oldGlasses.right.bcva}, ADD {visitDataPage.visionAndRefraction.oldGlasses.right.add}, VA-N {visitDataPage.visionAndRefraction.oldGlasses.right.vaN}</span>
+                              )}
+                              {visitDataPage.visionAndRefraction.oldGlasses.left?.sph && (
+                                <span>Left: SPH {visitDataPage.visionAndRefraction.oldGlasses.left.sph}, CYL {visitDataPage.visionAndRefraction.oldGlasses.left.cyl}, AXIS {visitDataPage.visionAndRefraction.oldGlasses.left.axis}, BCVA {visitDataPage.visionAndRefraction.oldGlasses.left.bcva}, ADD {visitDataPage.visionAndRefraction.oldGlasses.left.add}, VA-N {visitDataPage.visionAndRefraction.oldGlasses.left.vaN}</span>
+                              )}
+                            </div>
+                            {visitDataPage.visionAndRefraction.oldGlasses.remarks && (
+                              <div><span className="font-bold">Remarks:</span> {visitDataPage.visionAndRefraction.oldGlasses.remarks}</div>
+                            )}
+                          </div>
+                        )}
+                        {/* Auto Refraction Section */}
+                        {(visitDataPage.visionAndRefraction.autoRefraction?.right?.sph || visitDataPage.visionAndRefraction.autoRefraction?.left?.sph) && (
+                          <div>
+                            <span className="font-bold">Auto Refraction:</span>
+                            <div className="flex gap-4">
+                              {visitDataPage.visionAndRefraction.autoRefraction.right?.sph && (
+                                <span>Right: SPH {visitDataPage.visionAndRefraction.autoRefraction.right.sph}, CYL {visitDataPage.visionAndRefraction.autoRefraction.right.cyl}, AXIS {visitDataPage.visionAndRefraction.autoRefraction.right.axis}</span>
+                              )}
+                              {visitDataPage.visionAndRefraction.autoRefraction.left?.sph && (
+                                <span>Left: SPH {visitDataPage.visionAndRefraction.autoRefraction.left.sph}, CYL {visitDataPage.visionAndRefraction.autoRefraction.left.cyl}, AXIS {visitDataPage.visionAndRefraction.autoRefraction.left.axis}</span>
+                              )}
+                            </div>
+                            {visitDataPage.visionAndRefraction.autoRefraction.remarks && (
+                              <div><span className="font-bold">Remarks:</span> {visitDataPage.visionAndRefraction.autoRefraction.remarks}</div>
+                            )}
+                          </div>
+                        )}
+                        {/* Cyclo Auto Refraction Section */}
+                        {(visitDataPage.visionAndRefraction.cycloAutoRefraction?.right?.sph || visitDataPage.visionAndRefraction.cycloAutoRefraction?.left?.sph) && (
+                          <div>
+                            <span className="font-bold">Cyclo Auto Refraction:</span>
+                            <div className="flex gap-4">
+                              {visitDataPage.visionAndRefraction.cycloAutoRefraction.right?.sph && (
+                                <span>Right: SPH {visitDataPage.visionAndRefraction.cycloAutoRefraction.right.sph}, CYL {visitDataPage.visionAndRefraction.cycloAutoRefraction.right.cyl}, AXIS {visitDataPage.visionAndRefraction.cycloAutoRefraction.right.axis}</span>
+                              )}
+                              {visitDataPage.visionAndRefraction.cycloAutoRefraction.left?.sph && (
+                                <span>Left: SPH {visitDataPage.visionAndRefraction.cycloAutoRefraction.left.sph}, CYL {visitDataPage.visionAndRefraction.cycloAutoRefraction.left.cyl}, AXIS {visitDataPage.visionAndRefraction.cycloAutoRefraction.left.axis}</span>
+                              )}
+                            </div>
+                            {visitDataPage.visionAndRefraction.cycloAutoRefraction.remarks && (
+                              <div><span className="font-bold">Remarks:</span> {visitDataPage.visionAndRefraction.cycloAutoRefraction.remarks}</div>
+                            )}
+                          </div>
+                        )}
+                        {/* Refraction Section */}
+                        {(visitDataPage.visionAndRefraction.refraction?.right?.sph || visitDataPage.visionAndRefraction.refraction?.left?.sph) && (
+                          <div>
+                            <span className="font-bold">Refraction:</span>
+                            <div className="flex gap-4">
+                              {visitDataPage.visionAndRefraction.refraction.right?.sph && (
+                                <span>Right: SPH {visitDataPage.visionAndRefraction.refraction.right.sph}, CYL {visitDataPage.visionAndRefraction.refraction.right.cyl}, AXIS {visitDataPage.visionAndRefraction.refraction.right.axis}, BCVA {visitDataPage.visionAndRefraction.refraction.right.bcva}, ADD {visitDataPage.visionAndRefraction.refraction.right.add}, VA-N {visitDataPage.visionAndRefraction.refraction.right.vaN}</span>
+                              )}
+                              {visitDataPage.visionAndRefraction.refraction.left?.sph && (
+                                <span>Left: SPH {visitDataPage.visionAndRefraction.refraction.left.sph}, CYL {visitDataPage.visionAndRefraction.refraction.left.cyl}, AXIS {visitDataPage.visionAndRefraction.refraction.left.axis}, BCVA {visitDataPage.visionAndRefraction.refraction.left.bcva}, ADD {visitDataPage.visionAndRefraction.refraction.left.add}, VA-N {visitDataPage.visionAndRefraction.refraction.left.vaN}</span>
+                              )}
+                            </div>
+                            {visitDataPage.visionAndRefraction.refraction.type && (
+                              <div><span className="font-bold">Type:</span> {visitDataPage.visionAndRefraction.refraction.type}</div>
+                            )}
+                            {visitDataPage.visionAndRefraction.refraction.remarks && (
+                              <div><span className="font-bold">Remarks:</span> {visitDataPage.visionAndRefraction.refraction.remarks}</div>
+                            )}
+                          </div>
+                        )}
+                        {/* Keratometry Section */}
+                        {(visitDataPage.visionAndRefraction.keratometry?.right?.k1 || visitDataPage.visionAndRefraction.keratometry?.left?.k1) && (
+                          <div>
+                            <span className="font-bold">Keratometry:</span>
+                            <div className="flex gap-4">
+                              {visitDataPage.visionAndRefraction.keratometry.right?.k1 && (
+                                <span>Right: K1 {visitDataPage.visionAndRefraction.keratometry.right.k1} ({visitDataPage.visionAndRefraction.keratometry.right.k1angle}), K2 {visitDataPage.visionAndRefraction.keratometry.right.k2} ({visitDataPage.visionAndRefraction.keratometry.right.k2angle}), AL {visitDataPage.visionAndRefraction.keratometry.right.al}, P {visitDataPage.visionAndRefraction.keratometry.right.p}, A-Constant {visitDataPage.visionAndRefraction.keratometry.right.aConstant}, IOL {visitDataPage.visionAndRefraction.keratometry.right.iol}, Aim IOL {visitDataPage.visionAndRefraction.keratometry.right.aimIol}</span>
+                              )}
+                              {visitDataPage.visionAndRefraction.keratometry.left?.k1 && (
+                                <span>Left: K1 {visitDataPage.visionAndRefraction.keratometry.left.k1} ({visitDataPage.visionAndRefraction.keratometry.left.k1angle}), K2 {visitDataPage.visionAndRefraction.keratometry.left.k2} ({visitDataPage.visionAndRefraction.keratometry.left.k2angle}), AL {visitDataPage.visionAndRefraction.keratometry.left.al}, P {visitDataPage.visionAndRefraction.keratometry.left.p}, A-Constant {visitDataPage.visionAndRefraction.keratometry.left.aConstant}, IOL {visitDataPage.visionAndRefraction.keratometry.left.iol}, Aim IOL {visitDataPage.visionAndRefraction.keratometry.left.aimIol}</span>
+                              )}
+                            </div>
+                            {visitDataPage.visionAndRefraction.keratometry.methodUsed && (
+                              <div><span className="font-bold">Method Used:</span> {visitDataPage.visionAndRefraction.keratometry.methodUsed}</div>
+                            )}
+                            {visitDataPage.visionAndRefraction.keratometry.narration && (
+                              <div><span className="font-bold">Narration:</span> {visitDataPage.visionAndRefraction.keratometry.narration}</div>
+                            )}
+                          </div>
+                        )}
+                        {/* Retinoscopy Section */}
+                        {(visitDataPage.visionAndRefraction.retinoscopy?.right?.sph || visitDataPage.visionAndRefraction.retinoscopy?.left?.sph) && (
+                          <div>
+                            <span className="font-bold">Retinoscopy:</span>
+                            <div className="flex gap-4">
+                              {visitDataPage.visionAndRefraction.retinoscopy.right?.sph && (
+                                <span>Right: SPH {visitDataPage.visionAndRefraction.retinoscopy.right.sph}, CYL {visitDataPage.visionAndRefraction.retinoscopy.right.cyl}, Angle {visitDataPage.visionAndRefraction.retinoscopy.right.angle}, Reflexes {visitDataPage.visionAndRefraction.retinoscopy.right.reflexes}</span>
+                              )}
+                              {visitDataPage.visionAndRefraction.retinoscopy.left?.sph && (
+                                <span>Left: SPH {visitDataPage.visionAndRefraction.retinoscopy.left.sph}, CYL {visitDataPage.visionAndRefraction.retinoscopy.left.cyl}, Angle {visitDataPage.visionAndRefraction.retinoscopy.left.angle}, Reflexes {visitDataPage.visionAndRefraction.retinoscopy.left.reflexes}</span>
+                              )}
+                            </div>
+                            {visitDataPage.visionAndRefraction.retinoscopy.method && (
+                              <div><span className="font-bold">Method:</span> {visitDataPage.visionAndRefraction.retinoscopy.method}</div>
+                            )}
+                            {visitDataPage.visionAndRefraction.retinoscopy.dilatedWith && (
+                              <div><span className="font-bold">Dilated With:</span> {visitDataPage.visionAndRefraction.retinoscopy.dilatedWith}</div>
+                            )}
+                            {visitDataPage.visionAndRefraction.retinoscopy.narration && (
+                              <div><span className="font-bold">Narration:</span> {visitDataPage.visionAndRefraction.retinoscopy.narration}</div>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   )}
 
+                  
                   {(visitDataPage?.examination?.ac?.length > 0 ||
                     visitDataPage?.examination?.cdRatio?.length > 0 ||
                     visitDataPage?.examination?.conjunctiva?.length > 0 ||
@@ -514,17 +634,31 @@ export const ReportPage = () => {
                       <div className="text-xs pt-2">
                         <div>
                           <div className="list-inside flex flex-col gap-2">
-                            {visitDataPage.prescription.medicines.map((item, index) => (
-                              <div key={index} className="flex gap-4 items-center">
-                                {item.isFreeProvided ? (
-                                  <>
-                                    <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span> <span className=" bg-acent text-primary font-medium rounded-4xl px-2 py-1">free</span>
-                                  </>
-                                ) : (
-                                  <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
+                            {visitDataPage.prescription.medicines.map((item, index) => {
+                              // Simple translation mapping for demo purposes
+                              const translations = {
+                                "Tropicamide 1% eye drops": "ٹروپیکامائیڈ 1٪ آئی ڈراپس",
+                                "Artificial tears (carboxymethylcellulose)": "مصنوعی آنسو (کاربوکسی میتھائل سیلولوز)",
+                                // Add more medicine translations as needed
+                              };
+                              const urduMedicine = translations[item.medicine] || item.medicine;
+                              return (
+                                <div key={index} className="flex flex-col gap-1">
+                                  <div className="flex gap-4 items-center">
+                                    {item.isFreeProvided ? (
+                                      <>
+                                        <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span> <span className=" bg-acent text-primary font-medium rounded-4xl px-2 py-1">free</span>
+                                      </>
+                                    ) : (
+                                      <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span>
+                                    )}
+                                  </div>
+                                  <div className="flex gap-2 items-center text-right" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
+                                    <span>{urduMedicine}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         </div>
                         <p
