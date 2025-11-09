@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  // baseURL: "https://patientmanagementsystem.duckdns.org/api",
-  baseURL: "http://localhost:3000/api",
+  baseURL: "https://patientmanagementsystem.duckdns.org/api",
+  // baseURL: "http://localhost:3000/api",
   headers: {
     "Content-Type": "application/json",
   },
