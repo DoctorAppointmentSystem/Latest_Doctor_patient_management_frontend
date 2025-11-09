@@ -1,19 +1,23 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { createVisit, updateVisit } from "../api/visits";
+import { getAllMedicines, createMedicine } from "../api/medicine";
 
 export default function PrescriptionPage() {
   // State for the individual medicine being added/edited
   const [selected, setSelected] = useState({
     medicine: "",
     dosage: "",
-    eye: "B", // Defaulted 'eye' to 'B'
+    eye: "B",
     duration: "",
-    isFreeProvided: false, // Added to match the backend model
+    isFreeProvided: false,
   });
 
   const [rxList, setRxList] = useState([]);
   const [editIndex, setEditIndex] = useState(null);
+  const [medicines, setMedicines] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const inputRef = useRef(null);
   
   // New state variables for remarks and next visit
   const [remarks, setRemarks] = useState("");
@@ -25,7 +29,27 @@ export default function PrescriptionPage() {
 
   const handleChange = (field) => (e) => {
     setSelected((prev) => ({ ...prev, [field]: e.target.value }));
+    if (field === "medicine") setShowDropdown(true);
   };
+
+  // Ensure medicines is always an array
+  const safeMedicines = Array.isArray(medicines) ? medicines : [];
+  const filteredOptions =
+    selected.medicine && selected.medicine.trim() !== ""
+      ? safeMedicines.filter((m) =>
+          (m.name || "").toLowerCase().includes(selected.medicine.toLowerCase())
+        )
+      : [];
+  // Hide dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (inputRef.current && !inputRef.current.contains(e.target)) {
+        setShowDropdown(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   
   const handleNextVisitChange = (field) => (e) => {
     setNextVisit((prev) => ({...prev, [field]: e.target.value }));
@@ -80,6 +104,22 @@ export default function PrescriptionPage() {
 
   // Function to create the payload and log it
   const handleSubmit = async () => {
+    // Get all unique medicine names in rxList
+    const enteredMedicines = rxList.map((rx) => rx.medicine.trim().toLowerCase());
+    const backendMedicines = (Array.isArray(medicines) ? medicines : []).map((m) => (m.name || "").trim().toLowerCase());
+    // Find medicines not in backend
+    const newMedicines = enteredMedicines.filter((name) => name && !backendMedicines.includes(name));
+
+    // Add new medicines to backend
+    for (const medName of new Set(newMedicines)) {
+      try {
+        await createMedicine({ name: medName });
+        // Optionally, you can fetch medicines again here if you want to update the dropdown
+      } catch (err) {
+        console.error("Error creating new medicine:", medName, err);
+      }
+    }
+
     const payloadPre = {
       medicines: rxList,
       remarks: remarks,
@@ -90,7 +130,7 @@ export default function PrescriptionPage() {
     };
 
     console.log("Final Payload to be sent:", JSON.stringify(payloadPre, null, 2));
-try {
+    try {
       const payload = {
         prescription: payloadPre,
         complete: true,
@@ -101,26 +141,70 @@ try {
       const response = await updateVisit(visitData.visitId, payload);
       console.log("Backend response:", response);
 
-
       alert("✅ Patient & Visit saved successfully!");
-
     } catch (err) {
       console.error("Save error:", err);
       alert("❌ " + err.message);
     }
   };
 
+
+  useEffect(() => {
+    const fetchMedicines = async () => {
+      const res = await getAllMedicines();
+      // If backend returns {success, total, data: [...]}, use res.data
+      let meds = [];
+      if (res && Array.isArray(res.data)) {
+        meds = res.data;
+      } else if (Array.isArray(res)) {
+        meds = res;
+      }
+      console.log("Fetched medicines:", meds);
+      setMedicines(meds);
+    };
+    fetchMedicines();
+  }, []);
+
   return (
     <div className="flex flex-col p-4 bg-gray-50 rounded-lg gap-3">
       <div className="bg-white w-full p-4 rounded-lg shadow-md">
         {/* Form */}
         <div className="flex flex-col gap-2">
-          <input
-            className="flex-1 border border-gray-300 rounded p-2 outline-primary"
-            placeholder="Enter Medicine"
-            value={selected.medicine}
-            onChange={handleChange("medicine")}
-          />
+          <div className="relative w-full" ref={inputRef}>
+            <input
+              className="flex-1 border border-gray-300 rounded p-2 outline-primary w-full"
+              placeholder="Enter Medicine"
+              value={selected.medicine}
+              onChange={handleChange("medicine")}
+              onFocus={() => setShowDropdown(true)}
+              autoComplete="off"
+            />
+            {showDropdown && (
+              <ul className="absolute z-50 left-0 right-0 bg-white border border-gray-300 rounded shadow max-h-48 overflow-y-auto mt-1 w-full">
+                {filteredOptions.length > 0 ? (
+                  filteredOptions.map((m, idx) => (
+                    <li
+                      key={m._id || m.name || idx}
+                      className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        setSelected((prev) => ({ ...prev, medicine: m.name }));
+                        setShowDropdown(false);
+                      }}
+                    >
+                      {m.name}
+                    </li>
+                  ))
+                ) : (
+                  <li className="px-3 py-2 text-gray-400">No medicines found</li>
+                )}
+              </ul>
+            )}
+            {showDropdown && safeMedicines.length === 0 && (
+              <div className="absolute z-50 left-0 right-0 bg-white border border-gray-300 rounded shadow mt-1 w-full px-3 py-2 text-gray-400">
+                No medicines available
+              </div>
+            )}
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
             <input

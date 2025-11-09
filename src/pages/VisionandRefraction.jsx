@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { defaultVisitData } from "../context/visitData";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { createVisit, getVisitById, updateVisit } from "../api/visits";
+import EyeGrid from "../components/EyeGrid";
 
 /* -------------------- helpers & defaults -------------------- */
 
@@ -9,52 +10,53 @@ import { createVisit, getVisitById, updateVisit } from "../api/visits";
 const defaultVisionAndRefraction = () => ({
   va: {
     right: { value: "", condition1: "", condition2: "", condition3: "", condition4: "" },
-    left:  { value: "", condition1: "", condition2: "", condition3: "", condition4: "" },
+    left: { value: "", condition1: "", condition2: "", condition3: "", condition4: "" },
   },
   iop: {
     right: { value: "", pachymetry: "", correctionFactor: "", iopFinal: "" },
-    left:  { value: "", pachymetry: "", correctionFactor: "", iopFinal: "" },
+    left: { value: "", pachymetry: "", correctionFactor: "", iopFinal: "" },
     narration: "",
     selectedMethod: "",
   },
   oldGlasses: {
     right: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
-    left:  { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+    left: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
     ipdD: "", ipdN: "", remarks: "",
   },
   autoRefraction: {
     right: { sph: "", cyl: "", axis: "", textField: "" },
-    left:  { sph: "", cyl: "", axis: "", textField: "" },
+    left: { sph: "", cyl: "", axis: "", textField: "" },
     ipdD: "", ipdN: "", remarks: "",
   },
   cycloAutoRefraction: {
     right: { sph: "", cyl: "", axis: "", textField: "" },
-    left:  { sph: "", cyl: "", axis: "", textField: "" },
+    left: { sph: "", cyl: "", axis: "", textField: "" },
     ipdD: "", ipdN: "", remarks: "",
   },
   refraction: {
     right: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
-    left:  { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
+    left: { sph: "", cyl: "", axis: "", bcva: "", add: "", vaN: "", textField: "" },
     ipdD: "", ipdN: "", type: "", remarks: "",
   },
   keratometry: {
     right: { k1: "", k1angle: "", k2: "", k2angle: "", al: "", p: "", aConstant: "", iol: "", aimIol: "" },
-    left:  { k1: "", k1angle: "", k2: "", k2angle: "", al: "", p: "", aConstant: "", iol: "", aimIol: "" },
+    left: { k1: "", k1angle: "", k2: "", k2angle: "", al: "", p: "", aConstant: "", iol: "", aimIol: "" },
     methodUsed: "", narration: "",
   },
   retinoscopy: {
     right: { sph: "", cyl: "", angle: "", reflexes: "" },
-    left:  { sph: "", cyl: "", angle: "", reflexes: "" },
+    left: { sph: "", cyl: "", angle: "", reflexes: "" },
     distance: "", method: "", dilatedWith: "", narration: ""
   },
   opticDisc: {
     right: { vertical: "", horizontal: "", narration: "" },
-    left:  { vertical: "", horizontal: "", narration: "" },
+    left: { vertical: "", horizontal: "", narration: "" },
     narration: ""
   },
   siteOfIncision: { right: { angle: "" }, left: { angle: "" }, narration: "" },
   orthopticAssessment: { eom: "", hb: "", narration: "" },
   anteriorChamber: [], // array of entries { eye, flare, cells, acDetails }
+
   eom: { right: [], left: [] }, // arrays of strings
   hyphema: { right: "", left: "", both: "", narration: "" },
   lens: { right: { nuclear: "", cortical: "", posterior: "" }, left: { nuclear: "", cortical: "", posterior: "" }, narration: "" },
@@ -62,6 +64,27 @@ const defaultVisionAndRefraction = () => ({
   hypopyon: { right: "", left: "", narration: "" },
   narration: "" // top-level narration
 });
+
+const rightEyeData = {
+    title: "Right Eye",
+    sph: "",
+    cyl: "",
+    axis: "",
+    va: "",
+    add: "",
+    n6: ""
+  };
+
+  // Data for the left eye from your image
+  const leftEyeData = {
+    title: "Left Eye",
+    sph: "",
+    cyl: "",
+    axis: "",
+    va: "",
+    add: "",
+    n6: "" // The left eye in your image has "--"
+  };
 
 // isPlainObject helper
 const isPlainObject = v => v && typeof v === "object" && !Array.isArray(v) && !(v instanceof Date);
@@ -330,17 +353,21 @@ const EyeAssessmentPage = () => {
       </div>
     ),
     "Old Glasses": (
-      <div className="space-y-6">
-        <div>
-          <div className="text-center text-gray-600 font-semibold mb-2">== OD ==</div>
-          <GlassesSection onChange={handleInputChange} section="oldGlasses" side="right" />
-        </div>
-        <div>
-          <div className="text-center text-gray-600 font-semibold mb-2">== OS ==</div>
-          <GlassesSection onChange={handleInputChange} section="oldGlasses" side="left" />
-        </div>
-        <BottomRow onChange={handleInputChange} section="oldGlasses" />
-      </div>
+      // <div className="space-y-6">
+      //   <div>
+      //     <div className="text-center text-gray-600 font-semibold mb-2">== OD ==</div>
+      //     <GlassesSection onChange={handleInputChange} section="oldGlasses" side="right" />
+      //   </div>
+      //   <div>
+      //     <div className="text-center text-gray-600 font-semibold mb-2">== OS ==</div>
+      //     <GlassesSection onChange={handleInputChange} section="oldGlasses" side="left" />
+      //   </div>
+      //   <BottomRow onChange={handleInputChange} section="oldGlasses" />
+      // </div>
+      <div className="flex flex-col md:flex-row justify-center gap-4 p-4 bg-gray-50">
+      <EyeGrid {...rightEyeData} />
+      <EyeGrid {...leftEyeData} />
+    </div>
     ),
     "Auto Refraction": (
       <div className="space-y-6">
@@ -385,23 +412,27 @@ const EyeAssessmentPage = () => {
       </div>
     ),
     Refraction: (
-      <div className="space-y-6">
-        <div>
-          <div className="text-center text-gray-600 font-semibold mb-2">== OD ==</div>
-          <GlassesSection onChange={handleInputChange} section="refraction" side="right" />
-        </div>
-        <div>
-          <div className="text-center text-gray-600 font-semibold mb-2">== OS ==</div>
-          <GlassesSection onChange={handleInputChange} section="refraction" side="left" />
-        </div>
-        <BottomRow onChange={handleInputChange} section="refraction" />
-        <input
-          type="text"
-          placeholder="Remarks"
-          className="border rounded p-2 w-full"
-          onChange={(e) => handleInputChange("refraction", null, "remarks", e.target.value)}
-        />
-      </div>
+      // <div className="space-y-6">
+      //   <div>
+      //     <div className="text-center text-gray-600 font-semibold mb-2">== OD ==</div>
+      //     <GlassesSection onChange={handleInputChange} section="refraction" side="right" />
+      //   </div>
+      //   <div>
+      //     <div className="text-center text-gray-600 font-semibold mb-2">== OS ==</div>
+      //     <GlassesSection onChange={handleInputChange} section="refraction" side="left" />
+      //   </div>
+      //   <BottomRow onChange={handleInputChange} section="refraction" />
+      //   <input
+      //     type="text"
+      //     placeholder="Remarks"
+      //     className="border rounded p-2 w-full"
+      //     onChange={(e) => handleInputChange("refraction", null, "remarks", e.target.value)}
+      //   />
+      // </div>
+      <div className="flex flex-col md:flex-row justify-center gap-4 p-4 bg-gray-50">
+      <EyeGrid {...rightEyeData} />
+      <EyeGrid {...leftEyeData} />
+    </div>
     ),
     Keratometry: (
       <div className="space-y-6">
