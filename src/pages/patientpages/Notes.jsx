@@ -111,7 +111,7 @@ const Notes = () => {
                         <div className="text-gray-400 italic flex justify-between items-center">
                             No note found for this patient.
                             <button
-                                className="ml-4 text-primary underline hover:text-highlight"
+                                className="ml-4 text-primary underline bg-background hover:bg-highlight py-1 px-2 mr-4 rounded"
                                 onClick={() => setEditing(true)}
                             >
                                 Add Note

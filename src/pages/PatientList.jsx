@@ -349,11 +349,11 @@ function PatientList() {
                               className="w-[25%] border-1 border-black p-4 rounded-lg mb-2"
                             />
             
-                            <select className="w-[10%] border-1 border-black p-4 rounded-lg mb-2">
+                            {/* <select className="w-[10%] border-1 border-black p-4 rounded-lg mb-2">
                               <option value="1">***********</option>
                               <option value="2">***********</option>
                               <option value="3">***********</option>
-                            </select>
+                            </select> */}
             
                             <input
                               type="text"

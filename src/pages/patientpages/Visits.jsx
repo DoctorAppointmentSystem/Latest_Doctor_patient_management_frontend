@@ -46,13 +46,13 @@ function Visits( { patientData } ) {
         </div>
       </div> */}
 
-      <div className="w-full flex items-center justify-center">
+      {/* <div className="w-full flex items-center justify-center">
         <input
           type="text"
           placeholder="Patient Name"
           className="w-[90%] border-1 border-black p-4 rounded-lg"
         />
-      </div>
+      </div> */}
 
       {/* --- VISITS TABLE --- */}
       <div className="overflow-x-auto bg-white rounded-lg shadow-xl p-4">
