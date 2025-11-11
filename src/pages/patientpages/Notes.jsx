@@ -10,7 +10,6 @@ const Notes = () => {
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState("");
 
-    // Fetch latest patient data for additional_notes
     useEffect(() => {
         async function fetchNote() {
             setLoading(true);

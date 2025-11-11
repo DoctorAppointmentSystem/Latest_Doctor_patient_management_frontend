@@ -29,7 +29,7 @@ function Appointment({ patientData }) {
   return (
     <div className="w-full flex flex-col gap-4">
       {/* Top Search Filters */}
-      <div className="bg-white rounded-lg p-6 shadow-xl flex items-center justify-between">
+      {/* <div className="bg-white rounded-lg p-6 shadow-xl flex items-center justify-between">
         <input
           type="number"
           placeholder="Search Token"
@@ -43,7 +43,7 @@ function Appointment({ patientData }) {
         <div className="w-[33%] bg-acent hover:bg-highlight text-primary p-4 rounded-lg flex items-center justify-center">
           Embend Search
         </div>
-      </div>
+      </div> */}
 
       {/* Patient Quick Input */}
       <div className="w-full flex items-center justify-center">

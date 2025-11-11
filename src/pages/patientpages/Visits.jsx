@@ -30,7 +30,7 @@ function Visits( { patientData } ) {
   return (
     <div className="w-full flex flex-col gap-4">
       {/* --- SEARCH BAR --- */}
-      <div className="bg-white rounded-lg p-6 shadow-xl flex items-center justify-between">
+      {/* <div className="bg-white rounded-lg p-6 shadow-xl flex items-center justify-between">
         <input
           type="Number"
           placeholder="Search Patient by MRN"
@@ -44,7 +44,7 @@ function Visits( { patientData } ) {
         <div className="w-[33%] bg-acent hover:bg-highlight text-primary p-4 rounded-lg flex items-center justify-center cursor-pointer">
           Search
         </div>
-      </div>
+      </div> */}
 
       <div className="w-full flex items-center justify-center">
         <input
