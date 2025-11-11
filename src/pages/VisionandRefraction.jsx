@@ -353,21 +353,32 @@ const EyeAssessmentPage = () => {
       </div>
     ),
     "Old Glasses": (
-      // <div className="space-y-6">
-      //   <div>
-      //     <div className="text-center text-gray-600 font-semibold mb-2">== OD ==</div>
-      //     <GlassesSection onChange={handleInputChange} section="oldGlasses" side="right" />
-      //   </div>
-      //   <div>
-      //     <div className="text-center text-gray-600 font-semibold mb-2">== OS ==</div>
-      //     <GlassesSection onChange={handleInputChange} section="oldGlasses" side="left" />
-      //   </div>
-      //   <BottomRow onChange={handleInputChange} section="oldGlasses" />
-      // </div>
       <div className="flex flex-col md:flex-row justify-center gap-4 p-4 bg-gray-50">
-      <EyeGrid {...rightEyeData} />
-      <EyeGrid {...leftEyeData} />
-    </div>
+        <EyeGrid
+          title="Right Eye"
+          section="oldGlasses"
+          side="right"
+          sph={visit?.visionAndRefraction?.oldGlasses?.right?.sph || ""}
+          cyl={visit?.visionAndRefraction?.oldGlasses?.right?.cyl || ""}
+          axis={visit?.visionAndRefraction?.oldGlasses?.right?.axis || ""}
+          va={visit?.visionAndRefraction?.oldGlasses?.right?.va || ""}
+          add={visit?.visionAndRefraction?.oldGlasses?.right?.add || ""}
+          n6={visit?.visionAndRefraction?.oldGlasses?.right?.n6 || ""}
+          onChange={handleInputChange}
+        />
+        <EyeGrid
+          title="Left Eye"
+          section="oldGlasses"
+          side="left"
+          sph={visit?.visionAndRefraction?.oldGlasses?.left?.sph || ""}
+          cyl={visit?.visionAndRefraction?.oldGlasses?.left?.cyl || ""}
+          axis={visit?.visionAndRefraction?.oldGlasses?.left?.axis || ""}
+          va={visit?.visionAndRefraction?.oldGlasses?.left?.va || ""}
+          add={visit?.visionAndRefraction?.oldGlasses?.left?.add || ""}
+          n6={visit?.visionAndRefraction?.oldGlasses?.left?.n6 || ""}
+          onChange={handleInputChange}
+        />
+      </div>
     ),
     "Auto Refraction": (
       <div className="space-y-6">
@@ -412,27 +423,32 @@ const EyeAssessmentPage = () => {
       </div>
     ),
     Refraction: (
-      // <div className="space-y-6">
-      //   <div>
-      //     <div className="text-center text-gray-600 font-semibold mb-2">== OD ==</div>
-      //     <GlassesSection onChange={handleInputChange} section="refraction" side="right" />
-      //   </div>
-      //   <div>
-      //     <div className="text-center text-gray-600 font-semibold mb-2">== OS ==</div>
-      //     <GlassesSection onChange={handleInputChange} section="refraction" side="left" />
-      //   </div>
-      //   <BottomRow onChange={handleInputChange} section="refraction" />
-      //   <input
-      //     type="text"
-      //     placeholder="Remarks"
-      //     className="border rounded p-2 w-full"
-      //     onChange={(e) => handleInputChange("refraction", null, "remarks", e.target.value)}
-      //   />
-      // </div>
       <div className="flex flex-col md:flex-row justify-center gap-4 p-4 bg-gray-50">
-      <EyeGrid {...rightEyeData} />
-      <EyeGrid {...leftEyeData} />
-    </div>
+        <EyeGrid
+          title="Right Eye"
+          section="refraction"
+          side="right"
+          sph={visit?.visionAndRefraction?.refraction?.right?.sph || ""}
+          cyl={visit?.visionAndRefraction?.refraction?.right?.cyl || ""}
+          axis={visit?.visionAndRefraction?.refraction?.right?.axis || ""}
+          va={visit?.visionAndRefraction?.refraction?.right?.va || ""}
+          add={visit?.visionAndRefraction?.refraction?.right?.add || ""}
+          n6={visit?.visionAndRefraction?.refraction?.right?.vaN || ""}
+          onChange={handleInputChange}
+        />
+        <EyeGrid
+          title="Left Eye"
+          section="refraction"
+          side="left"
+          sph={visit?.visionAndRefraction?.refraction?.left?.sph || ""}
+          cyl={visit?.visionAndRefraction?.refraction?.left?.cyl || ""}
+          axis={visit?.visionAndRefraction?.refraction?.left?.axis || ""}
+          va={visit?.visionAndRefraction?.refraction?.left?.va || ""}
+          add={visit?.visionAndRefraction?.refraction?.left?.add || ""}
+          n6={visit?.visionAndRefraction?.refraction?.left?.vaN || ""}
+          onChange={handleInputChange}
+        />
+      </div>
     ),
     Keratometry: (
       <div className="space-y-6">
