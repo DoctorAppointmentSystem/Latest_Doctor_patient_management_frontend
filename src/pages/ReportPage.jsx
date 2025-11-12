@@ -2,6 +2,7 @@ import React, { useRef, useEffect, useState, useContext } from "react";
 import { getVisitById } from "../api/visits"; // ✅ Make sure this path exists
 import { getPatientsById } from "../api/patient";
 import { VisitContext } from "../context";
+import EyeGrid from "../components/EyeGrid";
 
 export const ReportPage = () => {
   const reportRef = useRef();
@@ -10,7 +11,7 @@ export const ReportPage = () => {
   const [patientData, setPatientData] = useState(null);
   const { visitData, setVisitData } = useContext(VisitContext);
   const visitId = visitData?.visitId; 
-  // const visitId = "690df230ba53f506ba67bc84";
+  // const visitId = "69133c855adaec9867a6649f";
   const handlePrint = () => {
     window.print();
   };
@@ -671,7 +672,7 @@ export const ReportPage = () => {
                     </div>
                   )}
 
-                  {visitDataPage?.IOP && (
+                  {/* {visitDataPage?.IOP && (
                     <div className="border border-gray-300 rounded-md p-2 no-break-inside">
                       <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
                         IOP
@@ -699,10 +700,60 @@ export const ReportPage = () => {
                         <span className="font-bold">Method:</span> Applanation Tonometry
                       </p>
                     </div>
-                  )}
+                  )} */}
+                  {visitDataPage?.assign_Glasses && (
+                    <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                        Glasses Assigned
+                      </h3>
+
+                      {/* Show assigned glasses in EyeGrid layout (read-only) */}
+                      <div className="flex flex-col md:flex-row justify-center gap-4 p-4 bg-gray-50">
+                        {(() => {
+                          // pick source for numeric prescription: prefer assign_Glasses.right/left, then vision.refraction, then oldGlasses
+                          const r = visitDataPage.assign_Glasses?.right || visitDataPage.visionAndRefraction?.refraction?.right || visitDataPage.visionAndRefraction?.oldGlasses?.right || {};
+                          const l = visitDataPage.assign_Glasses?.left || visitDataPage.visionAndRefraction?.refraction?.left || visitDataPage.visionAndRefraction?.oldGlasses?.left || {};
+                          return (
+                            <>
+                              <EyeGrid
+                                title="Right Eye"
+                                section="assignedGlasses"
+                                side="right"
+                                sph={r.sph || r.SPH || ""}
+                                cyl={r.cyl || r.CYL || ""}
+                                axis={r.axis || r.AXIS || ""}
+                                va={r.va || r.bcva || ""}
+                                add={r.add || ""}
+                                n6={r.vaN || ""}
+                                readOnly={true}
+                              />
+                              <EyeGrid
+                                title="Left Eye"
+                                section="assignedGlasses"
+                                side="left"
+                                sph={l.sph || l.SPH || ""}
+                                cyl={l.cyl || l.CYL || ""}
+                                axis={l.axis || l.AXIS || ""}
+                                va={l.va || l.bcva || ""}
+                                add={l.add || ""}
+                                n6={l.vaN || ""}
+                                readOnly={true}
+                              />
+                            </>
+                          );
+                        })()}
+                      </div>
+
+                    </div>
+                  )}  
+
                 </div>
               </main>
             </div>
+
+            {/* <div className="w-full bg-red-600 h-10">
+                    
+            </div> */}
 
             {/* --- Footer --- */}
             <footer className="mt-auto pt-4 border-t-2 border-gray-800 flex justify-between items-end text-[10px]">

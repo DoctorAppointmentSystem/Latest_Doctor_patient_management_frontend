@@ -6,6 +6,7 @@ import { MdRecentActors } from "react-icons/md";
 import { FaCalendarPlus } from "react-icons/fa";
 import { create } from "zustand";
 import { Routes, Route, Link } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import DailyCashReport from "./DailyCashReport";
 import PatientRecentOPD from "./PatientRecentOPD";
 import OPD from "./OPD";
@@ -151,6 +152,12 @@ const Navigation = memo(({ collapsed }) => {
 });
 
 const Layout = () => {
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+    window.location.reload(); // Ensure full reload for auth state
+  };
   const { clearPatientData } = useContext(PatientContext);
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -169,6 +176,8 @@ const Layout = () => {
 
 
   useEffect(() => {
+    // localStorage.removeItem("isLoggedIn");
+
     clearPatientData();
     handleResize();
     window.addEventListener("resize", handleResize);
