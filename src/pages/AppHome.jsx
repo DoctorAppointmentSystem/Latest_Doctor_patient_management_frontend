@@ -23,21 +23,17 @@ function AppHome() {
       <div className="flex flex-wrap items-center justify-between gap-2 mb-4 ">
         <input
           type="text"
-          placeholder="Search Token No"
+          placeholder="Search Patient"
           className="border-1 border-secondary p-4 rounded-lg w-[25%] outline-primary"
         />
-        <input
-          type="text"
-          placeholder="Search Patient Info"
-          className="border-1 border-secondary p-4 rounded-lg w-[25%] outline-primary"
-        />
-        <button className="border border-secondary text-primary px-3 py-2 rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[10%] w-auto">
+       
+        <button className="border border-secondary text-primary px-7 py-4 rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[10%] w-auto">
           Refresh
         </button>
-        <button className="border border-secondary text-primary px-3 py-2 rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[20%] w-auto">
+        <button className="border border-secondary text-primary px-7 py-4  rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[20%] w-auto">
           Show Pending Check-in
         </button>
-        <button className="flex items-center gap-x-2 whitespace-nowrap border border-secondary text-primary px-3 py-2 rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[10%] w-auto">
+        <button className="flex items-center gap-x-2 whitespace-nowrap border border-secondary text-primary px-7 py-4  rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[10%] w-auto">
           ☰ More Filter
         </button>
       </div>
