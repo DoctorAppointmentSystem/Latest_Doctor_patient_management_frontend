@@ -24,7 +24,7 @@ export default function LoginPage() {
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const { setIsLoggedIn } = useAuth();
-    const [loginstatus, setLoginStatus] = useState(false);
+    // const [loginstatus, setLoginStatus] = useState(false);
     //   const tokens= "12345";
 
     const handleSubmit = async (e) => {
@@ -41,16 +41,14 @@ export default function LoginPage() {
 
   try {
     const data = await login({ email, password });
-    console.log("Login response data:", data);
+    console.log("Login response data:", data.data);
 
     // ✅ Check login status directly from API response
-    if (data.status === 200) {
-      // Save login state
-      setItemWithExpiry("isLoggedIn", true, 30); // 30 ms? adjust if needed
-      setIsLoggedIn(true);
-
-      // Navigate to home page
-      navigate("/"); // Your home path
+    if (data.data.accessToken) {
+        // localStorage.setItem("token", data.data.accessToken);
+        setItemWithExpiry("token", data.data.accessToken, 30);
+        // Navigate to home page
+        navigate("/"); // Your home path
     } else {
       setError("Invalid credentials. Please try again.");
     }

@@ -654,9 +654,9 @@ export const ReportPage = () => {
                                       <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span>
                                     )}
                                   </div>
-                                  <div className="flex gap-2 items-center text-right" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
+                                  {/* <div className="flex gap-2 items-center text-right" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
                                     <span>{urduMedicine}</span>
-                                  </div>
+                                  </div> */}
                                 </div>
                               );
                             })}

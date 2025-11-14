@@ -49,7 +49,9 @@ const SidebarToggle = memo(({ collapsed, setCollapsed, isMobile, toggleMobileMen
 });
 
 // Updated: Navigation component with clickable options
-const Navigation = memo(({ collapsed }) => {
+// This component should be inside your Layout.js file
+
+const Navigation = memo(({ collapsed, onLogout }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
   
@@ -60,22 +62,9 @@ const Navigation = memo(({ collapsed }) => {
       icon: FaList, 
       label: "Patients List",
       pagelink:"/patientlist",
-    //   subItems: ["General", "Security", "Notifications"]
     },
-    // { icon: MdRecentActors, label: "Patients Recent OPD",pagelink:"/PatientRecentOPD" },
-    // { icon: FiBell, label: "Today's Reservation", pagelink:"/todaysreservation" },
-    // { 
-    //   icon: FiUser, 
-    //   label: "Prefrences",
-    //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-    //   pagelink:"/prefrences"
-    // },
-    // { 
-    //   icon: FaCalendarPlus, 
-    //   label: "OPD",
-    //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-    //   pagelink:"/OPD"
-    // }
+    // This item has no 'pagelink'
+    { icon: TbReportSearch, label: "Logout" },
   ];
 
   const handleItemClick = (label) => {
@@ -84,69 +73,90 @@ const Navigation = memo(({ collapsed }) => {
 
   return (
     <nav className="mt-4">
-<ul className="space-y-2 px-2">
-  {navItems.map(({ icon: Icon, label, subItems, pagelink }) => (
-    <div key={label} className="relative">
-      <Link
-        to={pagelink}
-        onClick={() => handleItemClick(label)}
-        onMouseEnter={() => collapsed && setHoveredItem(label)}
-        onMouseLeave={() => collapsed && setHoveredItem(null)}
-        className={`
-          flex items-center p-3 rounded-lg hover:bg-highlight hover:text-primary
-          ${collapsed ? "justify-center" : "justify-between"}
-          ${selectedItem === label ? "bg-acent text-primary" : ""}
-        `}
-      >
-        <div className="flex items-center">
-          <Icon className="w-6 h-6" />
-          {!collapsed && <span className="ml-3">{label}</span>}
-        </div>
-        {!collapsed && subItems && (
-          <FiChevronDown 
-            className={`transition-transform duration-200 ${selectedItem === label ? "transform rotate-180" : ""}`} 
-          />
-        )}
-      </Link>
+      <ul className="space-y-2 px-2">
+        {navItems.map(({ icon: Icon, label, subItems, pagelink }) => (
+          <div key={label} className="relative">
+            
+            {/* --- THIS IS THE NEW LOGIC --- */}
+            {label === "Logout" ? (
+              // If it's the Logout button
+              <button
+                onClick={onLogout} // <-- Call the onLogout prop
+                onMouseEnter={() => collapsed && setHoveredItem(label)}
+                onMouseLeave={() => collapsed && setHoveredItem(null)}
+                className={`
+                  flex items-center p-3 rounded-lg hover:bg-highlight hover:text-primary w-full text-left
+                  ${collapsed ? "justify-center" : "justify-between"}
+                `}
+              >
+                <div className="flex items-center">
+                  <Icon className="w-6 h-6" />
+                  {!collapsed && <span className="ml-3">{label}</span>}
+                </div>
+              </button>
+            ) : (
+              // Otherwise, render the Link as before
+              <Link
+                to={pagelink}
+                onClick={() => handleItemClick(label)}
+                onMouseEnter={() => collapsed && setHoveredItem(label)}
+                onMouseLeave={() => collapsed && setHoveredItem(null)}
+                className={`
+                  flex items-center p-3 rounded-lg hover:bg-highlight hover:text-primary
+                  ${collapsed ? "justify-center" : "justify-between"}
+                  ${selectedItem === label ? "bg-acent text-primary" : ""}
+                `}
+              >
+                <div className="flex items-center">
+                  <Icon className="w-6 h-6" />
+                  {!collapsed && <span className="ml-3">{label}</span>}
+                </div>
+                {!collapsed && subItems && (
+                  <FiChevronDown 
+                    className={`transition-transform duration-200 ${selectedItem === label ? "transform rotate-180" : ""}`} 
+                  />
+                )}
+              </Link>
+            )}
 
-      {/* Show dropdown if selected */}
-      {subItems && !collapsed && selectedItem === label && (
-        <div className="mt-1 ml-8 space-y-1">
-          {subItems.map((subItem) => (
-            <a
-              key={subItem}
-              href="#"
-              className="block py-2 px-3 text-sm text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
-            >
-              {subItem}
-            </a>
-          ))}
-        </div>
-      )}
+            {/* Show dropdown if selected */}
+            {subItems && !collapsed && selectedItem === label && (
+              <div className="mt-1 ml-8 space-y-1">
+                {subItems.map((subItem) => (
+                  <a
+                    key={subItem}
+                    href="#"
+                    className="block py-2 px-3 text-sm text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
+                  >
+                    {subItem}
+                  </a>
+                ))}
+              </div>
+            )}
 
-      {/* Hover card when collapsed */}
-      {subItems && hoveredItem === label && collapsed && (
-        <div 
-          className="
-            absolute top-0 left-full
-            w-48 bg-gray-800 rounded-lg shadow-lg py-2 z-50
-            ml-2
-          "
-        >
-          {subItems.map((subItem) => (
-            <a
-              key={subItem}
-              href="#"
-              className="block px-4 py-2 text-white hover:bg-gray-700"
-            >
-              {subItem}
-            </a>
-          ))}
-        </div>
-      )}
-    </div>
-  ))}
-</ul>
+            {/* Hover card when collapsed */}
+            {subItems && hoveredItem === label && collapsed && (
+              <div 
+                className="
+                  absolute top-0 left-full
+                  w-48 bg-gray-800 rounded-lg shadow-lg py-2 z-50
+                  ml-2
+                "
+              >
+                {subItems.map((subItem) => (
+                  <a
+                    key={subItem}
+                    href="#"
+                    className="block px-4 py-2 text-white hover:bg-gray-700"
+                  >
+                    {subItem}
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </ul>
     </nav>
   );
 });
@@ -176,7 +186,7 @@ const Layout = () => {
 
 
   useEffect(() => {
-    // localStorage.removeItem("isLoggedIn");
+    // localStorage.removeItem("token");
 
     clearPatientData();
     handleResize();
@@ -231,7 +241,7 @@ const Layout = () => {
             toggleMobileMenu={toggleMobileMenu}
           />
         </div>
-        <Navigation collapsed={collapsed && !isMobile} />
+        <Navigation collapsed={collapsed && !isMobile} onLogout={handleLogout}/>
       </aside>
 
       <main 
