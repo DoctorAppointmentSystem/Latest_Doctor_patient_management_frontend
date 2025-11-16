@@ -36,7 +36,6 @@ import { getItemWithExpiry } from "./services/token";
 
 function isAuthenticated() {
   return !!getItemWithExpiry('token'); 
-  return 
 }
 
 /**
