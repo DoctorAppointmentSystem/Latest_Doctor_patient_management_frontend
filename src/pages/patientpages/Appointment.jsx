@@ -82,9 +82,29 @@ function Appointment({ patientData }) {
                 <td className="border border-black p-2">{appt.charges || 0}</td>
                 <td className="border border-black p-2">{appt.amountPaid || 0}</td>
                 <td className="border border-black p-2">
-                  {appt.discount_type
-                    ? `${appt.discount_type} (${appt.discount_remarks})`
-                    : "—"}
+                  {(() => {
+                    const discountValue = (appt.charges || 0) - (appt.amountPaid || 0);
+                    if (discountValue > 0) {
+                      let discountLabel = appt.discount_type;
+
+                      if (appt.discount_type === "Percentage" && appt.charges > 0) {
+                        const percent = Math.round((discountValue / appt.charges) * 100);
+                        discountLabel = `${percent}%`;
+                      }
+
+                      return (
+                        <span>
+                          <span className="font-semibold text-green-600">Rs. {discountValue}</span>
+                          {discountLabel && (
+                            <span className="text-xs text-gray-500 ml-1">
+                              ({discountLabel})
+                            </span>
+                          )}
+                        </span>
+                      );
+                    }
+                    return <span className="text-gray-400">-</span>;
+                  })()}
                 </td>
               </tr>
             ))

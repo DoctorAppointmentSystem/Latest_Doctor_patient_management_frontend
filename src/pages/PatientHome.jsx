@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, memo, useContext } from "react";
 import { FiMenu, FiX, FiHome, FiUser, FiSettings, FiPieChart, FiBell, FiChevronRight, FiChevronDown, FiChevronLeft } from "react-icons/fi";
 import { create } from "zustand";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useLocation } from "react-router-dom";
 
 import ADDNewVisit from "./ADDNewVisit";
 import VisionandRefraction from "./VisionandRefraction";
@@ -11,6 +11,7 @@ import PrescriptionPage from "./Prescriptionpage";
 // import { PatientContext } from "../context";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { createVisit } from "../api/visits";
+import { useToast } from "../components/Toast"; // ✅ Toast notifications
 
 
 const useSidebarStore = create((set) => ({
@@ -36,10 +37,12 @@ const SidebarToggle = memo(({ collapsed, setCollapsed, isMobile, toggleMobileMen
 
 const Navigation = memo(({ collapsed }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const location = useLocation(); // ✅ Get current route
+  // const [selectedItem, setSelectedItem] = useState(null); // ❌ Removed manual state
   const { visitData, clearVisitData } = useContext(VisitContext);
   const { patientData, clearPatientData } = useContext(PatientContext);
   const { appointmentData, clearAppointmentData } = useContext(AppointmentContext);
+  const { toast } = useToast(); // ✅ Toast hook
 
   const handleSaveVisit = async () => {
     try {
@@ -59,11 +62,11 @@ const Navigation = memo(({ collapsed }) => {
       console.log("Backend response:", response);
 
 
-      alert("✅ Patient & Visit saved successfully!");
+      toast.success("✅ Patient & Visit saved successfully!"); // ✅ Toast instead of alert
 
     } catch (err) {
       console.error("Save error:", err);
-      alert("❌ " + err.message);
+      toast.error("❌ " + err.message); // ✅ Toast instead of alert
     }
   };
 
@@ -98,8 +101,8 @@ const Navigation = memo(({ collapsed }) => {
     // {
     //   icon: FiUser,
     //   label: "Refresh Page",
-      //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-      //   pagelink:"/prefrences"
+    //   subItems: ["Personal Info", "Account Settings", "Privacy"],
+    //   pagelink:"/prefrences"
     // },
     // { icon: FiUser, label: "Save to patient list", onClick: handleSaveVisit },
     {
@@ -111,8 +114,8 @@ const Navigation = memo(({ collapsed }) => {
     // {
     //   icon: FiUser,
     //   label: "Save & Print",
-      //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-      //   pagelink:"/prefrences"
+    //   subItems: ["Personal Info", "Account Settings", "Privacy"],
+    //   pagelink:"/prefrences"
     // },
   ];
 
@@ -121,77 +124,81 @@ const Navigation = memo(({ collapsed }) => {
   };
 
   return (
-    <nav className="mt-4">
+    <nav className="mt-6 flex flex-col gap-2"> {/* ✅ Increased spacing */}
+      <ul className="space-y-3 px-3"> {/* ✅ More breathing room */}
+        {navItems.map(({ icon: Icon, label, subItems, pagelink, onClick }) => {
+          const isActive = location.pathname === pagelink; // ✅ Check active route
 
-      <ul className="space-y-2 px-2">
-        {navItems.map(({ icon: Icon, label, subItems, pagelink, onClick }) => (
-          <div key={label} className="relative">
-            <Link
-              to={pagelink || "#"}
-              onClick={(e) => {
-                if (onClick) {
-                  e.preventDefault();
-                  onClick();
-                } else {
-                  handleItemClick(label);
-                }
-              }}
-              onMouseEnter={() => collapsed && setHoveredItem(label)}
-              onMouseLeave={() => collapsed && setHoveredItem(null)}
-              className={`
-          flex items-center p-3 rounded-lg hover:bg-highlight hover:text-primary
-          ${collapsed ? "justify-center" : "justify-between"}
-          ${selectedItem === label ? "bg-acent text-primary" : ""}
-        `}
-            >
-              <div className="flex items-center">
-                <Icon className="w-6 h-6" />
-                {!collapsed && <span className="ml-3">{label}</span>}
-              </div>
-              {!collapsed && subItems && (
-                <FiChevronDown
-                  className={`transition-transform duration-200 ${selectedItem === label ? "transform rotate-180" : ""}`}
-                />
+          return (
+            <div key={label} className="relative group">
+              <Link
+                to={pagelink || "#"}
+                onClick={(e) => {
+                  if (onClick) {
+                    e.preventDefault();
+                    onClick();
+                  }
+                }}
+                onMouseEnter={() => collapsed && setHoveredItem(label)}
+                onMouseLeave={() => collapsed && setHoveredItem(null)}
+                className={`
+                  flex items-center p-3 rounded-xl transition-all duration-200 ease-in-out
+                  ${collapsed ? "justify-center" : "justify-between"}
+                  ${isActive
+                    ? "bg-white/10 text-white shadow-lg border-l-4 border-highlight" // ✅ Polished Active State
+                    : "text-gray-300 hover:bg-white/5 hover:text-white"
+                  }
+                `}
+              >
+                <div className="flex items-center gap-4"> {/* ✅ Better icon-text gap */}
+                  <Icon className={`w-5 h-5 ${isActive ? "text-highlight" : ""}`} /> {/* ✅ Highlight icon if active */}
+                  {!collapsed && <span className="font-medium tracking-wide text-sm">{label}</span>} {/* ✅ Better typography */}
+                </div>
+                {!collapsed && subItems && (
+                  <FiChevronDown
+                    className={`transition-transform duration-200 ${isActive ? "transform rotate-180" : ""}`}
+                  />
+                )}
+              </Link>
+
+              {/* Show dropdown if active */}
+              {subItems && !collapsed && isActive && (
+                <div className="mt-2 ml-10 space-y-1 border-l border-white/20 pl-2"> {/* ✅ Indented submenu */}
+                  {subItems.map((subItem) => (
+                    <a
+                      key={subItem}
+                      href="#"
+                      className="block py-2 px-3 text-sm text-gray-400 hover:text-white transition-colors duration-200"
+                    >
+                      {subItem}
+                    </a>
+                  ))}
+                </div>
               )}
-            </Link>
 
-            {/* Show dropdown if selected */}
-            {subItems && !collapsed && selectedItem === label && (
-              <div className="mt-1 ml-8 space-y-1">
-                {subItems.map((subItem) => (
-                  <a
-                    key={subItem}
-                    href="#"
-                    className="block py-2 px-3 text-sm text-gray-300 hover:bg-gray-700 rounded-lg transition-colors duration-200"
-                  >
-                    {subItem}
-                  </a>
-                ))}
-              </div>
-            )}
-
-            {/* Hover card when collapsed */}
-            {subItems && hoveredItem === label && collapsed && (
-              <div
-                className="
+              {/* Hover card when collapsed */}
+              {subItems && hoveredItem === label && collapsed && (
+                <div
+                  className="
             absolute top-0 left-full
             w-48 bg-gray-800 rounded-lg shadow-lg py-2 z-50
             ml-2
           "
-              >
-                {subItems.map((subItem) => (
-                  <a
-                    key={subItem}
-                    href="#"
-                    className="block px-4 py-2 text-white hover:bg-gray-700"
-                  >
-                    {subItem}
-                  </a>
-                ))}
-              </div>
-            )}
-          </div>
-        ))}
+                >
+                  {subItems.map((subItem) => (
+                    <a
+                      key={subItem}
+                      href="#"
+                      className="block px-4 py-2 text-white hover:bg-gray-700"
+                    >
+                      {subItem}
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </ul>
     </nav>
   );
@@ -291,12 +298,21 @@ const PLayout = () => {
             </div> */}
         <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary to-highlight ">
           <div className="flex items-start gap-4 text-white">
-            <div className="w-[100px] border-2">
-              <img
-                src="https://img.freepik.com/free-photo/young-adult-enjoying-virtual-date_23-2149328221.jpg?uid=R137875917&ga=GA1.1.2032350152.1743826403&semt=ais_items_boosted&w=740"
-                alt="Patient Management System"
-                className="object-cover"
-              />
+            <div className="w-[100px] h-[100px] border-2 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+              {/* Dynamic Avatar based on patient initials */}
+              <div
+                className={`w-full h-full flex items-center justify-center text-3xl font-bold ${patientData?.gender === 'Male'
+                    ? 'bg-blue-500 text-white'
+                    : patientData?.gender === 'Female'
+                      ? 'bg-pink-500 text-white'
+                      : 'bg-gray-500 text-white'
+                  }`}
+              >
+                {patientData?.patient_name
+                  ? patientData.patient_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                  : '?'
+                }
+              </div>
             </div>
 
             <div>

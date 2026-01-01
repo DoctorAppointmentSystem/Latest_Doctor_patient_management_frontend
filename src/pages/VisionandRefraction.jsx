@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Navigation hook
 import { defaultVisitData } from "../context/visitData";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { createVisit, getVisitById, updateVisit } from "../api/visits";
 import EyeGrid from "../components/EyeGrid";
+import { useToast } from "../components/Toast"; // ✅ Toast notifications
 
 /* -------------------- helpers & defaults -------------------- */
 
@@ -66,25 +68,25 @@ const defaultVisionAndRefraction = () => ({
 });
 
 const rightEyeData = {
-    title: "Right Eye",
-    sph: "",
-    cyl: "",
-    axis: "",
-    va: "",
-    add: "",
-    n6: ""
-  };
+  title: "Right Eye",
+  sph: "",
+  cyl: "",
+  axis: "",
+  va: "",
+  add: "",
+  n6: ""
+};
 
-  // Data for the left eye from your image
-  const leftEyeData = {
-    title: "Left Eye",
-    sph: "",
-    cyl: "",
-    axis: "",
-    va: "",
-    add: "",
-    n6: "" // The left eye in your image has "--"
-  };
+// Data for the left eye from your image
+const leftEyeData = {
+  title: "Left Eye",
+  sph: "",
+  cyl: "",
+  axis: "",
+  va: "",
+  add: "",
+  n6: "" // The left eye in your image has "--"
+};
 
 // isPlainObject helper
 const isPlainObject = v => v && typeof v === "object" && !Array.isArray(v) && !(v instanceof Date);
@@ -122,7 +124,7 @@ function buildVisionPayload(existingVision = {}, uiVision = {}) {
 
 /* -------------------- small UI helpers components -------------------- */
 
-const InputGrid = ({ title, inputs, selectOptions, gridCols = "grid-cols-3 md:grid-cols-5", onChange, section, side }) => (
+const InputGrid = ({ title, inputs, selectOptions, gridCols = "grid-cols-3 md:grid-cols-5", onChange, section, side, values = {} }) => (
   <div>
     <div className="text-center text-gray-600 font-semibold mb-2">{title}</div>
     <div className={`grid ${gridCols} gap-5`}>
@@ -132,6 +134,7 @@ const InputGrid = ({ title, inputs, selectOptions, gridCols = "grid-cols-3 md:gr
           <select
             key={i}
             className="border rounded p-2"
+            value={values[fieldKey] || ""}
             onChange={(e) => onChange(section, side, fieldKey, e.target.value)}
           >
             <option value="">{placeholder}</option>
@@ -144,6 +147,7 @@ const InputGrid = ({ title, inputs, selectOptions, gridCols = "grid-cols-3 md:gr
             key={i}
             type="text"
             placeholder={placeholder}
+            value={values[fieldKey] || ""}
             className="border rounded p-2"
             onChange={(e) => onChange(section, side, fieldKey, e.target.value)}
           />
@@ -180,19 +184,21 @@ const GlassesSection = ({ onChange, section, side }) => (
   </div>
 );
 
-const BottomRow = ({ onChange, section }) => (
+const BottomRow = ({ onChange, section, values = {} }) => (
   <div className="w-full flex gap-4">
     <div className="w-[50%] flex gap-4">
       <input
         type="text"
         placeholder="IPD D"
         className="border rounded p-2 w-[50%]"
+        value={values.ipdD || ""}
         onChange={(e) => onChange(section, null, "ipdD", e.target.value)}
       />
       <input
         type="text"
         placeholder="IPD N"
         className="border rounded p-2 w-[50%]"
+        value={values.ipdN || ""}
         onChange={(e) => onChange(section, null, "ipdN", e.target.value)}
       />
     </div>
@@ -200,6 +206,7 @@ const BottomRow = ({ onChange, section }) => (
       type="text"
       placeholder="Remarks"
       className="border rounded p-2 w-[50%]"
+      value={values.remarks || ""}
       onChange={(e) => onChange(section, null, "remarks", e.target.value)}
     />
   </div>
@@ -216,12 +223,21 @@ const assessments = [
 
 const EyeAssessmentPage = () => {
   const [activeSection, setActiveSection] = useState("");
-  const [visit, setVisit] = useState(defaultVisitData);
   const [serverVisit, setServerVisit] = useState(null); // holds fetched server version
   const { visitData, setVisitData } = useContext(VisitContext);
   const { patientData, clearPatientData } = useContext(PatientContext);
   const { appointmentData, clearAppointmentData } = useContext(AppointmentContext);
+  const { toast } = useToast(); // ✅ Toast hook
+  const navigate = useNavigate(); // ✅ Initialize hook
   const visitId = visitData?.visitId;
+
+  // ✅ Initialize local state from context if visionAndRefraction exists
+  const [visit, setVisit] = useState(() => {
+    if (visitData?.visionAndRefraction) {
+      return { ...defaultVisitData, visionAndRefraction: visitData.visionAndRefraction };
+    }
+    return defaultVisitData;
+  });
 
   const toggleSection = (item) => setActiveSection(prev => prev === item ? "" : item);
 
@@ -248,9 +264,20 @@ const EyeAssessmentPage = () => {
     });
   };
 
-  // fetch existing visit
+  // ✅ Sync local visionAndRefraction to VisitContext whenever it changes
+  useEffect(() => {
+    if (visit?.visionAndRefraction) {
+      setVisitData(prev => ({
+        ...prev,
+        visionAndRefraction: visit.visionAndRefraction
+      }));
+    }
+  }, [visit.visionAndRefraction, setVisitData]);
+
+  // fetch existing visit from server (if visitId exists)
   useEffect(() => {
     const fetchVisitData = async () => {
+      if (!visitId) return;
       try {
         const response = await getVisitById(visitId);
         const data = response?.data?.data || response?.data || null;
@@ -290,10 +317,12 @@ const EyeAssessmentPage = () => {
         setServerVisit(updatedData);
         setVisit(prev => ({ ...prev, ...updatedData, visionAndRefraction: buildVisionPayload(updatedData.visionAndRefraction || {}, prev.visionAndRefraction || {}) }));
       }
-      alert("✅ Visit updated successfully!");
+      toast.success("✅ Vision & Refraction saved successfully!"); // ✅ Toast instead of alert
+      // ✅ Auto-navigate to next step
+      setTimeout(() => navigate("/patient/examination"), 1500);
     } catch (err) {
       console.error("Save error:", err);
-      alert("❌ " + (err?.message || "Update failed"));
+      toast.error("❌ " + (err?.message || "Update failed")); // ✅ Toast instead of alert
     }
   };
 
@@ -306,6 +335,7 @@ const EyeAssessmentPage = () => {
           onChange={handleInputChange}
           section="va"
           side="right"
+          values={visit?.visionAndRefraction?.va?.right || {}}
         />
         <InputGrid
           title="== OS =="
@@ -313,6 +343,7 @@ const EyeAssessmentPage = () => {
           onChange={handleInputChange}
           section="va"
           side="left"
+          values={visit?.visionAndRefraction?.va?.left || {}}
         />
       </div>
     ),
@@ -325,6 +356,7 @@ const EyeAssessmentPage = () => {
           onChange={handleInputChange}
           section="iop"
           side="right"
+          values={visit?.visionAndRefraction?.iop?.right || {}}
         />
         <InputGrid
           title="== OS =="
@@ -333,13 +365,15 @@ const EyeAssessmentPage = () => {
           onChange={handleInputChange}
           section="iop"
           side="left"
+          values={visit?.visionAndRefraction?.iop?.left || {}}
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <select
             className="border rounded p-2"
+            value={visit?.visionAndRefraction?.iop?.selectedMethod || ""}
             onChange={(e) => handleInputChange("iop", null, "selectedMethod", e.target.value)}
           >
-            <option>--select method--</option>
+            <option value="">--select method--</option>
             <option value="applanation">Applanation</option>
             <option value="noncontact">Non-contact</option>
           </select>
@@ -347,6 +381,7 @@ const EyeAssessmentPage = () => {
             type="text"
             placeholder="Narration"
             className="border rounded p-2"
+            value={visit?.visionAndRefraction?.iop?.narration || ""}
             onChange={(e) => handleInputChange("iop", null, "narration", e.target.value)}
           />
         </div>
@@ -388,6 +423,7 @@ const EyeAssessmentPage = () => {
           onChange={handleInputChange}
           section="autoRefraction"
           side="right"
+          values={visit?.visionAndRefraction?.autoRefraction?.right || {}}
         />
         <div className="flex flex-col gap-4">
           <InputGrid
@@ -396,8 +432,9 @@ const EyeAssessmentPage = () => {
             onChange={handleInputChange}
             section="autoRefraction"
             side="left"
+            values={visit?.visionAndRefraction?.autoRefraction?.left || {}}
           />
-          <BottomRow onChange={handleInputChange} section="autoRefraction" />
+          <BottomRow onChange={handleInputChange} section="autoRefraction" values={visit?.visionAndRefraction?.autoRefraction || {}} />
         </div>
       </div>
     ),
@@ -409,6 +446,7 @@ const EyeAssessmentPage = () => {
           onChange={handleInputChange}
           section="cycloAutoRefraction"
           side="right"
+          values={visit?.visionAndRefraction?.cycloAutoRefraction?.right || {}}
         />
         <div className="flex flex-col gap-4">
           <InputGrid
@@ -417,8 +455,9 @@ const EyeAssessmentPage = () => {
             onChange={handleInputChange}
             section="cycloAutoRefraction"
             side="left"
+            values={visit?.visionAndRefraction?.cycloAutoRefraction?.left || {}}
           />
-          <BottomRow onChange={handleInputChange} section="cycloAutoRefraction" />
+          <BottomRow onChange={handleInputChange} section="cycloAutoRefraction" values={visit?.visionAndRefraction?.cycloAutoRefraction || {}} />
         </div>
       </div>
     ),

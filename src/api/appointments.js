@@ -30,3 +30,13 @@ export const getAppointmentsByPatientId = async (patientId) => {
         throw error;
     }
 };
+
+export const getNextToken = async () => {
+    try {
+        const response = await axiosInstance.get('/appointments/next-token');
+        return response;
+    } catch (error) {
+        console.error('Error fetching next token:', error);
+        throw error;
+    }
+};

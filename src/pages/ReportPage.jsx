@@ -1,16 +1,78 @@
 import React, { useRef, useEffect, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ Navigation hook
 import { getVisitById } from "../api/visits"; // ✅ Make sure this path exists
 import { getPatientsById } from "../api/patient";
 import { VisitContext } from "../context";
 import EyeGrid from "../components/EyeGrid";
+import { bulkTranslate } from "../api/translation"; // ✅ Import API
+import { createUrduInstruction, translateToUrdu } from "../utils/urduMedicalDictionary"; // ✅ Re-added missing import
 
 export const ReportPage = () => {
+  const navigate = useNavigate(); // ✅ Initialize hook
   const reportRef = useRef();
-  // const visitId = "68f1441e20559deddd254c3e"; // Example visit ID
   const [visitDataPage, setVisitDataPage] = useState(null);
   const [patientData, setPatientData] = useState(null);
+  const [translations, setTranslations] = useState({}); // ✅ Translation Cache State
   const { visitData, setVisitData } = useContext(VisitContext);
-  const visitId = visitData?.visitId; 
+  const visitId = visitData?.visitId;
+
+  // ... existing handlePrint and useEffects for data fetching ...
+
+  // ✅ SMART TRANSLATION EFFECT
+  useEffect(() => {
+    if (visitDataPage?.prescription?.medicines?.length > 0) {
+      const fetchTranslations = async () => {
+        const textsToTranslate = [];
+
+        // Collect all text from medicines
+        visitDataPage.prescription.medicines.forEach(item => {
+          if (item.medicine) textsToTranslate.push(item.medicine);
+          if (item.dosage) textsToTranslate.push(item.dosage);
+          if (item.duration) textsToTranslate.push(item.duration);
+          if (item.eye) textsToTranslate.push(item.eye);
+        });
+
+        if (textsToTranslate.length === 0) return;
+
+        try {
+          console.log("Fetching translations for:", textsToTranslate);
+          const response = await bulkTranslate(textsToTranslate);
+          if (response.data.success) {
+            setTranslations(prev => ({ ...prev, ...response.data.data }));
+          }
+        } catch (error) {
+          console.error("Translation Fetch Error:", error);
+        }
+      };
+
+      fetchTranslations();
+    }
+  }, [visitDataPage]);
+
+  // Helper to get translation
+  const getUrdu = (text) => {
+    if (!text) return "";
+    const cleanText = text.trim();
+
+    // 1. Check "Smart" Cache (Exact Match)
+    if (translations[cleanText]) return translations[cleanText];
+
+    // 2. Check Lowercase Match (Case Insensitive)
+    if (translations[cleanText.toLowerCase()]) return translations[cleanText.toLowerCase()];
+
+    // 3. Fallback: Return original text (English) instead of null
+    // This ensures *something* shows up (e.g. "Panadol") instead of a blank space
+    return cleanText;
+  };
+
+  useEffect(() => {
+    // Debug Helper
+    console.log("Current Translations Map:", translations);
+  }, [translations]);
+
+
+  // ... rest of component ...
+
   // const visitId = "69133c855adaec9867a6649f";
   const handlePrint = () => {
     window.print();
@@ -19,10 +81,20 @@ export const ReportPage = () => {
   useEffect(() => {
     const fetchVisitData = async () => {
       try {
+        if (!visitId) return;
         const data = await getVisitById(visitId);
         console.log("Fetched visit data:", data.data);
 
         setVisitDataPage(data.data);
+
+        // ✅ SYNC CONTEXT: Enable "Edit" with fresh data
+        // This ensures the global context matches the report we are viewing
+        const freshData = data.data;
+        setVisitData(prev => ({
+          ...prev,
+          ...freshData,
+          visitId: freshData._id, // FORCE Update ID
+        }));
 
       } catch (error) {
         console.error("Error fetching visit data:", error);
@@ -30,14 +102,16 @@ export const ReportPage = () => {
     };
 
     fetchVisitData();
-
   }, [visitId]);
 
   useEffect(() => {
     if (visitDataPage) {
       const fetchPatientData = async () => {
         try {
-          const patientId = visitDataPage.patientId._id;
+          // Use optional chaining just in case
+          const patientId = visitDataPage.patientId?._id || visitDataPage.patientId;
+          if (!patientId) return;
+
           console.log("Patient ID from visit data:", patientId);
 
           const response = await getPatientsById(patientId);
@@ -88,7 +162,14 @@ export const ReportPage = () => {
 
       <div className="bg-gray-200 font-sans p-4 sm:p-8">
         {/* --- Print Button --- */}
-        <div className="flex justify-center sm:justify-end mb-4 print:hidden">
+        <div className="flex justify-between items-center mb-4 max-w-[210mm] mx-auto print:hidden">
+          <button
+            onClick={() => navigate("/patient/Prescriptionpage")}
+            className="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition"
+          >
+            ← Back to Prescription
+          </button>
+
           <button
             onClick={handlePrint}
             className="px-6 py-2 bg-primary text-white font-semibold rounded-lg shadow-md hover:bg-highlight focus:outline-none  transition-colors duration-200"
@@ -139,7 +220,7 @@ export const ReportPage = () => {
                     <span className="font-bold">City:</span> {patientData?.city} |
                   </p>
                   <p className="text-gray-700">
-                    Mob: +92{patientData?.phone_number} | {patientData?.guardian.relation} {patientData?.guardian.name} | First Visit: {patientData?.updatedAt ? new Date(patientData.updatedAt).toLocaleDateString() : 'N/A'}
+                    Mob: +92{patientData?.phone_number} | {patientData?.guardian?.relation} {patientData?.guardian?.name} | First Visit: {patientData?.updatedAt ? new Date(patientData.updatedAt).toLocaleDateString() : 'N/A'}
                   </p>
                 </div>
                 <div className="text-right">
@@ -151,66 +232,78 @@ export const ReportPage = () => {
               <main className="grid grid-cols-2 gap-x-6 mt-3 flex-grow">
                 {/* --- Left Column --- */}
                 <div className="space-y-3 text-xs">
-                  
+
                   {(visitDataPage?.history?.systemHistory?.length > 0 ||
                     visitDataPage?.history?.ocularHistory?.length > 0 ||
                     visitDataPage?.history?.presentingComplaints?.length > 0) && (
-                    <div className="border border-gray-300 rounded-md p-2 no-break-inside">
-                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                        Disease History
-                      </h3>
-                      <div className="rounded-md p-2 no-break-inside">
-                        {visitDataPage?.history?.systemHistory?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.history.systemHistory.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">SystemHistory: </span>
-                                {item.enabled ? (
-                                  <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — {item.duration}  ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.history?.ocularHistory?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.history.ocularHistory.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">OcularHistory: </span>
-                                {item.enabled ? (
-                                  <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — {item.duration}  ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.history?.presentingComplaints?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.history.presentingComplaints.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">PresentingComplaints: </span>
-                                {item.enabled ? (
-                                  <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — {item.duration}  ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                        <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300 flex justify-center items-center relative group">
+                          Disease History
+                          <button
+                            onClick={() => navigate("/patient/addnewvisit")}
+                            className="absolute right-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition print:hidden"
+                          >
+                            Edit
+                          </button>
+                        </h3>
+                        <div className="rounded-md p-2 no-break-inside">
+                          {visitDataPage?.history?.systemHistory?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.history.systemHistory.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">SystemHistory: </span>
+                                  {item.enabled ? (
+                                    <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — {item.duration}  ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.history?.ocularHistory?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.history.ocularHistory.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">OcularHistory: </span>
+                                  {item.enabled ? (
+                                    <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — {item.duration}  ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.history?.presentingComplaints?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.history.presentingComplaints.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">PresentingComplaints: </span>
+                                  {item.enabled ? (
+                                    <span className="font-bold">{item.disease} — {item.duration}  ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — {item.duration}  ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
 
                   {visitDataPage?.visionAndRefraction && (
                     <div className="border border-gray-300 rounded-md p-2 no-break-inside">
-                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300 flex justify-center items-center relative group">
                         Vision & Refraction
+                        <button
+                          onClick={() => navigate("/patient/visionandrefraction")}
+                          className="absolute right-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition print:hidden"
+                        >
+                          Edit
+                        </button>
                       </h3>
                       <div className="space-y-2">
                         {/* VA Section */}
@@ -365,7 +458,7 @@ export const ReportPage = () => {
                     </div>
                   )}
 
-                  
+
                   {(visitDataPage?.examination?.ac?.length > 0 ||
                     visitDataPage?.examination?.cdRatio?.length > 0 ||
                     visitDataPage?.examination?.conjunctiva?.length > 0 ||
@@ -379,295 +472,335 @@ export const ReportPage = () => {
                     visitDataPage?.examination?.otherExternalFindings?.length > 0 ||
                     visitDataPage?.examination?.pupil?.length > 0 ||
                     visitDataPage?.examination?.vitreous?.length > 0) && (
-                    <div className="border border-gray-300 rounded-md p-2 space-y-1 no-break-inside">
-                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                        Examination
-                      </h3>
-                      <div>
-                        {visitDataPage?.examination?.ac?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.ac.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">AC: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.cdRatio?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.cdRatio.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">CD Ratio: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.conjunctiva?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.conjunctiva.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Conjunctiva: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.cornea?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.cornea.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Cornea: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.findings?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.findings.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Findings: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.fundus?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.fundus.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Fundus: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.iris?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.iris.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Iris: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.lens?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.lens.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Lens: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.lids?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.lids.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Lids: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.opticDisk?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.opticDisk.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Optic Disk: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.otherExternalFindings?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.otherExternalFindings.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Other External Findings: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.pupil?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.pupil.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Pupil: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.examination?.vitreous?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.examination.vitreous.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Vitreous: </span>
-                                {item.notesEnabled ? (
-                                  <span className="font-bold">{item.disease} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.disease} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      <div className="border border-gray-300 rounded-md p-2 space-y-1 no-break-inside">
+                        <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300 flex justify-center items-center relative group">
+                          Examination
+                          <button
+                            onClick={() => navigate("/patient/examination")}
+                            className="absolute right-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition print:hidden"
+                          >
+                            Edit
+                          </button>
+                        </h3>
+                        <div>
+                          {visitDataPage?.examination?.ac?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.ac.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">AC: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.cdRatio?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.cdRatio.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">CD Ratio: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.conjunctiva?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.conjunctiva.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Conjunctiva: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.cornea?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.cornea.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Cornea: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.findings?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.findings.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Findings: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.fundus?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.fundus.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Fundus: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.iris?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.iris.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Iris: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.lens?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.lens.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Lens: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.lids?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.lids.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Lids: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.opticDisk?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.opticDisk.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Optic Disk: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.otherExternalFindings?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.otherExternalFindings.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Other External Findings: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.pupil?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.pupil.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Pupil: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.examination?.vitreous?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.examination.vitreous.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Vitreous: </span>
+                                  {item.notesEnabled ? (
+                                    <span className="font-bold">{item.disease} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.disease} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
 
                   {(visitDataPage?.diagnosis?.diagnoses?.length > 0 ||
                     visitDataPage?.diagnosis?.managementPlans?.length > 0 ||
                     visitDataPage?.diagnosis?.treatmentPlans?.length > 0) && (
-                    <div className="border border-gray-300 rounded-md p-2 no-break-inside">
-                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
-                        Diagnosis
-                      </h3>
-                      <div>
-                        {visitDataPage?.diagnosis?.diagnoses?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.diagnosis.diagnoses.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Diagnosis: </span>
-                                {item.isFinal ? (
-                                  <span className="font-bold">{item.text} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.text} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.diagnosis?.managementPlans?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.diagnosis.managementPlans.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Management Plan: </span>
-                                {item.isFinal ? (
-                                  <span className="font-bold">{item.text} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.text} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {visitDataPage?.diagnosis?.treatmentPlans?.length > 0 && (
-                          <div className="list-inside">
-                            {visitDataPage.diagnosis.treatmentPlans.map((item, index) => (
-                              <div key={index}>
-                                <span className="font-extrabold">Treatment Plan: </span>
-                                {item.isFinal ? (
-                                  <span className="font-bold">{item.text} — ({item.eye})</span>
-                                ) : (
-                                  <span>{item.text} — ({item.eye})</span>
-                                )}
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                      <div className="border border-gray-300 rounded-md p-2 no-break-inside">
+                        <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300 flex justify-center items-center relative group">
+                          Diagnosis
+                          <button
+                            onClick={() => navigate("/patient/diagnosisform")}
+                            className="absolute right-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition print:hidden"
+                          >
+                            Edit
+                          </button>
+                        </h3>
+                        <div>
+                          {visitDataPage?.diagnosis?.diagnoses?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.diagnosis.diagnoses.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Diagnosis: </span>
+                                  {item.isFinal ? (
+                                    <span className="font-bold">{item.text} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.text} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.diagnosis?.managementPlans?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.diagnosis.managementPlans.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Management Plan: </span>
+                                  {item.isFinal ? (
+                                    <span className="font-bold">{item.text} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.text} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                          {visitDataPage?.diagnosis?.treatmentPlans?.length > 0 && (
+                            <div className="list-inside">
+                              {visitDataPage.diagnosis.treatmentPlans.map((item, index) => (
+                                <div key={index}>
+                                  <span className="font-extrabold">Treatment Plan: </span>
+                                  {item.isFinal ? (
+                                    <span className="font-bold">{item.text} — ({item.eye})</span>
+                                  ) : (
+                                    <span>{item.text} — ({item.eye})</span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
 
                 {/* --- Right Column --- */}
                 <div className="space-y-3 no-break-inside">
                   {visitDataPage?.prescription?.medicines?.length > 0 && (
                     <div className="border border-gray-300 rounded-md p-2 min-h-[400px]">
-                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300">
+                      <h3 className="font-bold text-center bg-gray-200 -m-2 mb-2 p-1 border-b border-gray-300 flex justify-center items-center relative group">
                         Rx
+                        <button
+                          onClick={() => navigate("/patient/Prescriptionpage")}
+                          className="absolute right-2 text-xs bg-blue-100 text-blue-600 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition print:hidden"
+                        >
+                          Edit
+                        </button>
                       </h3>
                       <div className="text-xs pt-2">
-                        <div>
-                          <div className="list-inside flex flex-col gap-2">
-                            {visitDataPage.prescription.medicines.map((item, index) => {
-                              // Simple translation mapping for demo purposes
-                              const translations = {
-                                "Tropicamide 1% eye drops": "ٹروپیکامائیڈ 1٪ آئی ڈراپس",
-                                "Artificial tears (carboxymethylcellulose)": "مصنوعی آنسو (کاربوکسی میتھائل سیلولوز)",
-                                // Add more medicine translations as needed
-                              };
-                              const urduMedicine = translations[item.medicine] || item.medicine;
-                              return (
-                                <div key={index} className="flex flex-col gap-1">
-                                  <div className="flex gap-4 items-center">
-                                    {item.isFreeProvided ? (
-                                      <>
-                                        <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span> <span className=" bg-acent text-primary font-medium rounded-4xl px-2 py-1">free</span>
-                                      </>
-                                    ) : (
+                        <div className="list-inside flex flex-col gap-3">
+                          {visitDataPage.prescription.medicines.map((item, index) => {
+                            // ✅ Smart Instruction Builder
+                            // Dosage/Duration: AI First (Better for complex sentences), Dict Fallback
+                            const dosageUrdu = getUrdu(item.dosage) || translateToUrdu(item.dosage);
+                            const durationUrdu = getUrdu(item.duration) || translateToUrdu(item.duration);
+
+                            // Eye: Dictionary First (Better for Codes like 'B', 'R'), AI Fallback
+                            // This fixes the issue where AI translated '(B)' to 'Nashta' (Breakfast)
+                            const dictEye = translateToUrdu(item.eye);
+                            const eyeUrdu = (dictEye && dictEye !== item.eye) ? dictEye : (getUrdu(item.eye) || item.eye);
+
+                            // Combine parts
+                            const instructionParts = [];
+                            if (dosageUrdu) instructionParts.push(dosageUrdu);
+                            if (durationUrdu) instructionParts.push(durationUrdu);
+                            if (eyeUrdu) instructionParts.push(eyeUrdu);
+
+                            const instructionUrdu = instructionParts.join(' ۔ ');
+
+                            // ✅ Transliterate Medicine Name using Smart Cache (Gemini)
+                            const medicineUrdu = getUrdu(item.medicine) || "";
+
+                            return (
+                              <div key={index} className="flex flex-col gap-1 border-b border-gray-200 pb-2">
+                                {/* English Medicine Info */}
+                                <div className="flex gap-4 items-center">
+                                  {item.isFreeProvided ? (
+                                    <>
                                       <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span>
-                                    )}
-                                  </div>
-                                  {/* <div className="flex gap-2 items-center text-right" style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}>
-                                    <span>{urduMedicine}</span>
-                                  </div> */}
+                                      <span className="bg-acent text-primary font-medium rounded-4xl px-2 py-1">free</span>
+                                    </>
+                                  ) : (
+                                    <span>{item.medicine} — {item.dosage} - {item.duration} ({item.eye})</span>
+                                  )}
                                 </div>
-                              );
-                            })}
-                          </div>
+                                {/* ✅ Auto-Generated Urdu Instructions */}
+                                <div
+                                  className="text-right text-gray-800 font-medium pt-1 flex flex-col items-end"
+                                  style={{
+                                    fontFamily: "'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif",
+                                    direction: 'rtl',
+                                    unicodeBidi: 'bidi-override',
+                                    fontSize: '14px',
+                                    lineHeight: '1.8'
+                                  }}
+                                >
+                                  {/* Medicine Name Transliteration */}
+                                  {medicineUrdu && <span className="text-gray-800 font-bold">{medicineUrdu}</span>}
+
+                                  {/* Dosage Instructions */}
+                                  {instructionUrdu && <span>{instructionUrdu}</span>}
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                        <p
-                          className="text-right pt-1"
-                          style={{ fontFamily: "'Noto Nastaliq Urdu', serif" }}
-                        >
-                          ایک قطرہ ہر دو گھنٹے بعد دونوں آنکھوں میں ۔ ایک ماہ
-                        </p>
                       </div>
                     </div>
                   )}
@@ -745,7 +878,7 @@ export const ReportPage = () => {
                       </div>
 
                     </div>
-                  )}  
+                  )}
 
                 </div>
               </main>

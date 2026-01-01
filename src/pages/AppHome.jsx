@@ -13,31 +13,7 @@ function AppHome() {
   ];
 
   return (
-    <div className="bg-gray-100 min-h-screen p-4">
-      {/* Header with Date */}
-      <div className="text-primary font-medium text-sm mb-2 cursor-pointer hover:underline">
-        Patient's Reservation For June 25, 2025
-      </div>
-
-      {/* Search & Action Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-2 mb-4 ">
-        <input
-          type="text"
-          placeholder="Search Patient"
-          className="border-1 border-secondary p-4 rounded-lg w-[25%] outline-primary"
-        />
-       
-        <button className="border border-secondary text-primary px-7 py-4 rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[10%] w-auto">
-          Refresh
-        </button>
-        <button className="border border-secondary text-primary px-7 py-4  rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[20%] w-auto">
-          Show Pending Check-in
-        </button>
-        <button className="flex items-center gap-x-2 whitespace-nowrap border border-secondary text-primary px-7 py-4  rounded-3xl text-sm hover:bg-highlight hover:border-none lg:w-[10%] w-auto">
-          ☰ More Filter
-        </button>
-      </div>
-
+    <div className="bg-gray-100 min-h-screen p-6">
       {/* Doctor Info */}
       <div className="bg-white border-l-4 border-primary shadow p-4 mb-4 rounded">
         <div className="border-1 border-secondary w-[350px] rounded-lg p-4 hover:border-black">
@@ -55,14 +31,14 @@ function AppHome() {
       </div>
 
       {/* Appointment Types */}
-      <div className="bg-white p-4 rounded shadow mb-4">
+      <div className="bg-white p-6 rounded-lg shadow-lg">
         <h2 className="text-primary text-sm font-semibold mb-3 flex items-center">
           Appointment Types
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           <div className="border-1 border-secondary p-4 rounded-lg shadow-sm">
             <h3 className="text-sm text-primary font-medium mb-2">Procedure</h3>
-            <Link to={"/patientscreen"}>
+            <Link to={"/patientscreen"} state={{ serviceType: "Procedure" }}>
               <button className="flex items-center justify-center gap-2 bg-acent text-primary px-4 py-4 rounded text-sm w-full hover:bg-highlight">
                 <FaUserPlus className="text-primary text-xs" />
                 Add Patient
@@ -72,7 +48,7 @@ function AppHome() {
 
           <div className="border-1 border-secondary p-4 rounded-lg shadow-sm">
             <h3 className="text-sm text-primary font-medium mb-2">Emergency</h3>
-            <Link to={"/patientscreen"}>
+            <Link to={"/patientscreen"} state={{ serviceType: "Emergency" }}>
               <button className="flex items-center justify-center gap-2 bg-acent text-primary px-4 py-4 rounded text-sm w-full hover:bg-highlight">
                 <FaUserPlus className="text-primary text-xs" />
                 Add Patient
@@ -82,7 +58,7 @@ function AppHome() {
 
           <div className="border-1 border-secondary p-4 rounded-lg shadow-sm">
             <h3 className="text-sm text-primary font-medium mb-2">Appointment</h3>
-            <Link to={"/patientscreen"}>
+            <Link to={"/patientscreen"} state={{ serviceType: "Appointment" }}>
               <button className="flex items-center justify-center gap-2 bg-acent text-primary px-4 py-4 rounded text-sm w-full hover:bg-highlight">
                 <FaUserPlus className="text-primary text-xs" />
                 Add Patient
@@ -92,7 +68,7 @@ function AppHome() {
 
           <div className="border-1 border-secondary p-4 rounded-lg shadow-sm">
             <h3 className="text-sm text-primary font-medium mb-2">Walk-in</h3>
-            <Link to={"/patientscreen"}>
+            <Link to={"/patientscreen"} state={{ serviceType: "Walk-in" }}>
               <button className="flex items-center justify-center gap-2 bg-acent text-primary px-4 py-4 rounded text-sm w-full hover:bg-highlight">
                 <FaUserPlus className="text-primary text-xs" />
                 Add Patient
@@ -102,7 +78,7 @@ function AppHome() {
 
           <div className="border-1 border-secondary p-4 rounded-lg shadow-sm">
             <h3 className="text-sm text-primary font-medium mb-2">Follow-up</h3>
-            <Link to={"/patientscreen"}>
+            <Link to={"/patientscreen"} state={{ serviceType: "Follow-up" }}>
               <button className="flex items-center justify-center gap-2 bg-acent text-primary px-4 py-4 rounded text-sm w-full hover:bg-highlight">
                 <FaUserPlus className="text-primary text-xs" />
                 Add Patient
@@ -112,7 +88,7 @@ function AppHome() {
 
           <div className="border-1 border-secondary p-4 rounded-lg shadow-sm">
             <h3 className="text-sm text-primary font-medium mb-2">Diagnostic</h3>
-            <Link to={"/patientscreen"}>
+            <Link to={"/patientscreen"} state={{ serviceType: "Diagnostic" }}>
               <button className="flex items-center justify-center gap-2 bg-acent text-primary px-4 py-4 rounded text-sm w-full hover:bg-highlight">
                 <FaUserPlus className="text-primary text-xs" />
                 Add Patient

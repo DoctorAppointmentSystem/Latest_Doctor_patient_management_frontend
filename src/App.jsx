@@ -1,11 +1,12 @@
-import { 
-  createBrowserRouter, 
-  RouterProvider, 
-  Navigate, 
-  Outlet 
+import {
+  createBrowserRouter,
+  RouterProvider,
+  Navigate,
+  Outlet
 } from "react-router-dom";
 import Layout from "./pages/Home";
 import LoginPage from "./pages/LoginPage";
+import AppHome from "./pages/AppHome"; // ✅ FIXED: Import AppHome
 import PatientList from "./pages/PatientList";
 import OPD from "./pages/OPD";
 import Prefrences from "./pages/Prefrences";
@@ -24,10 +25,11 @@ import TodaysReservation from "./pages/TodaysReservation";
 import PatientPage from "./pages/PatientPage";
 // FIXME: This import is likely wrong. 
 // VisionandRefraction should be imported from its own file.
-import VisionandRefraction from "./pages/PatientPage"; 
+import VisionandRefraction from "./pages/VisionandRefraction";
 import Examination from "./pages/Examination";
 import DiagnosisForm from "./pages/DiagnosisForm";
 import PrescriptionPage from "./pages/Prescriptionpage";
+import ExpenseEntry from "./pages/ExpenseEntry"; // ✅ NEW
 import { getItemWithExpiry } from "./services/token";
 
 // Force logout on every app load (for development/testing)
@@ -35,7 +37,7 @@ import { getItemWithExpiry } from "./services/token";
 // localStorage.removeItem('token');
 
 function isAuthenticated() {
-  return !!getItemWithExpiry('token'); 
+  return !!getItemWithExpiry('token');
 }
 
 /**
@@ -64,8 +66,8 @@ const router = createBrowserRouter([
     path: "/",
     element: <ProtectedElement element={<Layout />} />,
     children: [
-      // Redirect from "/" to "/patientlist"
-      { index: true, element: <Navigate to="/patientlist" replace /> },
+      // ✅ FIXED: Render AppHome as the default home page instead of redirecting
+      { index: true, element: <AppHome /> },
       { path: "/patientlist", element: <PatientList /> },
       { path: "/dailycashreport", element: <DailyCashReport /> },
       { path: "/patientrecentopd", element: <PatientRecentOPD /> },
@@ -77,18 +79,19 @@ const router = createBrowserRouter([
       { path: "/discounttypes", element: <DiscountTypes /> },
       { path: "/patientscreen", element: <Patientscreen /> },
       { path: "/cashReport", element: <ShowCashReportPage /> },
+      { path: "/expenses", element: <ExpenseEntry /> }, // ✅ NEW
     ]
   },
   {
     // Protected patient-specific layout routes
-    path: "/patient", // No '*' needed
+    path: "/patient/*", // ✅ FIXED: Added wildcard for nested routes
     element: <ProtectedElement element={<PLayout />} />,
     children: [
       { path: "addnewvisit", element: <ADDNewVisit /> },
       { path: "visionandrefraction", element: <VisionandRefraction /> },
-      { path: "examination", element:<Examination />},
-      { path: "diagnosisform", element:<DiagnosisForm />},
-      { path: "Prescriptionpage", element:<PrescriptionPage />},
+      { path: "examination", element: <Examination /> },
+      { path: "diagnosisform", element: <DiagnosisForm /> },
+      { path: "Prescriptionpage", element: <PrescriptionPage /> },
     ]
   },
   {

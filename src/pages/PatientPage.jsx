@@ -47,38 +47,38 @@ function PatientPage() {
 
 
   useEffect(() => {
-    if(patientData._id){
-    const fetchPatientData = async () => {
-      if (patientData._id) {
-        setOpen(false);
-        try {
-          const res = await getPatientsById(patientData._id);
-          setPatientData(res.data?.data || res.data);
-        } catch (error) {
-          console.error("Error fetching patient data:", error);
-        } finally {
-          setLoading(false);
+    if (patientData._id) {
+      const fetchPatientData = async () => {
+        if (patientData._id) {
+          setOpen(false);
+          try {
+            const res = await getPatientsById(patientData._id);
+            setPatientData(res.data?.data || res.data);
+          } catch (error) {
+            console.error("Error fetching patient data:", error);
+          } finally {
+            setLoading(false);
+          }
         }
-      }
-    };
-    fetchPatientData();
-  }
-  else {
-    const fetchPatientData = async () => {
-      if (patientId) {
-        setOpen(true);
-        try {
-          const res = await getPatientsById(patientId);
-          setPatientData(res.data?.data || res.data);
-        } catch (error) {
-          console.error("Error fetching patient data:", error);
-        } finally {
-          setLoading(false);
+      };
+      fetchPatientData();
+    }
+    else {
+      const fetchPatientData = async () => {
+        if (patientId) {
+          setOpen(true);
+          try {
+            const res = await getPatientsById(patientId);
+            setPatientData(res.data?.data || res.data);
+          } catch (error) {
+            console.error("Error fetching patient data:", error);
+          } finally {
+            setLoading(false);
+          }
         }
-      }
-    };
-    fetchPatientData();
-  }
+      };
+      fetchPatientData();
+    }
   }, [patientId]);
 
   if (loading) {
@@ -89,12 +89,21 @@ function PatientPage() {
     <div className="w-full flex flex-col gap-4">
       <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary to-highlight ">
         <div className="flex items-start gap-4 text-white">
-          <div className="w-[100px] border-2">
-            <img
-              src="https://img.freepik.com/free-photo/young-adult-enjoying-virtual-date_23-2149328221.jpg?uid=R137875917&ga=GA1.1.2032350152.1743826403&semt=ais_items_boosted&w=740"
-              alt="Patient Management System"
-              className="object-cover"
-            />
+          <div className="w-[100px] h-[100px] border-2 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+            {/* Dynamic Avatar based on patient initials */}
+            <div
+              className={`w-full h-full flex items-center justify-center text-3xl font-bold ${patientData?.gender === 'Male'
+                  ? 'bg-blue-500 text-white'
+                  : patientData?.gender === 'Female'
+                    ? 'bg-pink-500 text-white'
+                    : 'bg-gray-500 text-white'
+                }`}
+            >
+              {patientData?.patient_name
+                ? patientData.patient_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                : '?'
+              }
+            </div>
           </div>
 
           <div>
@@ -119,31 +128,31 @@ function PatientPage() {
         </div>
 
         <div className="flex items-center gap-4">
-          <button onClick={() => {setPage('profile'), setActive("profile")}} className="border-1 border-primary px-4 mr-4 py-2 rounded-sm text-primary">
+          <button onClick={() => { setPage('profile'), setActive("profile") }} className="border-1 border-primary px-4 mr-4 py-2 rounded-sm text-primary">
             Edit Profile
           </button>
-          {open && ( 
-          <Link to="/patient/addnewvisit" className="px-4 py-2 rounded-sm text-white">
-            ADD new Visit
-          </Link>
-)}
+          {open && (
+            <Link to="/patient/addnewvisit" className="px-4 py-2 rounded-sm text-white">
+              ADD new Visit
+            </Link>
+          )}
         </div>
       </div>
 
       <div className="flex items-center justify-center gap-10 p-4 shadow-xl">
         {/* <div className="bg-red-600"> */}
-        <button onClick={() => {setPage('profile'); setActive("profile")}} className={`py-2 px-4 rounded-[5px] ${active === "profile" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
+        <button onClick={() => { setPage('profile'); setActive("profile") }} className={`py-2 px-4 rounded-[5px] ${active === "profile" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Profile
         </button>
-        <button onClick={() => {setPage('visits'); setActive("visits")}} className={`py-2 px-4 rounded-[5px] ${active === "visits" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
+        <button onClick={() => { setPage('visits'); setActive("visits") }} className={`py-2 px-4 rounded-[5px] ${active === "visits" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Visits
         </button>
-        <button onClick={() => {setPage('notes'); setActive("notes")}} className={`py-2 px-4 rounded-[5px] ${active === "notes" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
+        <button onClick={() => { setPage('notes'); setActive("notes") }} className={`py-2 px-4 rounded-[5px] ${active === "notes" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Notes
         </button>
-        <button onClick={() => {setPage('appointments'); setActive("appointments")}} className={`py-2 px-4 rounded-[5px] ${active === "appointments" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
+        <button onClick={() => { setPage('appointments'); setActive("appointments") }} className={`py-2 px-4 rounded-[5px] ${active === "appointments" ? "bg-highlight text-primary" : "bg-gray-500 text-white"} hover:bg-highlight hover:text-primary`}>
           Appointments
-        </button> 
+        </button>
         {/* </div> */}
       </div>
       {page === "loading" && <Loader />}
@@ -154,7 +163,7 @@ function PatientPage() {
       {page === "procedure" && <Procedure />}
       {page === "history" && <HistoryP />}
       {page === "family_members" && <FamilyMembers />} */}
-      {page === "appointments" && <Appointment patientData={patientData}/>}
+      {page === "appointments" && <Appointment patientData={patientData} />}
       {page === "notes" && <Notes />}
       {/* {page === "unknown1" && <div>Unknown Page</div>}
       {page === "unknown2" && <div>Unknown Page</div>} */}
