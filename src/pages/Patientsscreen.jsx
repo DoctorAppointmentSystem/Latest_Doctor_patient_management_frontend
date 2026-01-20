@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import calculateDOBFromAge from "../services/dobCalculator";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPatient, getAllPatients } from "../api/patient";
+import toast from 'react-hot-toast';
 
 function Patientscreen() {
   const [patientAdd, setPatientAdd] = useState(false);
@@ -9,7 +10,7 @@ function Patientscreen() {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(false);
   const [category, setCategory] = useState("patient_name");
-  
+
   // Define the initial state for the form so it can be reused
   const initialFormData = {
     patient_name: "",
@@ -24,7 +25,7 @@ function Patientscreen() {
     city: "",
     check_nub: "",
     relation: "Self",
-    guardian_name : "",
+    guardian_name: "",
     gardian_email: "",
     gardian_cnic: "",
     gardian_profession: "",
@@ -35,6 +36,9 @@ function Patientscreen() {
 
   const [formData, setFormData] = useState(initialFormData);
   const navigate = useNavigate();
+  // ✅ NEW: Get location state
+  const location = useLocation();
+  const serviceType = location.state?.serviceType;
 
   const handleOpenPatient = () => {
     setPatientAdd((prev) => !prev);
@@ -46,19 +50,18 @@ function Patientscreen() {
         setPatients([]);
         return;
       }
-      if (!isNaN(searchQuery)) {
-        setCategory("phone_number");
-      } else {
-        setCategory("patient_name");
-      }
+
+      // Determine category inline based on search query
+      const searchCategory = !isNaN(searchQuery) ? "phone_number" : "patient_name";
 
       setLoading(true);
       try {
-        const res = await getAllPatients(category, searchQuery);
+        const res = await getAllPatients(searchCategory, searchQuery);
         const data = await res.data;
         setPatients(Array.isArray(data.data) ? data.data : []);
       } catch (error) {
         console.error("Error fetching patients:", error);
+        setPatients([]);
       } finally {
         setLoading(false);
       }
@@ -66,7 +69,7 @@ function Patientscreen() {
 
     const timeoutId = setTimeout(fetchPatients, 500);
     return () => clearTimeout(timeoutId);
-  }, [searchQuery, category]); // Added category to dependency array for correctness
+  }, [searchQuery]); // Removed category from dependencies
 
   const handleCreatePatient = async (formData) => {
     const payload = {
@@ -100,13 +103,15 @@ function Patientscreen() {
       const data = res.data;
       const pId = data.data._id;
       localStorage.setItem("selectedPatientId", pId);
-      alert("Patient created successfully!");
+      toast.success("Patient created successfully!");
       setPatientAdd(false);
       setFormData(initialFormData); // Reset form
-      navigate(`/appointment`); 
+      // ✅ Forward serviceType to Appointment page
+      navigate(`/appointment`, { state: { serviceType } });
     } catch (error) {
       console.error("Error creating patient:", error);
-      alert(error.message);
+      const errorMsg = error.response?.data?.message || error.message || "Failed to create patient";
+      toast.error(errorMsg);
     }
   };
 
@@ -140,80 +145,80 @@ function Patientscreen() {
 
       {/* Patient Form */}
       {patientAdd && (
-          <div className="text-gray-600 w-full">
-            <div className="bg-white rounded-lg p-6 shadow-xl flex flex-col items-center justify-between gap-2">
-              <h2 className=" text-primary text-xl font-semibold mt-3">
-                Name & Gender
-              </h2>
-              <div className="bg-highlight text-primary flex items-center justify-center w-full">
-                ========Required========
-              </div>
-              <div className="flex gap-2 w-full">
-                <input name="patient_name" value={formData.patient_name} onChange={handleChange} type="text" placeholder="Patient Name" className="w-[50%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input name="father_name" value={formData.father_name} onChange={handleChange} type="text" placeholder="Father/Husband Name" className="w-[50%] border-1 border-black p-4 rounded-lg mb-2" />
-              </div>
-              <div className="flex gap-2 w-full">
-                <select name="gender" value={formData.gender} onChange={handleChange} className="w-[33%] border-1 border-black p-4 rounded-lg mb-2">
-                  <option value="">Choose Gender</option>
-                  <option value="Male">Male</option>
-                  <option value="Female">Female</option>
-                  <option value="Other">Other</option>
-                </select>
-                <input name="age" value={formData.age} onChange={handleChange} type="text" placeholder="Age in years" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} type="date" placeholder="Date of Birth" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-              </div>
-              <div className="flex gap-2 w-full">
-                <select name="country_code" value={formData.country_code} onChange={handleChange} className="w-[10%] border-1 border-black p-4 rounded-lg mb-2">
-                  <option value="+92">+92</option>
-                  <option value="+91">+91</option>
-                  <option value="+1">+1</option>
-                </select>
-                <input name="phone_number" value={formData.phone_number} onChange={handleChange} type="text" placeholder="Phone Number" className="w-[90%] border-1 border-black p-4 rounded-lg mb-2" />
-              </div>
-              <div className="flex gap-2 w-full">
-                <input name="address" value={formData.address} onChange={handleChange} type="text" placeholder="Address" className="w-[25%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input name="city" value={formData.city} onChange={handleChange} type="text" placeholder="City" className="w-[25%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input name="check_nub" value={formData.check_nub} onChange={handleChange} type="text" placeholder="Check Nub" className="w-[25%] border-1 border-black p-4 rounded-lg mb-2" />
-                <select name="relation" value={formData.relation} onChange={handleChange} className="w-[25%] border-1 border-black p-4 rounded-lg mb-2">
-                  <option value="Self">Self</option>
-                  <option value="Father">Father</option>
-                  <option value="Mother">Mother</option>
-                  <option value="Husband">Husband</option>
-                  <option value="Wife">Wife</option>
-                  <option value="Brother">Brother</option>
-                  <option value="Sister">Sister</option>
-                  <option value="Other">Other</option>
-                </select>
-              </div>
-              <h2 className="w-full text-primary flex items-center justify-center font-semibold tet-xl mt-2">Personal Information (Optional)</h2>
-              <div className="flex gap-2 w-full">
-                <input type="text" name="oldmr" placeholder="Old Mr Number" value={formData.oldmr || ""} onChange={handleChange} className="w-[25%] border-1 border-black p-4 rounded-lg mb-2" />
-                <select className="w-[10%] border-1 border-black p-4 rounded-lg mb-2"><option value="1">***********</option></select>
-                <input type="text" name="guardian_name" value={formData.guardian_name || ""} onChange={handleChange} placeholder="Guardian Name" className="w-[85%] border-1 border-black p-4 rounded-lg mb-2" />
-              </div>
-              <div className="flex gap-2 w-full">
-                <input type="text" name="gardian_cnic" value={formData.gardian_cnic || ""} onChange={handleChange} placeholder="13 Digit Cnic Number" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input type="email" name="gardian_email" value={formData.gardian_email || ""} onChange={handleChange} placeholder="xxx@gamil.com" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input type="text" name="gardian_profession" value={formData.gardian_profession || ""} onChange={handleChange} placeholder="Profession" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-              </div>
-              <h2 className="w-full text-primary flex items-center justify-center font-semibold tet-xl mt-2">References and History (optional)</h2>
-              <div className="flex gap-2 w-full">
-                <input type="text" name="referenced" value={formData.referenced || ""} onChange={handleChange} placeholder="Referenced by" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input type="text" name="history" value={formData.history || ""} onChange={handleChange} placeholder="Histroy of" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input type="text" placeholder="Private" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-                <input type="text" placeholder="***********" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
-              </div>
-              <div className="flex items-center justify-between w-full gap-2">
-                <button onClick={() => handleCreatePatient(formData)} className="bg-primary hover:bg-highlight hover:text-primary py-2 px-4 text-white rounded-lg">
-                  Create Patient
-                </button>
-                {/* --- THIS BUTTON IS NOW FUNCTIONAL --- */}
-                <button onClick={handleResetForm} className="bg-highlight py-2 px-4 text-primary rounded-lg">
-                  Reset page
-                </button>
-              </div>
+        <div className="text-gray-600 w-full">
+          <div className="bg-white rounded-lg p-6 shadow-xl flex flex-col items-center justify-between gap-2">
+            <h2 className=" text-primary text-xl font-semibold mt-3">
+              Name & Gender
+            </h2>
+            <div className="bg-highlight text-primary flex items-center justify-center w-full">
+              ========Required========
+            </div>
+            <div className="flex gap-2 w-full">
+              <input name="patient_name" value={formData.patient_name} onChange={handleChange} type="text" placeholder="Patient Name" className="w-[50%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input name="father_name" value={formData.father_name} onChange={handleChange} type="text" placeholder="Father/Husband Name" className="w-[50%] border-1 border-black p-4 rounded-lg mb-2" />
+            </div>
+            <div className="flex gap-2 w-full">
+              <select name="gender" value={formData.gender} onChange={handleChange} className="w-[33%] border-1 border-black p-4 rounded-lg mb-2">
+                <option value="">Choose Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+              <input name="age" value={formData.age} onChange={handleChange} type="text" placeholder="Age in years" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} type="date" placeholder="Date of Birth" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+            </div>
+            <div className="flex gap-2 w-full">
+              <select name="country_code" value={formData.country_code} onChange={handleChange} className="w-[10%] border-1 border-black p-4 rounded-lg mb-2">
+                <option value="+92">+92</option>
+                <option value="+91">+91</option>
+                <option value="+1">+1</option>
+              </select>
+              <input name="phone_number" value={formData.phone_number} onChange={handleChange} type="text" placeholder="Phone Number" className="w-[90%] border-1 border-black p-4 rounded-lg mb-2" />
+            </div>
+            <div className="flex gap-2 w-full">
+              <input name="address" value={formData.address} onChange={handleChange} type="text" placeholder="Address" className="w-[25%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input name="city" value={formData.city} onChange={handleChange} type="text" placeholder="City" className="w-[25%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input name="check_nub" value={formData.check_nub} onChange={handleChange} type="text" placeholder="Check Nub" className="w-[25%] border-1 border-black p-4 rounded-lg mb-2" />
+              <select name="relation" value={formData.relation} onChange={handleChange} className="w-[25%] border-1 border-black p-4 rounded-lg mb-2">
+                <option value="Self">Self</option>
+                <option value="Father">Father</option>
+                <option value="Mother">Mother</option>
+                <option value="Husband">Husband</option>
+                <option value="Wife">Wife</option>
+                <option value="Brother">Brother</option>
+                <option value="Sister">Sister</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <h2 className="w-full text-primary flex items-center justify-center font-semibold tet-xl mt-2">Personal Information (Optional)</h2>
+            <div className="flex gap-2 w-full">
+              <input type="text" name="oldmr" placeholder="Old Mr Number" value={formData.oldmr || ""} onChange={handleChange} className="w-[25%] border-1 border-black p-4 rounded-lg mb-2" />
+              <select className="w-[10%] border-1 border-black p-4 rounded-lg mb-2"><option value="1">***********</option></select>
+              <input type="text" name="guardian_name" value={formData.guardian_name || ""} onChange={handleChange} placeholder="Guardian Name" className="w-[85%] border-1 border-black p-4 rounded-lg mb-2" />
+            </div>
+            <div className="flex gap-2 w-full">
+              <input type="text" name="gardian_cnic" value={formData.gardian_cnic || ""} onChange={handleChange} placeholder="13 Digit Cnic Number" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input type="email" name="gardian_email" value={formData.gardian_email || ""} onChange={handleChange} placeholder="xxx@gamil.com" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input type="text" name="gardian_profession" value={formData.gardian_profession || ""} onChange={handleChange} placeholder="Profession" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+            </div>
+            <h2 className="w-full text-primary flex items-center justify-center font-semibold tet-xl mt-2">References and History (optional)</h2>
+            <div className="flex gap-2 w-full">
+              <input type="text" name="referenced" value={formData.referenced || ""} onChange={handleChange} placeholder="Referenced by" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input type="text" name="history" value={formData.history || ""} onChange={handleChange} placeholder="Histroy of" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input type="text" placeholder="Private" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+              <input type="text" placeholder="***********" className="w-[33%] border-1 border-black p-4 rounded-lg mb-2" />
+            </div>
+            <div className="flex items-center justify-between w-full gap-2">
+              <button onClick={() => handleCreatePatient(formData)} className="bg-primary hover:bg-highlight hover:text-primary py-2 px-4 text-white rounded-lg">
+                Create Patient
+              </button>
+              {/* --- THIS BUTTON IS NOW FUNCTIONAL --- */}
+              <button onClick={handleResetForm} className="bg-highlight py-2 px-4 text-primary rounded-lg">
+                Reset page
+              </button>
             </div>
           </div>
+        </div>
       )}
 
       {/* Search Input and Results */}
@@ -225,7 +230,12 @@ function Patientscreen() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        {loading && <p className="text-gray-500">Searching...</p>}
+        {loading && (
+          <div className="flex items-center gap-2 text-gray-500">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary"></div>
+            <p>Searching...</p>
+          </div>
+        )}
         {!loading && patients.length > 0 && (
           <div className="overflow-x-auto">
             <table className="w-full border border-gray-300 rounded-lg shadow bg-white">
@@ -242,7 +252,12 @@ function Patientscreen() {
                     <td className="p-2 border">{p.gender}</td><td className="p-2 border">{p.age}</td>
                     <td className="p-2 border">{p.phone_number}</td>
                     <td className="p-2 border text-primary cursor-pointer">
-                      <Link to="/appointment" onClick={() => localStorage.setItem("selectedPatientId", p._id)} className="hover:underline">
+                      <Link
+                        to="/appointment"
+                        state={{ serviceType }}
+                        onClick={() => localStorage.setItem("selectedPatientId", p._id)}
+                        className="hover:underline"
+                      >
                         Create Appointment
                       </Link>
                     </td>

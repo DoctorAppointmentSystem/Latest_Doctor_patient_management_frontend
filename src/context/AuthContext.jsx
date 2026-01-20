@@ -4,11 +4,12 @@ import { getItemWithExpiry } from "../services/token";
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(!!getItemWithExpiry("isLoggedIn"));
+  // ✅ FIXED: Check 'token' key (what LoginPage saves) instead of 'isLoggedIn'
+  const [isLoggedIn, setIsLoggedIn] = useState(!!getItemWithExpiry("token"));
 
   useEffect(() => {
     const checkLogin = setInterval(() => {
-      const loggedIn = !!getItemWithExpiry("isLoggedIn");
+      const loggedIn = !!getItemWithExpiry("token"); // ✅ FIXED: Use 'token' key
       setIsLoggedIn(loggedIn);
     }, 60 * 1000); // check every minute
     return () => clearInterval(checkLogin);

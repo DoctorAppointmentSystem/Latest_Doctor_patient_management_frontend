@@ -1,14 +1,19 @@
 import { useContext, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { PatientContext, AppointmentContext } from "../context";
+import { getNextToken } from "../api/appointments";
+import { getDoctors } from "../api/doctors";
+import { getServices } from "../api/services";
+import toast from 'react-hot-toast';
 
-const doctors = ["Dr X…", "Dr Y…", "Dr Z…", "Dr A…", "Dr B…"];
-const services = ["Emergency", "Surgery", "Consultation", "Follow-up"];
 const sources = ["Self", "Referral"];
 const bdms = ["BDM One", "BDM Two"];
 
 function AppointmentPage() {
   const navigate = useNavigate();
+  // ✅ NEW: Get location state for service auto-selection
+  const location = useLocation();
+  const serviceTypeToAdd = location.state?.serviceType;
 
   const [patientId, setPatientId] = useState(null);
   const [patient, setPatient] = useState(null);
@@ -16,12 +21,65 @@ function AppointmentPage() {
   const [error, setError] = useState(null);
   const [token, setToken] = useState("");
 
+  // ✅ NEW: Dynamic lists from backend
+  const [doctors, setDoctors] = useState([]);
+  const [services, setServices] = useState([]);
+  const [dataLoading, setDataLoading] = useState(true);
 
-  const [selectedDoctor, setSelectedDoctor] = useState("Dr Ahmad…");
-  const [selectedService, setSelectedService] = useState("OPD");
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+  const [selectedService, setSelectedService] = useState("");
 
   const { patientData, setPatientData } = useContext(PatientContext);
   const { appointmentData, setAppointmentData } = useContext(AppointmentContext);
+
+  // ✅ NEW: Fetch doctors and services
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [doctorsRes, servicesRes] = await Promise.all([
+          getDoctors(),
+          getServices(),
+        ]);
+
+        setDoctors(doctorsRes.data.data);
+        setServices(servicesRes.data.data);
+
+        // Set default selections
+        if (doctorsRes.data.data.length > 0) {
+          setSelectedDoctor(doctorsRes.data.data[0].name);
+        }
+        if (servicesRes.data.data.length > 0) {
+          // ✅ NEW: Auto-select service if passed from dashboard
+          if (serviceTypeToAdd && servicesRes.data.data.some(s => s.name === serviceTypeToAdd)) {
+            setSelectedService(serviceTypeToAdd);
+          } else {
+            setSelectedService(servicesRes.data.data[0].name);
+          }
+        }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        toast.error("Failed to load doctors/services");
+      } finally {
+        setDataLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
+
+  // ✅ NEW: Fetch next available token on page load
+  useEffect(() => {
+    const fetchNextToken = async () => {
+      try {
+        const res = await getNextToken();
+        const nextToken = res.data.nextToken;
+        setToken(nextToken); // Auto-fill with suggested token
+      } catch (err) {
+        console.error("Error fetching next token:", err);
+        setToken("1"); // Fallback to 1
+      }
+    };
+    fetchNextToken();
+  }, []);
 
   useEffect(() => {
     const storedId = localStorage.getItem("selectedPatientId");
@@ -32,7 +90,7 @@ function AppointmentPage() {
     const fetchPatient = async () => {
       if (!storedId) return;
       try {
-        const res = await fetch(`https://patientmanagementsystem.duckdns.org/api/patients/${storedId}`);
+        const res = await fetch(`http://localhost:3000/api/patients/${storedId}`);
         if (!res.ok) throw new Error("Failed to fetch patient");
         const data = await res.json();
         setPatient(data.data);
@@ -49,10 +107,10 @@ function AppointmentPage() {
 
   const handleContinue = () => {
     if (!selectedDoctor || !selectedService) {
-      alert("Please select both doctor and service.");
+      toast.error("⚠️ Please select both doctor and service.");
       return;
     }
-    setAppointmentData({...appointmentData, manualToken: token, doctor: selectedDoctor, serviceType: selectedService, patientId: patient._id });
+    setAppointmentData({ ...appointmentData, manualToken: token, doctor: selectedDoctor, serviceType: selectedService, patientId: patient._id });
     setPatientData({ ...patientData, doctor: selectedDoctor, service: selectedService });
     // Pass the selected doctor and service to the next page
     navigate("/cashReport");
@@ -69,12 +127,21 @@ function AppointmentPage() {
       {/* Header */}
       <div className="flex items-center justify-between p-4 bg-gradient-to-r from-primary to-highlight ">
         <div className="flex items-start gap-4 text-white">
-          <div className="w-[100px] border-2">
-            <img
-              src="https://img.freepik.com/free-photo/young-adult-enjoying-virtual-date_23-2149328221.jpg?uid=R137875917&ga=GA1.1.2032350152.1743826403&semt=ais_items_boosted&w=740"
-              alt="Patient Management System"
-              className="object-cover"
-            />
+          <div className="w-[100px] h-[100px] border-2 rounded-lg overflow-hidden flex items-center justify-center bg-white">
+            {/* Dynamic Avatar based on patient initials */}
+            <div
+              className={`w-full h-full flex items-center justify-center text-3xl font-bold ${patient?.gender === 'Male'
+                  ? 'bg-blue-500 text-white'
+                  : patient?.gender === 'Female'
+                    ? 'bg-pink-500 text-white'
+                    : 'bg-gray-500 text-white'
+                }`}
+            >
+              {patient?.patient_name
+                ? patient.patient_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                : '?'
+              }
+            </div>
           </div>
 
           <div>
@@ -131,9 +198,8 @@ function AppointmentPage() {
               value={selectedDoctor}
               onChange={(e) => setSelectedDoctor(e.target.value)}
             >
-              <option value="Dr Ahmad…" className="hover:bg-highlight">Dr Ahmad…</option>
-              {doctors.map((d) => (
-                <option key={d} value={d}>{d}</option>
+              {doctors.map((doctor) => (
+                <option key={doctor._id} value={doctor.name}>{doctor.name}</option>
               ))}
             </select>
           </div>
@@ -145,9 +211,8 @@ function AppointmentPage() {
               value={selectedService}
               onChange={(e) => setSelectedService(e.target.value)}
             >
-              <option value="OPD" className="">OPD</option>
-              {services.map((s) => (
-                <option key={s} value={s}>{s}</option>
+              {services.map((service) => (
+                <option key={service._id} value={service.name}>{service.name}</option>
               ))}
             </select>
           </div>

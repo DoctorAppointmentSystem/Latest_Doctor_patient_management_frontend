@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback, memo, useContext } from "react";
-import { FiMenu, FiX, FiHome, FiUser, FiBell, FiChevronRight, FiChevronDown, FiChevronLeft} from "react-icons/fi";
+import { FiMenu, FiX, FiHome, FiUser, FiBell, FiChevronRight, FiChevronDown, FiChevronLeft } from "react-icons/fi";
 import { FaList } from "react-icons/fa6";
 import { TbReportSearch } from "react-icons/tb";
 import { MdRecentActors } from "react-icons/md";
 import { FaCalendarPlus } from "react-icons/fa";
 import { create } from "zustand";
-import { Routes, Route, Link } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom"; // ✅ FIXED: Use Outlet instead of Routes
 import { useNavigate } from 'react-router-dom';
 import DailyCashReport from "./DailyCashReport";
 import PatientRecentOPD from "./PatientRecentOPD";
@@ -54,14 +54,15 @@ const SidebarToggle = memo(({ collapsed, setCollapsed, isMobile, toggleMobileMen
 const Navigation = memo(({ collapsed, onLogout }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
-  
+
   const navItems = [
-    { icon: FiHome, label: "Home",pagelink:"/" },
-    { icon: TbReportSearch, label: "Daily Cash Report", pagelink:"/dailycashreport" },
-    { 
-      icon: FaList, 
+    { icon: FiHome, label: "Home", pagelink: "/" },
+    { icon: TbReportSearch, label: "Daily Cash Report", pagelink: "/dailycashreport" },
+    { icon: MdRecentActors, label: "Expenses", pagelink: "/expenses" }, // ✅ NEW
+    {
+      icon: FaList,
       label: "Patients List",
-      pagelink:"/patientlist",
+      pagelink: "/patientlist",
     },
     // This item has no 'pagelink'
     { icon: TbReportSearch, label: "Logout" },
@@ -76,7 +77,7 @@ const Navigation = memo(({ collapsed, onLogout }) => {
       <ul className="space-y-2 px-2">
         {navItems.map(({ icon: Icon, label, subItems, pagelink }) => (
           <div key={label} className="relative">
-            
+
             {/* --- THIS IS THE NEW LOGIC --- */}
             {label === "Logout" ? (
               // If it's the Logout button
@@ -112,8 +113,8 @@ const Navigation = memo(({ collapsed, onLogout }) => {
                   {!collapsed && <span className="ml-3">{label}</span>}
                 </div>
                 {!collapsed && subItems && (
-                  <FiChevronDown 
-                    className={`transition-transform duration-200 ${selectedItem === label ? "transform rotate-180" : ""}`} 
+                  <FiChevronDown
+                    className={`transition-transform duration-200 ${selectedItem === label ? "transform rotate-180" : ""}`}
                   />
                 )}
               </Link>
@@ -136,7 +137,7 @@ const Navigation = memo(({ collapsed, onLogout }) => {
 
             {/* Hover card when collapsed */}
             {subItems && hoveredItem === label && collapsed && (
-              <div 
+              <div
                 className="
                   absolute top-0 left-full
                   w-48 bg-gray-800 rounded-lg shadow-lg py-2 z-50
@@ -194,19 +195,8 @@ const Layout = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, [handleResize]);
 
-  const getpatientbyId = async () => {
-    try{
-    const res = [];
-
-    console.log(res.data);
-  } catch(error) {
-    console.log(error)
-  }
-  }
-
-  getpatientbyId();
-  
-  
+  // ✅ FIXED: Removed getpatientbyId() function and its direct call
+  // It was causing infinite loop by being called on every render
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -214,7 +204,7 @@ const Layout = () => {
 
   // Added: Overlay for mobile menu
   const Overlay = () => (
-    <div 
+    <div
       className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 z-40" : "opacity-0 pointer-events-none"}`}
       onClick={() => setMobileMenuOpen(false)}
     />
@@ -234,17 +224,17 @@ const Layout = () => {
       >
         <div className="p-4 flex items-center justify-between">
           <h1 className={`font-bold ${collapsed && !isMobile ? "hidden" : "block"}`}>Dashboard</h1>
-          <SidebarToggle 
-            collapsed={collapsed} 
-            setCollapsed={setCollapsed} 
+          <SidebarToggle
+            collapsed={collapsed}
+            setCollapsed={setCollapsed}
             isMobile={isMobile}
             toggleMobileMenu={toggleMobileMenu}
           />
         </div>
-        <Navigation collapsed={collapsed && !isMobile} onLogout={handleLogout}/>
+        <Navigation collapsed={collapsed && !isMobile} onLogout={handleLogout} />
       </aside>
 
-      <main 
+      <main
         className={`
           flex-1 transition-all duration-300
           ${isMobile ? "ml-0" : (collapsed ? "ml-20" : "ml-64")}
@@ -261,32 +251,18 @@ const Layout = () => {
                   <FiMenu className="w-6 h-6" />
                 </button>
               )}
-              Navbar
+              <span className="text-xl font-bold text-primary">
+                Jamil Eye Care
+              </span>
             </div>
-          </div> 
+          </div>
         </header>
         <div className="">
           <div className="p-2">
-            <Routes>
-              <Route path="/" element={<AppHome />} />
-              <Route path="/patientlist" element={<PatientList />} />
-              <Route path="/dailycashreport" element={<DailyCashReport/>}/>
-              <Route path="/patientrecentopd" element={<PatientRecentOPD/>}/>
-              <Route path="/opd" element={<OPD/>}/>
-              <Route path="/prefrences" element={<Prefrences/>}/>
-              <Route path="/todaysreservation" element={<TodaysReservation/>}/>
-              <Route path="/addpatient" element={<AddNewPatient />} />
-              <Route path="/appointment" element={<AppointmentPage />} />
-              <Route path="/discounttypes" element={<DiscountTypes />} />
-              <Route path="/examination" element={<Examination />} />
-              <Route path="/TodayReservation" element={<TodayReservation />} />
-              <Route path="/DailyCashReport" element={<DailyCashReport />} />
-              <Route path="/patientscreen" element={<Patientscreen />} />
-              {/* <Route path="/token" element={<PatientTokenPage />} /> */}
-              <Route path="/cashReport" element={<ShowCashReportPage />} />
-            </Routes>
-            
-             
+            {/* ✅ FIXED: Use Outlet instead of duplicate Routes - App.jsx handles routing */}
+            <Outlet />
+
+
           </div>
         </div>
       </main>

@@ -1,25 +1,214 @@
 @import "tailwindcss";
 
 @theme {
-  
-  --color-primary : #1D3557; /* button text color */ /* Action button bg color */
-  --color-secondary : #A9A9A9; /*  color */
-  --color-background : #E0E0E0; /* lightgray color */
-  --color-acent : #B2F1A3;  /* button bg color */
-  --color-highlight : #FFA07A; /* button hover bg color */
 
-
-
-
-  /* --color-buttonbg : #B2F1A3;
-  --color-buttontext : #1D3557;
-  --color-buttonhoverbg : #FFA07A;
-  --color-lightgray : #E0E0E0;
-  --color-actionbuttonbg : #1D3557; */
-  
+  --color-primary: #1D3557;
+  /* button text color */
+  /* Action button bg color */
+  --color-secondary: #A9A9A9;
+  /*  color */
+  --color-background: #E0E0E0;
+  /* lightgray color */
+  --color-acent: #B2F1A3;
+  /* button bg color */
+  --color-highlight: #FFA07A;
+  /* button hover bg color */
 }
 
-.action-color {
-  
+/* ============================================
+   🎨 UI POLISH - Global Utility Classes
+   ============================================ */
+
+/* Smooth Transitions */
+.transition-smooth {
+  transition: all 0.2s ease-in-out;
 }
 
+/* Card Shadows */
+.shadow-card {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.shadow-card-hover:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+/* Button Hover Effects */
+.btn-hover:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-hover:active {
+  transform: scale(0.98);
+}
+
+/* Input Focus Effects */
+.input-focus:focus {
+  outline: none;
+  border-color: #1D3557;
+  box-shadow: 0 0 0 3px rgba(29, 53, 87, 0.15);
+}
+
+.input-focus-glow:focus {
+  outline: none;
+  border-color: #FFA07A;
+  box-shadow: 0 0 0 3px rgba(255, 160, 122, 0.3);
+}
+
+/* Hover Scale */
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+/* Hover Glow */
+.hover-glow:hover {
+  box-shadow: 0 0 15px rgba(255, 160, 122, 0.4);
+}
+
+/* Gradient Buttons */
+.btn-gradient {
+  background: linear-gradient(135deg, #1D3557 0%, #457B9D 100%);
+  transition: all 0.2s ease;
+}
+
+.btn-gradient:hover {
+  background: linear-gradient(135deg, #457B9D 0%, #1D3557 100%);
+  transform: translateY(-1px);
+}
+
+.btn-gradient-success {
+  background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+}
+
+.btn-gradient-success:hover {
+  background: linear-gradient(135deg, #059669 0%, #10B981 100%);
+}
+
+/* Skeleton Loading Animation */
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Fade In Animation */
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Slide In from Right (for toasts) */
+.animate-slide-in-right {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Pulse Animation */
+.animate-pulse-soft {
+  animation: pulseSoft 2s infinite;
+}
+
+@keyframes pulseSoft {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* Table Zebra Stripes */
+.table-zebra tbody tr:nth-child(even) {
+  background-color: #f9fafb;
+}
+
+.table-zebra tbody tr:hover {
+  background-color: #EBF4FF;
+}
+
+/* Sticky Table Header */
+.table-sticky thead {
+  position: sticky;
+  top: 0;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+/* Success Checkmark Animation */
+.checkmark-success {
+  animation: checkmarkPop 0.4s ease-out;
+}
+
+@keyframes checkmarkPop {
+  0% {
+    transform: scale(0);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* ============================================
+   🖨️ PRINT STYLES - Hide UI elements when printing
+   ============================================ */
+@media print {
+
+  /* Hide toast notifications */
+  .Toastify,
+  .Toastify__toast-container,
+  [class*="toast"],
+  [class*="Toast"],
+  div[role="alert"] {
+    display: none !important;
+  }
+
+  /* Hide navigation elements */
+  aside,
+  nav,
+  .sidebar,
+  header button {
+    display: none !important;
+  }
+}

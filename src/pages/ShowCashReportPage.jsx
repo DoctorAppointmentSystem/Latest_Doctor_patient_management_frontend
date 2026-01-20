@@ -1,15 +1,23 @@
-import { useContext, useState } from "react";
+import { useContext, useState, useEffect } from "react";
 import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
-import { PatientContext } from "../context";
+import { PatientContext, AppointmentContext } from "../context";
+import axiosInstance from "../api/axiosInstance";
+import { useToast } from "../components/Toast"; // ✅ Toast notifications
 
 const ShowCashReportPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { patientData, setPatientData } = useContext(PatientContext);
+  const { appointmentData } = useContext(AppointmentContext);
+  const { toast } = useToast(); // ✅ Toast hook
+  const [isSubmitting, setIsSubmitting] = useState(false); // ✅ Loading state
   const doctor = patientData.doctor || "Doctor Name";
   const patient = patientData.name || "Patient Name";
   const service = patientData.service || "Follow-up";
-  const tokenNumber = Math.floor(Math.random() * 1000) + 1;
+
+  // ✅ Use user's entered token from AppointmentContext, fallback to random if empty
+  const userEnteredToken = appointmentData?.manualToken;
+  const tokenNumber = userEnteredToken || ("A" + (Math.floor(Math.random() * 1000) + 1));
 
   const [formData, setFormData] = useState({
     charges: "",
@@ -18,10 +26,43 @@ const ShowCashReportPage = () => {
     discount: "",
     discountRemarks: "",
     amountPayable: "",
+    paymentMethod: "Cash", // ✅ NEW: Payment method
+  });
+
+  // ✅ NEW: Advance payment state
+  const [isAdvance, setIsAdvance] = useState(false);
+  const [advanceDetails, setAdvanceDetails] = useState({
+    procedureType: "",
+    advanceAmount: "",
+    remainingAmount: "",
   });
 
   // single reservation
   const [reservation, setReservation] = useState(null);
+
+  // ✅ Auto-calculate amountPayable when charges, discount, or discountType changes
+  useEffect(() => {
+    const chargesNum = parseFloat(formData.charges) || 0;
+    const discountNum = parseFloat(formData.discount) || 0;
+
+    let payable = chargesNum;
+
+    if (formData.discountType === "Percentage") {
+      // Percentage discount: subtract percentage of charges
+      payable = chargesNum - (chargesNum * discountNum / 100);
+    } else {
+      // Fixed discount: subtract directly
+      payable = chargesNum - discountNum;
+    }
+
+    // Ensure non-negative
+    payable = Math.max(0, payable);
+
+    setFormData(prev => ({
+      ...prev,
+      amountPayable: payable > 0 ? payable.toFixed(0) : ""
+    }));
+  }, [formData.charges, formData.discount, formData.discountType]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,14 +85,17 @@ const ShowCashReportPage = () => {
       discount: "",
       discountRemarks: "",
       amountPayable: "",
+      paymentMethod: "Cash", // ✅ Reset to default
     });
   };
 
   const handleNext = async () => {
     if (!reservation) {
-      alert("Please add a reservation first");
+      toast.warning("⚠️ Please add a reservation first");
       return;
     }
+
+    setIsSubmitting(true); // ✅ Start loading
 
     try {
       const appointmentData = {
@@ -59,43 +103,44 @@ const ShowCashReportPage = () => {
         serviceType: patientData.service,
         patientId: patientData._id,
         charges: reservation.charges || 0,
-        claimable: reservation.claimable|| 0,
+        claimable: reservation.claimable || 0,
         discount_type: reservation.discountType || "",
         discount_remarks: reservation.discountRemarks || "",
         amountPaid: Number(reservation.amountPayable) || 0,
-        manualToken: "A" + tokenNumber,
+        paymentMethod: reservation.paymentMethod || "Cash",
+        manualToken: tokenNumber,
+        // ✅ NEW: Advance payment data
+        isAdvance: isAdvance,
+        advanceAmount: isAdvance ? Number(advanceDetails.advanceAmount) || 0 : 0,
+        remainingAmount: isAdvance ? Number(advanceDetails.remainingAmount) || 0 : 0,
+        procedureType: isAdvance ? advanceDetails.procedureType : "",
       };
 
+      console.log("🔍 DEBUG - Payment Method:", reservation.paymentMethod);
       console.log("📌 Sending appointment to API:", appointmentData);
 
-      const res = await fetch("https://patientmanagementsystem.duckdns.org/api/appointments", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(appointmentData),
-      });
-
-      if (!res.ok) {
-        throw new Error("Failed to create appointment");
-      }
+      // ✅ FIXED: Using axiosInstance which includes auth token automatically
+      const response = await axiosInstance.post("/appointments", appointmentData);
 
       setPatientData({
         ...patientData,
         charges: reservation.charges || 0,
-        claimable: reservation.claimable|| 0,
+        claimable: reservation.claimable || 0,
         discountType: reservation.discountType || "",
         discountRemarks: reservation.discountRemarks || "",
         amountPayable: Number(reservation.amountPayable) || 0,
         tokenNumber: tokenNumber,
-      })
+      });
 
-      const data = await res.json();
-      console.log("✅ Appointment created:", data);
+      console.log("✅ Appointment created:", response.data);
+      toast.success("✅ Appointment created successfully!");
       navigate("/token");
-
-      alert("Appointment created successfully!");
     } catch (err) {
       console.error("❌ Error creating appointment:", err);
-      alert("Failed to create appointment");
+      const errorMessage = err.response?.data?.message || "Failed to create appointment";
+      toast.error("❌ " + errorMessage);
+    } finally {
+      setIsSubmitting(false); // ✅ Stop loading
     }
   };
 
@@ -189,10 +234,94 @@ const ShowCashReportPage = () => {
               type="text"
               name="amountPayable"
               value={formData.amountPayable}
-              onChange={handleChange}
-              placeholder="Rs."
-              className="mt-1 p-2 w-full border rounded"
+              readOnly
+              placeholder="Auto-calculated"
+              className="mt-1 p-2 w-full border rounded bg-green-100 font-semibold text-green-700 cursor-not-allowed"
             />
+          </div>
+
+          {/* ✅ NEW: Payment Method Dropdown */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Payment Method
+            </label>
+            <select
+              name="paymentMethod"
+              value={formData.paymentMethod}
+              onChange={handleChange}
+              className="mt-1 p-2 w-full border rounded"
+            >
+              <option value="Cash">Cash</option>
+              <option value="Card">Credit/Debit Card</option>
+              <option value="Online">Online Transfer</option>
+            </select>
+          </div>
+
+          {/* ✅ NEW: Advance Payment Section */}
+          <div className="border-t pt-4">
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isAdvance}
+                onChange={(e) => setIsAdvance(e.target.checked)}
+                className="w-4 h-4"
+              />
+              <span className="text-sm font-medium text-gray-700">This is an advance payment</span>
+            </label>
+
+            {isAdvance && (
+              <div className="mt-3 space-y-3 bg-orange-50 p-3 rounded">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Procedure Type</label>
+                  <input
+                    type="text"
+                    list="procedure-options" // ✅ Connect to datalist
+                    value={advanceDetails.procedureType}
+                    onChange={(e) => setAdvanceDetails({ ...advanceDetails, procedureType: e.target.value })}
+                    placeholder="Select or type (e.g. Cataract)"
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                  {/* ✅ PRE-DEFINED LIST */}
+                  <datalist id="procedure-options">
+                    <option value="Cataract Surgery" />
+                    <option value="Phaco Surgery" />
+                    <option value="LASIK" />
+                    <option value="Glaucoma Surgery" />
+                    <option value="Cornea Transplant" />
+                    <option value="Retina Surgery" />
+                    <option value="Ptosis Correction" />
+                  </datalist>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Advance Amount</label>
+                  <input
+                    type="number"
+                    value={advanceDetails.advanceAmount}
+                    onChange={(e) => {
+                      const advance = e.target.value;
+                      const total = Number(formData.amountPayable) || 0;
+                      setAdvanceDetails({
+                        ...advanceDetails,
+                        advanceAmount: advance,
+                        remainingAmount: (total - advance).toFixed(0) // ✅ Auto-calculate remaining
+                      });
+                    }}
+                    placeholder="Rs."
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Remaining Amount</label>
+                  <input
+                    type="number"
+                    value={advanceDetails.remainingAmount}
+                    onChange={(e) => setAdvanceDetails({ ...advanceDetails, remainingAmount: e.target.value })}
+                    placeholder="Rs."
+                    className="mt-1 p-2 w-full border rounded"
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <button
