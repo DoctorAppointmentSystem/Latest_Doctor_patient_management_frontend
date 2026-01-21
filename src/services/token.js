@@ -7,21 +7,37 @@ function setItemWithExpiry(key, value, expiryInMinutes = 30) {
   localStorage.setItem(key, JSON.stringify(item));
 }
 
-
 function getItemWithExpiry(key) {
   const itemStr = localStorage.getItem(key);
+
+  // 1. If nothing exists, return null
   if (!itemStr) return null;
 
-  const item = JSON.parse(itemStr);
-  const now = new Date();
+  try {
+    // 2. Attempt to parse. If it's a raw string (JWT), this will jump to 'catch'
+    const item = JSON.parse(itemStr);
 
-  if (now.getTime() > item.expiry) {
-    // ⏰ Time’s up! Delete it
-    localStorage.removeItem(key);
-    return null;
+    // 3. Check if the parsed object has our specific expiry structure
+    if (item && typeof item === 'object' && item.expiry) {
+      const now = new Date();
+
+      if (now.getTime() > item.expiry) {
+        // ⏰ Time’s up! Delete it
+        localStorage.removeItem(key);
+        return null;
+      }
+      return item.value;
+    }
+
+    // 4. If it's valid JSON but NOT our expiry object, just return the data
+    return item;
+
+  } catch (error) {
+    /** * 5. If parsing fails, it means the item is a plain string (like your JWT).
+     * We return the string directly instead of crashing the app.
+     */
+    return itemStr;
   }
-
-  return item.value;
 }
 
 export { setItemWithExpiry, getItemWithExpiry };

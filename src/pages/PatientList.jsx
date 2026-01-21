@@ -509,7 +509,7 @@ function PatientList() {
           {!allPatientsLoading && filteredAllPatients.length > 0 && (
             <div className="overflow-x-auto">
               <table className="w-full border border-gray-300 rounded-lg shadow bg-white table-zebra table-sticky">
-                <thead className="bg-primary text-white text-left">
+                <thead className="bg-primary text-primary text-left">
                   <tr>
                     <th className="p-2 border">Name</th><th className="p-2 border">Father Name</th><th className="p-2 border">Gender</th>
                     <th className="p-2 border">Age</th><th className="p-2 border">Phone</th><th className="p-2 border">Action</th>
