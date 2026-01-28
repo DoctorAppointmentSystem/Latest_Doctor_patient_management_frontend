@@ -1,4 +1,4 @@
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, useLocation } from "react-router-dom";
 import { use, useContext, useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getAppointmentsById } from "../api/appointments";
@@ -21,12 +21,23 @@ function PatientPage() {
   const [visitsData, setVisitsData] = useState([]);
   // const [patientData, setPatientData] = useState(null);
   const { id } = useParams();
+  const location = useLocation();
   const [apptId, setAppId] = useState(id);
   const [patientId, setPatientId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState("intial");
   const [active, setActive] = useState("");
-  const [open, setOpen] = useState(false);
+
+  // ✅ FIX: Use location state or sessionStorage for "new visit" mode (survives refresh)
+  const [showAddVisit, setShowAddVisit] = useState(() => {
+    // Check location state first (from navigation)
+    if (location.state?.mode === "new") {
+      sessionStorage.setItem(`addVisitMode_${id}`, "new");
+      return true;
+    }
+    // Check sessionStorage for persisted state (survives refresh)
+    return sessionStorage.getItem(`addVisitMode_${id}`) === "new";
+  });
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -50,7 +61,6 @@ function PatientPage() {
     if (patientData._id) {
       const fetchPatientData = async () => {
         if (patientData._id) {
-          setOpen(false);
           try {
             const res = await getPatientsById(patientData._id);
             setPatientData(res.data?.data || res.data);
@@ -66,7 +76,6 @@ function PatientPage() {
     else {
       const fetchPatientData = async () => {
         if (patientId) {
-          setOpen(true);
           try {
             const res = await getPatientsById(patientId);
             setPatientData(res.data?.data || res.data);
@@ -93,10 +102,10 @@ function PatientPage() {
             {/* Dynamic Avatar based on patient initials */}
             <div
               className={`w-full h-full flex items-center justify-center text-3xl font-bold ${patientData?.gender === 'Male'
-                  ? 'bg-blue-500 text-white'
-                  : patientData?.gender === 'Female'
-                    ? 'bg-pink-500 text-white'
-                    : 'bg-gray-500 text-white'
+                ? 'bg-blue-500 text-white'
+                : patientData?.gender === 'Female'
+                  ? 'bg-pink-500 text-white'
+                  : 'bg-gray-500 text-white'
                 }`}
             >
               {patientData?.patient_name
@@ -131,8 +140,8 @@ function PatientPage() {
           <button onClick={() => { setPage('profile'), setActive("profile") }} className="border-1 border-primary px-4 mr-4 py-2 rounded-sm text-primary">
             Edit Profile
           </button>
-          {open && (
-            <Link to="/patient/addnewvisit" className="px-4 py-2 rounded-sm text-white">
+          {showAddVisit && (
+            <Link to="/patient/addnewvisit" className="px-4 py-2 rounded-sm text-white bg-green-600 hover:bg-green-700">
               ADD new Visit
             </Link>
           )}

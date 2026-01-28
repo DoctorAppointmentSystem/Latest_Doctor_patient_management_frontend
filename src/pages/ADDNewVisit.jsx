@@ -4,6 +4,7 @@ import { createVisit } from "../api/visits";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
 import { FiTrash } from "react-icons/fi"; // ✅ Delete Icon
 import { useNavigate, useLocation } from "react-router-dom"; // ✅ Navigation hook
+import Loader from "../components/Loader"; // ✅ Centralized Loader
 
 function ADDNewVisit() {
   // Add the new loading state
@@ -208,11 +209,11 @@ function ADDNewVisit() {
     }
   };
 
-  // If loading, show the spinner/loader instead of the form
+  // If loading, show the centralized loader component
   if (isLoading) {
     return (
       <div className="w-full h-full flex flex-col justify-center items-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-primary"></div>
+        <Loader />
         <p className="mt-4 text-primary text-lg">Saving Visit...</p>
       </div>
     );
