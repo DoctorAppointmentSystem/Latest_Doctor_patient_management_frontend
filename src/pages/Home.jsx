@@ -51,21 +51,55 @@ const SidebarToggle = memo(({ collapsed, setCollapsed, isMobile, toggleMobileMen
 // Updated: Navigation component with clickable options
 // This component should be inside your Layout.js file
 
-const Navigation = memo(({ collapsed, onLogout }) => {
+// Logout Confirmation Modal Component
+const LogoutConfirmModal = memo(({ isOpen, onConfirm, onCancel }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[100]">
+      <div className="bg-white rounded-xl p-6 max-w-sm mx-4 shadow-2xl transform transition-all">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+            <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 mb-2">Logout Confirmation</h3>
+          <p className="text-gray-600 mb-6">Kya aap waqai logout karna chahte hain?</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={onCancel}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={onConfirm}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+            >
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const Navigation = memo(({ collapsed }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
 
   const navItems = [
     { icon: FiHome, label: "Home", pagelink: "/" },
     { icon: TbReportSearch, label: "Daily Cash Report", pagelink: "/dailycashreport" },
-    { icon: MdRecentActors, label: "Expenses", pagelink: "/expenses" }, // ✅ NEW
+    { icon: MdRecentActors, label: "Expenses", pagelink: "/expenses" },
     {
       icon: FaList,
       label: "Patients List",
       pagelink: "/patientlist",
     },
-    // This item has no 'pagelink'
-    { icon: TbReportSearch, label: "Logout" },
+    // Logout removed from here - moved to sidebar bottom
   ];
 
   const handleItemClick = (label) => {
@@ -77,48 +111,27 @@ const Navigation = memo(({ collapsed, onLogout }) => {
       <ul className="space-y-2 px-2">
         {navItems.map(({ icon: Icon, label, subItems, pagelink }) => (
           <div key={label} className="relative">
-
-            {/* --- THIS IS THE NEW LOGIC --- */}
-            {label === "Logout" ? (
-              // If it's the Logout button
-              <button
-                onClick={onLogout} // <-- Call the onLogout prop
-                onMouseEnter={() => collapsed && setHoveredItem(label)}
-                onMouseLeave={() => collapsed && setHoveredItem(null)}
-                className={`
-                  flex items-center p-3 rounded-lg hover:bg-highlight hover:text-primary w-full text-left
-                  ${collapsed ? "justify-center" : "justify-between"}
-                `}
-              >
-                <div className="flex items-center">
-                  <Icon className="w-6 h-6" />
-                  {!collapsed && <span className="ml-3">{label}</span>}
-                </div>
-              </button>
-            ) : (
-              // Otherwise, render the Link as before
-              <Link
-                to={pagelink}
-                onClick={() => handleItemClick(label)}
-                onMouseEnter={() => collapsed && setHoveredItem(label)}
-                onMouseLeave={() => collapsed && setHoveredItem(null)}
-                className={`
-                  flex items-center p-3 rounded-lg hover:bg-highlight hover:text-primary
-                  ${collapsed ? "justify-center" : "justify-between"}
-                  ${selectedItem === label ? "bg-acent text-primary" : ""}
-                `}
-              >
-                <div className="flex items-center">
-                  <Icon className="w-6 h-6" />
-                  {!collapsed && <span className="ml-3">{label}</span>}
-                </div>
-                {!collapsed && subItems && (
-                  <FiChevronDown
-                    className={`transition-transform duration-200 ${selectedItem === label ? "transform rotate-180" : ""}`}
-                  />
-                )}
-              </Link>
-            )}
+            <Link
+              to={pagelink}
+              onClick={() => handleItemClick(label)}
+              onMouseEnter={() => collapsed && setHoveredItem(label)}
+              onMouseLeave={() => collapsed && setHoveredItem(null)}
+              className={`
+                flex items-center p-3 rounded-lg hover:bg-highlight hover:text-primary
+                ${collapsed ? "justify-center" : "justify-between"}
+                ${selectedItem === label ? "bg-acent text-primary" : ""}
+              `}
+            >
+              <div className="flex items-center">
+                <Icon className="w-6 h-6" />
+                {!collapsed && <span className="ml-3">{label}</span>}
+              </div>
+              {!collapsed && subItems && (
+                <FiChevronDown
+                  className={`transition-transform duration-200 ${selectedItem === label ? "transform rotate-180" : ""}`}
+                />
+              )}
+            </Link>
 
             {/* Show dropdown if selected */}
             {subItems && !collapsed && selectedItem === label && (
@@ -162,18 +175,52 @@ const Navigation = memo(({ collapsed, onLogout }) => {
   );
 });
 
+// Separate Logout Button Component - for sidebar bottom
+const LogoutButton = memo(({ collapsed, onLogout }) => {
+  return (
+    <div className="absolute bottom-4 left-0 right-0 px-2">
+      <button
+        onClick={onLogout}
+        className={`
+          flex items-center p-3 rounded-lg w-full
+          bg-red-600 hover:bg-red-700 text-white
+          transition-colors duration-200
+          ${collapsed ? "justify-center" : "justify-start"}
+        `}
+      >
+        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+        {!collapsed && <span className="ml-3 font-medium">Logout</span>}
+      </button>
+    </div>
+  );
+});
+
 const Layout = () => {
   const navigate = useNavigate();
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/');
-    window.location.reload(); // Ensure full reload for auth state
-  };
   const { clearPatientData } = useContext(PatientContext);
   const [collapsed, setCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  // const {clearPatientData} = useContext(PatientContext);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+
+  // Show confirmation modal when logout button is clicked
+  const handleLogoutClick = () => {
+    setShowLogoutConfirm(true);
+  };
+
+  // Actually perform logout when confirmed
+  const handleLogoutConfirm = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+    window.location.reload(); // Ensure full reload for auth state
+  };
+
+  // Cancel logout
+  const handleLogoutCancel = () => {
+    setShowLogoutConfirm(false);
+  };
 
   const handleResize = useCallback(() => {
     const mobile = window.innerWidth < 768;
@@ -183,20 +230,12 @@ const Layout = () => {
     }
   }, []);
 
-
-
-
   useEffect(() => {
-    // localStorage.removeItem("token");
-
     clearPatientData();
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, [handleResize]);
-
-  // ✅ FIXED: Removed getpatientbyId() function and its direct call
-  // It was causing infinite loop by being called on every render
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -208,11 +247,17 @@ const Layout = () => {
       className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${mobileMenuOpen ? "opacity-100 z-40" : "opacity-0 pointer-events-none"}`}
       onClick={() => setMobileMenuOpen(false)}
     />
-
   );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
+      {/* Logout Confirmation Modal */}
+      <LogoutConfirmModal
+        isOpen={showLogoutConfirm}
+        onConfirm={handleLogoutConfirm}
+        onCancel={handleLogoutCancel}
+      />
+
       <Overlay />
 
       <aside
@@ -231,7 +276,10 @@ const Layout = () => {
             toggleMobileMenu={toggleMobileMenu}
           />
         </div>
-        <Navigation collapsed={collapsed && !isMobile} onLogout={handleLogout} />
+        <Navigation collapsed={collapsed && !isMobile} />
+
+        {/* Logout Button - Positioned at bottom of sidebar */}
+        <LogoutButton collapsed={collapsed && !isMobile} onLogout={handleLogoutClick} />
       </aside>
 
       <main

@@ -29,14 +29,6 @@ const ShowCashReportPage = () => {
     paymentMethod: "Cash", // ✅ NEW: Payment method
   });
 
-  // ✅ NEW: Advance payment state
-  const [isAdvance, setIsAdvance] = useState(false);
-  const [advanceDetails, setAdvanceDetails] = useState({
-    procedureType: "",
-    advanceAmount: "",
-    remainingAmount: "",
-  });
-
   // single reservation
   const [reservation, setReservation] = useState(null);
 
@@ -109,11 +101,6 @@ const ShowCashReportPage = () => {
         amountPaid: Number(reservation.amountPayable) || 0,
         paymentMethod: reservation.paymentMethod || "Cash",
         manualToken: tokenNumber,
-        // ✅ NEW: Advance payment data
-        isAdvance: isAdvance,
-        advanceAmount: isAdvance ? Number(advanceDetails.advanceAmount) || 0 : 0,
-        remainingAmount: isAdvance ? Number(advanceDetails.remainingAmount) || 0 : 0,
-        procedureType: isAdvance ? advanceDetails.procedureType : "",
       };
 
       console.log("🔍 DEBUG - Payment Method:", reservation.paymentMethod);
@@ -255,73 +242,6 @@ const ShowCashReportPage = () => {
               <option value="Card">Credit/Debit Card</option>
               <option value="Online">Online Transfer</option>
             </select>
-          </div>
-
-          {/* ✅ NEW: Advance Payment Section */}
-          <div className="border-t pt-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={isAdvance}
-                onChange={(e) => setIsAdvance(e.target.checked)}
-                className="w-4 h-4"
-              />
-              <span className="text-sm font-medium text-gray-700">This is an advance payment</span>
-            </label>
-
-            {isAdvance && (
-              <div className="mt-3 space-y-3 bg-orange-50 p-3 rounded">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Procedure Type</label>
-                  <input
-                    type="text"
-                    list="procedure-options" // ✅ Connect to datalist
-                    value={advanceDetails.procedureType}
-                    onChange={(e) => setAdvanceDetails({ ...advanceDetails, procedureType: e.target.value })}
-                    placeholder="Select or type (e.g. Cataract)"
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                  {/* ✅ PRE-DEFINED LIST */}
-                  <datalist id="procedure-options">
-                    <option value="Cataract Surgery" />
-                    <option value="Phaco Surgery" />
-                    <option value="LASIK" />
-                    <option value="Glaucoma Surgery" />
-                    <option value="Cornea Transplant" />
-                    <option value="Retina Surgery" />
-                    <option value="Ptosis Correction" />
-                  </datalist>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Advance Amount</label>
-                  <input
-                    type="number"
-                    value={advanceDetails.advanceAmount}
-                    onChange={(e) => {
-                      const advance = e.target.value;
-                      const total = Number(formData.amountPayable) || 0;
-                      setAdvanceDetails({
-                        ...advanceDetails,
-                        advanceAmount: advance,
-                        remainingAmount: (total - advance).toFixed(0) // ✅ Auto-calculate remaining
-                      });
-                    }}
-                    placeholder="Rs."
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Remaining Amount</label>
-                  <input
-                    type="number"
-                    value={advanceDetails.remainingAmount}
-                    onChange={(e) => setAdvanceDetails({ ...advanceDetails, remainingAmount: e.target.value })}
-                    placeholder="Rs."
-                    className="mt-1 p-2 w-full border rounded"
-                  />
-                </div>
-              </div>
-            )}
           </div>
 
           <button

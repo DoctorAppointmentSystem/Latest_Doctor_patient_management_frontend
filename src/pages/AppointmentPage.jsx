@@ -5,6 +5,7 @@ import { getNextToken } from "../api/appointments";
 import { getDoctors } from "../api/doctors";
 import { getServices } from "../api/services";
 import toast from 'react-hot-toast';
+import Loader from "../components/Loader";
 
 const sources = ["Self", "Referral"];
 const bdms = ["BDM One", "BDM Two"];
@@ -119,7 +120,7 @@ function AppointmentPage() {
     // );
   };
 
-  if (loading) return <p>Loading patient info...</p>;
+  if (loading || dataLoading) return <Loader />;
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
@@ -131,10 +132,10 @@ function AppointmentPage() {
             {/* Dynamic Avatar based on patient initials */}
             <div
               className={`w-full h-full flex items-center justify-center text-3xl font-bold ${patient?.gender === 'Male'
-                  ? 'bg-blue-500 text-white'
-                  : patient?.gender === 'Female'
-                    ? 'bg-pink-500 text-white'
-                    : 'bg-gray-500 text-white'
+                ? 'bg-blue-500 text-white'
+                : patient?.gender === 'Female'
+                  ? 'bg-pink-500 text-white'
+                  : 'bg-gray-500 text-white'
                 }`}
             >
               {patient?.patient_name
