@@ -220,8 +220,15 @@ function Examination() {
       console.log("Backend response:", response);
 
       toast.success("✅ Examination saved successfully!"); // ✅ Toast instead of alert
-      // ✅ Auto-navigate to next step
-      setTimeout(() => navigate("/patient/diagnosisform"), 1500);
+
+      // ✅ Auto-navigate to next step (Doctor Only)
+      const role = localStorage.getItem("userRole");
+      if (role === "doctor") {
+        setTimeout(() => navigate("/patient/diagnosisform"), 1500);
+      } else {
+        // Refractionist done, go back to patient list or similar
+        setTimeout(() => navigate("/patientlist"), 1500);
+      }
 
     } catch (err) {
       console.error("Save error:", err);

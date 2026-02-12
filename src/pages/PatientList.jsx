@@ -569,33 +569,41 @@ function PatientList() {
                 <table className="w-full text-primary border-collapse">
                   <thead className="border-1 border-black bg-gray-100">
                     <tr>
-                      <th className="border-1 border-black p-2">Token</th><th className="border-1 border-black p-2">Name</th><th className="border-1 border-black p-2">Age</th><th className="border-1 border-black p-2">Gender</th><th className="border-1 border-black p-2">Doctor</th><th className="border-1 border-black p-2">Service</th><th className="border-1 border-black p-2">Add Visit</th><th className="border-1 border-black p-2">Print Token</th>
+                      <th className="border-1 border-black p-2">Token</th><th className="border-1 border-black p-2">Name</th><th className="border-1 border-black p-2">Age</th><th className="border-1 border-black p-2">Gender</th><th className="border-1 border-black p-2">Doctor</th><th className="border-1 border-black p-2">Service</th><th className="border-1 border-black p-2">Print Token</th>
                     </tr>
                   </thead>
                   <tbody>
                     {appointmentsLoading ? (
-                      <tr><td colSpan="8" className="p-4 text-center"><Loader /></td></tr>
+                      <tr><td colSpan="7" className="p-4 text-center"><Loader /></td></tr>
                     ) : filteredAppointments.length > 0 ? (
                       filteredAppointments.map((appt) => (
-                        <tr key={appt._id} className="border-1 border-black">
+                        <tr
+                          key={appt._id}
+                          className="border-1 border-black cursor-pointer hover:bg-highlight transition-colors"
+                          onClick={() => handleAddVisit(appt._id)}
+                        >
                           <td className="border-1 border-black p-2">{appt.manualToken}</td>
                           <td className="border-1 border-black p-2">{appt.patientId?.patient_name}</td>
                           <td className="border-1 border-black p-2">{appt.patientId?.age}</td>
                           <td className="border-1 border-black p-2">{appt.patientId?.gender}</td>
                           <td className="border-1 border-black p-2">{appt.doctor}</td>
                           <td className="border-1 border-black p-2">{appt.serviceType}</td>
+                          {/* Add Visit button removed as per request */}
                           <td className="border-1 border-black p-2 text-center">
-                            <button onClick={() => handleAddVisit(appt._id)} className="bg-primary text-white px-3 py-1 rounded hover:bg-highlight hover:text-primary">Add Visit</button>
-                          </td>
-                          <td className="border-1 border-black p-2 text-center">
-                            <button onClick={() => handlePrintToken(appt)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 mx-auto">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePrintToken(appt);
+                              }}
+                              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 mx-auto"
+                            >
                               🖨️ Print
                             </button>
                           </td>
                         </tr>
                       ))
                     ) : (
-                      <tr><td colSpan="8" className="border-1 border-black p-4 text-center text-gray-500">No appointments match your criteria.</td></tr>
+                      <tr><td colSpan="7" className="border-1 border-black p-4 text-center text-gray-500">No appointments match your criteria.</td></tr>
                     )}
                   </tbody>
                 </table>

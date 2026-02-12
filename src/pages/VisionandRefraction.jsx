@@ -318,8 +318,15 @@ const EyeAssessmentPage = () => {
         setVisit(prev => ({ ...prev, ...updatedData, visionAndRefraction: buildVisionPayload(updatedData.visionAndRefraction || {}, prev.visionAndRefraction || {}) }));
       }
       toast.success("✅ Vision & Refraction saved successfully!"); // ✅ Toast instead of alert
+
       // ✅ Auto-navigate to next step
-      setTimeout(() => navigate("/patient/examination"), 1500);
+      const role = localStorage.getItem("userRole");
+      if (role === "doctor") {
+        setTimeout(() => navigate("/patient/examination"), 1500);
+      } else {
+        // Refractionist stops here
+        setTimeout(() => navigate("/patientlist"), 1500);
+      }
     } catch (err) {
       console.error("Save error:", err);
       toast.error("❌ " + (err?.message || "Update failed")); // ✅ Toast instead of alert

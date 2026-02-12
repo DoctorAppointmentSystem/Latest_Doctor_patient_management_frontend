@@ -12,6 +12,7 @@ import PrescriptionPage from "./Prescriptionpage";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { createVisit } from "../api/visits";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
+import { getItemWithExpiry } from "../services/token";
 
 
 const useSidebarStore = create((set) => ({
@@ -70,54 +71,51 @@ const Navigation = memo(({ collapsed }) => {
     }
   };
 
-  const navItems = [
+  const role = getItemWithExpiry("userRole");
+
+  const allNavItems = [
     { icon: FiHome, label: "Home", pagelink: "/" },
     {
       icon: FiSettings,
       label: "History",
       pagelink: "/patient/addnewvisit",
-      //   subItems: ["General", "Security", "Notifications"]
+      roles: ["doctor", "receptionist", "refractionist"]
     },
     {
       icon: FiPieChart, label: "Vision & Refraction",
-      pagelink: "/patient/visionandrefraction"
+      pagelink: "/patient/visionandrefraction",
+      roles: ["doctor", "refractionist"]
     },
     {
       icon: FiBell, label: "Examination",
-      pagelink: "/patient/examination"
+      pagelink: "/patient/examination",
+      roles: ["doctor"]
     },
     {
       icon: FiUser,
       label: "Diagnosis",
-      //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-      pagelink: "/patient/diagnosisform"
+      pagelink: "/patient/diagnosisform",
+      roles: ["doctor"]
     },
     {
       icon: FiUser,
       label: "Prescription",
-      //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-      pagelink: "/patient/Prescriptionpage"
+      pagelink: "/patient/Prescriptionpage",
+      roles: ["doctor"]
     },
-    // {
-    //   icon: FiUser,
-    //   label: "Refresh Page",
-    //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-    //   pagelink:"/prefrences"
-    // },
-    // { icon: FiUser, label: "Save to patient list", onClick: handleSaveVisit },
     {
       icon: FiUser,
       label: "Save & checkout",
-      //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-      pagelink: "/report"
+      pagelink: "/report",
+      roles: ["doctor", "receptionist"]
     },
-    // {
-    //   icon: FiUser,
-    //   label: "Save & Print",
-    //   subItems: ["Personal Info", "Account Settings", "Privacy"],
-    //   pagelink:"/prefrences"
-    // },
   ];
+
+  const navItems = allNavItems.filter(item => {
+    // If no roles defined, everyone sees it (like Home)
+    if (!item.roles) return true;
+    return item.roles.includes(role);
+  });
 
   const handleItemClick = (label) => {
     setSelectedItem(selectedItem === label ? null : label);
@@ -302,10 +300,10 @@ const PLayout = () => {
               {/* Dynamic Avatar based on patient initials */}
               <div
                 className={`w-full h-full flex items-center justify-center text-3xl font-bold ${patientData?.gender === 'Male'
-                    ? 'bg-blue-500 text-white'
-                    : patientData?.gender === 'Female'
-                      ? 'bg-pink-500 text-white'
-                      : 'bg-gray-500 text-white'
+                  ? 'bg-blue-500 text-white'
+                  : patientData?.gender === 'Female'
+                    ? 'bg-pink-500 text-white'
+                    : 'bg-gray-500 text-white'
                   }`}
               >
                 {patientData?.patient_name

@@ -25,8 +25,8 @@ function PatientPage() {
   const [apptId, setAppId] = useState(id);
   const [patientId, setPatientId] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [page, setPage] = useState("intial");
-  const [active, setActive] = useState("");
+  const [page, setPage] = useState("visits");
+  const [active, setActive] = useState("visits");
 
   // ✅ FIX: Use location state or sessionStorage for "new visit" mode (survives refresh)
   const [showAddVisit, setShowAddVisit] = useState(() => {
@@ -165,7 +165,7 @@ function PatientPage() {
         {/* </div> */}
       </div>
       {page === "loading" && <Loader />}
-      {page === "intial" && <Intial />}
+      {/* {page === "intial" && <Intial />} */}
       {page === "profile" && <Profile />}
       {page === "visits" && <Visits patientData={patientData} />}
       {/* {page === "diagnostic" && <Diagnostic />}

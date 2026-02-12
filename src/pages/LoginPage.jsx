@@ -48,6 +48,12 @@ export default function LoginPage() {
             if (data.data.accessToken) {
                 // localStorage.setItem("token", data.data.accessToken);
                 setItemWithExpiry("token", data.data.accessToken, 30);
+
+                // ✅ Handle Role
+                const role = data.data.role || "doctor"; // Fallback to doctor if not provided
+                localStorage.setItem("userRole", role);
+                setItemWithExpiry("userRole", role, 30); // consistency
+
                 setIsLoggedIn(true); // ✅ FIXED: Update AuthContext state immediately
                 // Navigate to home page
                 navigate("/"); // Your home path

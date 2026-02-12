@@ -171,16 +171,28 @@ function ADDNewVisit() {
   const handleSubmit = async () => {
     setIsLoading(true); // Start loading
 
+    if (!appointmentData?._id) {
+      toast.error("❌ Error: No Appointment Selected. Please go back and select a patient.");
+      setIsLoading(false);
+      return;
+    }
+
+    const cleanHistoryItem = (item) => {
+      const cleaned = { ...item };
+      if (!cleaned.eye) delete cleaned.eye; // Remove empty eye to avoid enum validation error
+      return cleaned;
+    };
+
     const historyPayload = {
-      presentingComplaints: presentingCompaints.filter(
-        (item) => item.disease || item.eye || item.duration
-      ),
-      ocularHistory: ocularHistory.filter(
-        (item) => item.disease || item.eye || item.duration
-      ),
-      systemHistory: systemHistory.filter(
-        (item) => item.disease || item.eye || item.duration
-      ),
+      presentingComplaints: presentingCompaints
+        .filter((item) => item.disease || item.eye || item.duration)
+        .map(cleanHistoryItem),
+      ocularHistory: ocularHistory
+        .filter((item) => item.disease || item.eye || item.duration)
+        .map(cleanHistoryItem),
+      systemHistory: systemHistory
+        .filter((item) => item.disease || item.eye || item.duration)
+        .map(cleanHistoryItem),
       newDisease: [],
     };
 
@@ -203,7 +215,8 @@ function ADDNewVisit() {
       setTimeout(() => navigate("/patient/visionandrefraction"), 1500);
     } catch (error) {
       console.error("Error submitting visit data:", error);
-      toast.error("❌ Failed to save history. Please try again."); // ✅ Toast instead of alert
+      const errorMsg = error.response?.data?.message || "Failed to save history.";
+      toast.error("❌ " + errorMsg);
     } finally {
       setIsLoading(false); // Stop loading
     }

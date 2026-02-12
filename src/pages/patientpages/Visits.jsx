@@ -1,31 +1,36 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { getVisitsByPatientId } from '../../api/visits';
 import Loader from '../../components/Loader';
+import { VisitContext } from '../../context';
+import { useNavigate } from 'react-router-dom';
+import { getItemWithExpiry } from '../../services/token';
 
-function Visits( { patientData } ) {
-   const [visitsData, setVisitsData] = useState([]);
-   const [loading, setLoading] = useState(true);
+function Visits({ patientData }) {
+  const [visitsData, setVisitsData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { setVisitData } = useContext(VisitContext);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-       console.log("Patient Data in useEffect:", patientData);
-       const fetchVisits = async () => {
-         try {
-          setLoading(true);
-           const res = await getVisitsByPatientId(patientData._id);
-           setVisitsData(res.data || []);
-           console.log("Visits Data:", res.data || []);
-         } catch (error) {
-           console.error("Error fetching visits data:", error);  
-         } finally { 
-          setLoading(false);
-          }
-       }
-       fetchVisits();
-     }, [patientData._id]);
+  useEffect(() => {
+    console.log("Patient Data in useEffect:", patientData);
+    const fetchVisits = async () => {
+      try {
+        setLoading(true);
+        const res = await getVisitsByPatientId(patientData._id);
+        setVisitsData(res.data || []);
+        console.log("Visits Data:", res.data || []);
+      } catch (error) {
+        console.error("Error fetching visits data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchVisits();
+  }, [patientData._id]);
 
-     if (loading) {
-      return <Loader />;
-     }
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <div className="w-full flex flex-col gap-4">
@@ -71,14 +76,26 @@ function Visits( { patientData } ) {
           <tbody>
             {/* Loop over the patientData state */}
             {visitsData.map((visit) => (
-              <tr key={visit._id} className="border-b hover:bg-gray-100">
+              <tr
+                key={visit._id}
+                className={`border-b transition-colors ${getItemWithExpiry("userRole") === "doctor" ? "hover:bg-blue-50 cursor-pointer" : ""}`}
+                onClick={(e) => {
+                  if (e) e.stopPropagation();
+                  const role = getItemWithExpiry("userRole");
+                  if (role === "doctor") {
+                    console.log("Dr Clicked Row", visit);
+                    setVisitData(visit);
+                    navigate("/patient/examination");
+                  }
+                }}
+              >
                 <td className="p-2">
                   {/* Format the date to be more readable */}
                   {new Date(visit.createdAt).toLocaleDateString()}
                 </td>
                 {/* <td className="p-2"> */}
-                  {/* Assumes patientId object has 'mrn' */}
-                  {/* {visit.patientId.mrn}
+                {/* Assumes patientId object has 'mrn' */}
+                {/* {visit.patientId.mrn}
                 </td> */}
                 <td className="p-2">
                   {/* Assumes patientId object has 'name' */}
@@ -108,6 +125,8 @@ function Visits( { patientData } ) {
                   {/* Assumes you add 'charges' to your visit object */}
                   {visit.appointmentId.charges}
                 </td>
+
+                {/* Action Column Removed as per user request - Row is clickable */}
               </tr>
             ))}
           </tbody>

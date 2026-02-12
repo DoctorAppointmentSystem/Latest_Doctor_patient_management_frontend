@@ -25,6 +25,7 @@ import Patientscreen from "./Patientsscreen";
 import PatientTokenPage from "./PatientTokenPage";
 import ShowCashReportPage from "./ShowCashReportPage";
 import { PatientContext } from "../context";
+import { getItemWithExpiry } from "../services/token";
 
 
 const useSidebarStore = create((set) => ({
@@ -90,17 +91,27 @@ const Navigation = memo(({ collapsed }) => {
   const [hoveredItem, setHoveredItem] = useState(null);
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const navItems = [
-    { icon: FiHome, label: "Home", pagelink: "/" },
-    { icon: TbReportSearch, label: "Daily Cash Report", pagelink: "/dailycashreport" },
-    { icon: MdRecentActors, label: "Expenses", pagelink: "/expenses" },
+  // ✅ NEW: Get User Role
+  // We can read directly from localStorage here for simplicity since this component might mount before context updates or just use context.
+  // Using localStorage directly ensures immediate availability on mount/reload.
+  const userRole = getItemWithExpiry("userRole") || "doctor";
+
+  const allNavItems = [
+    { icon: FiHome, label: "Home", pagelink: "/", roles: ["receptionist", "refractionist", "doctor"] },
+    { icon: TbReportSearch, label: "Daily Cash Report", pagelink: "/dailycashreport", roles: ["refractionist", "doctor"] },
+    { icon: MdRecentActors, label: "Expenses", pagelink: "/expenses", roles: ["refractionist", "doctor"] },
     {
       icon: FaList,
       label: "Patients List",
       pagelink: "/patientlist",
+      roles: ["refractionist", "doctor"]
     },
-    // Logout removed from here - moved to sidebar bottom
+    // Add other items here if they were missing or assume default access? 
+    // The original list was short. Let's stick to the original list but filtered.
   ];
+
+  // Filter items based on role
+  const navItems = allNavItems.filter(item => item.roles.includes(userRole));
 
   const handleItemClick = (label) => {
     setSelectedItem(selectedItem === label ? null : label);
@@ -288,7 +299,7 @@ const Layout = () => {
           ${isMobile ? "ml-0" : (collapsed ? "ml-20" : "ml-64")}
         `}
       >
-        <header className="shadow-sm p-4  bg-primary text-background">
+        <header className="shadow-sm p-4  bg-primary text-background flex justify-between items-center">
           <div className="flex items-center justify-center ">
             <div className="flex items-center w-full md:w-auto text-[36px] font-bold">
               {isMobile && (
@@ -299,10 +310,17 @@ const Layout = () => {
                   <FiMenu className="w-6 h-6" />
                 </button>
               )}
-              <span className="text-xl font-bold text-primary">
+              <span className="text-xl font-bold text-background ml-2">
                 Jamil Eye Care
               </span>
             </div>
+          </div>
+          {/* ✅ NEW: Role Badge */}
+          <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full border border-white/30">
+            <FiUser className="w-5 h-5 text-white" />
+            <span className="text-sm font-semibold capitalize text-white">
+              {getItemWithExpiry("userRole") || "Guest"}
+            </span>
           </div>
         </header>
         <div className="">
