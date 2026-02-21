@@ -3,6 +3,7 @@ import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { PatientContext, AppointmentContext } from "../context";
 import axiosInstance from "../api/axiosInstance";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
+import { formatError } from "../utils/errorHandler";
 
 const ShowCashReportPage = () => {
   const location = useLocation();
@@ -124,7 +125,7 @@ const ShowCashReportPage = () => {
       navigate("/token");
     } catch (err) {
       console.error("❌ Error creating appointment:", err);
-      const errorMessage = err.response?.data?.message || "Failed to create appointment";
+      const errorMessage = formatError(err);
       toast.error("❌ " + errorMessage);
     } finally {
       setIsSubmitting(false); // ✅ Stop loading

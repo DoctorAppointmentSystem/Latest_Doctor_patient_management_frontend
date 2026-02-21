@@ -5,6 +5,7 @@ import { useToast } from "../components/Toast"; // ✅ Toast notifications
 import { FiTrash } from "react-icons/fi"; // ✅ Delete Icon
 import { useNavigate, useLocation } from "react-router-dom"; // ✅ Navigation hook
 import Loader from "../components/Loader"; // ✅ Centralized Loader
+import { formatError } from "../utils/errorHandler"; // ✅ Friendly Error Messages
 
 function ADDNewVisit() {
   // Add the new loading state
@@ -215,26 +216,18 @@ function ADDNewVisit() {
       setTimeout(() => navigate("/patient/visionandrefraction"), 1500);
     } catch (error) {
       console.error("Error submitting visit data:", error);
-      const errorMsg = error.response?.data?.message || "Failed to save history.";
-      toast.error("❌ " + errorMsg);
+      const friendlyMsg = formatError(error);
+      toast.error("❌ " + friendlyMsg);
     } finally {
       setIsLoading(false); // Stop loading
     }
   };
 
-  // If loading, show the centralized loader component
-  if (isLoading) {
-    return (
-      <div className="w-full h-full flex flex-col justify-center items-center">
-        <Loader />
-        <p className="mt-4 text-primary text-lg">Saving Visit...</p>
-      </div>
-    );
-  }
-
   // Otherwise, return the form as normal
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col relative">
+      {/* ✅ Full Screen Loader Overlay */}
+      {isLoading && <Loader fullScreen={true} />}
       {/* ... (all your JSX for Systemic History, Ocular History, etc. remains here) ... */}
       {/* Systemic History */}
       {/* Presenting Complaints */}

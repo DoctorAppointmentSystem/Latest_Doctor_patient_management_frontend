@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axiosInstance from '../api/axiosInstance';
 import toast from 'react-hot-toast';
+import { formatError } from "../utils/errorHandler";
 
 function ExpenseEntry() {
     const [expense, setExpense] = useState({
@@ -40,7 +41,8 @@ function ExpenseEntry() {
             });
         } catch (error) {
             console.error('Error adding expense:', error);
-            toast.error(error.response?.data?.message || 'Failed to add expense');
+            const errorMsg = formatError(error);
+            toast.error(errorMsg);
         }
     };
 

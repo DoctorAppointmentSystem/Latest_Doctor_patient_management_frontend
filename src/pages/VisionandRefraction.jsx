@@ -5,6 +5,8 @@ import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { createVisit, getVisitById, updateVisit } from "../api/visits";
 import EyeGrid from "../components/EyeGrid";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
+import Loader from "../components/Loader"; // ✅ Centralized Loader
+import { formatError } from "../utils/errorHandler"; // ✅ Friendly Error Messages
 
 /* -------------------- helpers & defaults -------------------- */
 
@@ -295,7 +297,10 @@ const EyeAssessmentPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
+  const [isLoading, setIsLoading] = useState(false); // ✅ Loading state
+
   const handleSubmit = async () => {
+    setIsLoading(true); // Start loading
     try {
       // build merged payload: server values (if any) + UI edits
       const existingVision = serverVisit?.visionAndRefraction || {};
@@ -329,7 +334,10 @@ const EyeAssessmentPage = () => {
       }
     } catch (err) {
       console.error("Save error:", err);
-      toast.error("❌ " + (err?.message || "Update failed")); // ✅ Toast instead of alert
+      const friendlyMsg = formatError(err);
+      toast.error("❌ " + friendlyMsg);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -856,7 +864,9 @@ const EyeAssessmentPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative w-full">
+      {/* ✅ Full Screen Loader Overlay */}
+      {isLoading && <Loader fullScreen={true} />}
       <div className="max-w-full mx-auto bg-white p-6 rounded-lg shadow-md">
         <ul className="space-y-4">
           {assessments.map((item, index) => (

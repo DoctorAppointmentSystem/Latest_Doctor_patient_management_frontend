@@ -13,6 +13,7 @@ import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { createVisit } from "../api/visits";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
 import { getItemWithExpiry } from "../services/token";
+import { formatError } from "../utils/errorHandler";
 
 
 const useSidebarStore = create((set) => ({
@@ -67,7 +68,8 @@ const Navigation = memo(({ collapsed }) => {
 
     } catch (err) {
       console.error("Save error:", err);
-      toast.error("❌ " + err.message); // ✅ Toast instead of alert
+      const errorMessage = formatError(err);
+      toast.error("❌ " + errorMessage); // ✅ Toast instead of alert
     }
   };
 

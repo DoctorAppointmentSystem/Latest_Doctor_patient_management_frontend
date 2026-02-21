@@ -4,6 +4,7 @@ import { createVisit, updateVisit } from "../api/visits";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
 import { FiTrash } from "react-icons/fi"; // ✅ Delete Icon
+import { formatError } from "../utils/errorHandler";
 
 const DiagnosisForm = () => {
   const [activeSection, setActiveSection] = useState("diagnosis"); // Start with the first section open
@@ -108,7 +109,8 @@ const DiagnosisForm = () => {
 
     } catch (err) {
       console.error("Save error:", err);
-      toast.error("❌ " + err.message); // ✅ Toast instead of alert
+      const errorMessage = formatError(err);
+      toast.error("❌ " + errorMessage); // ✅ Toast instead of alert
     }
   };
 

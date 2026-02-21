@@ -6,6 +6,7 @@ import Loader from "../components/Loader";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import calculateDOBFromAge from "../services/dobCalculator";
 import toast from 'react-hot-toast';
+import { formatError } from "../utils/errorHandler";
 
 function PatientList() {
   const { PatientData, setPatientData, clearPatientData } = useContext(PatientContext);
@@ -172,7 +173,7 @@ function PatientList() {
       setView('appointments');
     } catch (error) {
       console.error("Error creating patient:", error);
-      const errorMsg = error.response?.data?.message || error.message || "Failed to create patient";
+      const errorMsg = formatError(error);
       toast.error(errorMsg);
     }
   };

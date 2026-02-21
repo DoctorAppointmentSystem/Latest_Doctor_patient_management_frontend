@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // ✅ Navigation hook
 import { createVisit, updateVisit } from '../api/visits'; // Assuming your API function is here
 import { AppointmentContext, PatientContext, VisitContext } from '../context'; // Assuming your contexts are here
 import { useToast } from '../components/Toast'; // ✅ Toast notifications
+import { formatError } from "../utils/errorHandler";
 import { FiTrash } from 'react-icons/fi'; // ✅ Delete Icon
 
 
@@ -232,7 +233,7 @@ function Examination() {
 
     } catch (err) {
       console.error("Save error:", err);
-      const errorMessage = err.response?.data?.message || err.message;
+      const errorMessage = formatError(err);
       toast.error("❌ " + errorMessage); // ✅ Toast instead of alert
     }
     finally {

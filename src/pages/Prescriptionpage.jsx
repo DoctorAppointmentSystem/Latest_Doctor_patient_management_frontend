@@ -5,6 +5,7 @@ import { createVisit, updateVisit } from "../api/visits";
 import { getAllMedicines, createMedicine } from "../api/medicine";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
 import { LoadingOverlay, LoadingButton } from "../components/LoadingSpinner"; // ✅ Loading components
+import { formatError } from "../utils/errorHandler";
 
 export default function PrescriptionPage() {
   // State for the individual medicine being added/edited
@@ -194,7 +195,8 @@ export default function PrescriptionPage() {
       setTimeout(() => navigate("/report"), 1500);
     } catch (err) {
       console.error("Save error:", err);
-      toast.error("❌ " + (err.message || "Failed to save. Please try again.")); // ✅ Toast instead of alert
+      const errorMessage = formatError(err);
+      toast.error("❌ " + errorMessage); // ✅ Toast instead of alert
     } finally {
       setIsLoading(false); // ✅ Stop loading
     }

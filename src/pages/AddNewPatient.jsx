@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPatient } from "../api/patient";
 import { useToast } from "../components/Toast";
+import { formatError } from "../utils/errorHandler";
 
 function AddNewPatient() {
     const navigate = useNavigate();
@@ -46,7 +47,8 @@ function AddNewPatient() {
             }, 1000);
         } catch (error) {
             console.error("Create patient error:", error);
-            toast.error(error.response?.data?.message || "Failed to create patient");
+            const errorMsg = formatError(error);
+            toast.error(errorMsg);
         } finally {
             setIsLoading(false);
         }
