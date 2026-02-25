@@ -172,7 +172,7 @@ export default function PrescriptionPage() {
     console.log("Final Payload to be sent:", JSON.stringify(payloadPre, null, 2));
     try {
       // ✅ Validate visitId before calling API
-      const currentVisitId = visitData?.visitId;
+      const currentVisitId = visitData?.visitId || visitData?._id;
       if (!currentVisitId || currentVisitId.length !== 24) {
         console.error("Invalid visitId:", currentVisitId);
         toast.error("❌ Visit ID is invalid. Please go back to History and save the visit first.");

@@ -99,7 +99,8 @@ const DiagnosisForm = () => {
 
       console.log("Sending payload to backend:", payload);
 
-      const response = await updateVisit(visitData.visitId, payload);
+      const currentVisitId = visitData?.visitId || visitData?._id;
+      const response = await updateVisit(currentVisitId, payload);
       console.log("Backend response:", response);
 
 

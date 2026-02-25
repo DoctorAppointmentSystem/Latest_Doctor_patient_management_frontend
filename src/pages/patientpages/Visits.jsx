@@ -84,7 +84,7 @@ function Visits({ patientData }) {
                   const role = getItemWithExpiry("userRole");
                   if (role === "doctor") {
                     console.log("Dr Clicked Row", visit);
-                    setVisitData(visit);
+                    setVisitData({ ...visit, visitId: visit._id });
                     navigate("/patient/examination");
                   }
                 }}

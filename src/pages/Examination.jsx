@@ -118,7 +118,7 @@ function Examination() {
   const { patientData } = useContext(PatientContext);
   const { appointmentData } = useContext(AppointmentContext);
   const { visitData, setVisitData } = useContext(VisitContext);
-  const visitId = visitData?.visitId;
+  const visitId = visitData?.visitId || visitData?._id;
   const { toast } = useToast(); // ✅ Toast hook
   const navigate = useNavigate(); // ✅ Initialize hook
 

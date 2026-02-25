@@ -231,7 +231,7 @@ const EyeAssessmentPage = () => {
   const { appointmentData, clearAppointmentData } = useContext(AppointmentContext);
   const { toast } = useToast(); // ✅ Toast hook
   const navigate = useNavigate(); // ✅ Initialize hook
-  const visitId = visitData?.visitId;
+  const visitId = visitData?.visitId || visitData?._id;
 
   // ✅ Initialize local state from context if visionAndRefraction exists
   const [visit, setVisit] = useState(() => {
