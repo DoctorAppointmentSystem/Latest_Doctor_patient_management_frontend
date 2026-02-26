@@ -598,17 +598,7 @@ function PatientList() {
                               <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full">Pending</span>
                             )}
                           </td>
-                          <td className="border-1 border-black p-2 text-center">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAddVisit(appt._id);
-                              }}
-                              className="bg-primary text-white px-3 py-1 rounded hover:bg-highlight transition-colors"
-                            >
-                              Add Visit
-                            </button>
-                          </td>
+
                           <td className="border-1 border-black p-2 text-center">
                             <button
                               onClick={(e) => {
