@@ -20,35 +20,35 @@ function ADDNewVisit() {
 
   // ✅ Initialize from context if data exists, otherwise use defaults
   const [systemHistory, setSystemHistory] = useState(() => {
-    // If New Mode, force empty
-    if (location.state?.mode === "new") return [{ disease: "", eye: "", duration: "", enabled: false }];
+    // If New Mode, force empty but default eye to B
+    if (location.state?.mode === "new") return [{ disease: "", eye: "B", duration: "", enabled: false }];
 
     if (visitData?.history?.systemHistory?.length > 0) {
       return visitData.history.systemHistory;
     }
-    return [{ disease: "", eye: "", duration: "", enabled: false }];
+    return [{ disease: "", eye: "B", duration: "", enabled: false }];
   });
 
   // ✅ Initialize Ocular History from context
   const [ocularHistory, setOcularHistory] = useState(() => {
-    // If New Mode, force empty
-    if (location.state?.mode === "new") return [{ disease: "", eye: "", duration: "", enabled: false }];
+    // If New Mode, force empty but default eye to B
+    if (location.state?.mode === "new") return [{ disease: "", eye: "B", duration: "", enabled: false }];
 
     if (visitData?.history?.ocularHistory?.length > 0) {
       return visitData.history.ocularHistory;
     }
-    return [{ disease: "", eye: "", duration: "", enabled: false }];
+    return [{ disease: "", eye: "B", duration: "", enabled: false }];
   });
 
   // ✅ Initialize Presenting Complaints from context
   const [presentingCompaints, setPresentingCompaints] = useState(() => {
-    // If New Mode, force empty
-    if (location.state?.mode === "new") return [{ disease: "", eye: "", duration: "", enabled: false }];
+    // If New Mode, force empty but default eye to B
+    if (location.state?.mode === "new") return [{ disease: "", eye: "B", duration: "", enabled: false }];
 
     if (visitData?.history?.presentingComplaints?.length > 0) {
       return visitData.history.presentingComplaints;
     }
-    return [{ disease: "", eye: "", duration: "", enabled: false }];
+    return [{ disease: "", eye: "B", duration: "", enabled: false }];
   });
 
   // ✅ Sync local state to VisitContext whenever it changes
@@ -92,9 +92,9 @@ function ADDNewVisit() {
       });
 
       // Reset local form states
-      setSystemHistory([{ disease: "", eye: "", duration: "", enabled: false }]);
-      setOcularHistory([{ disease: "", eye: "", duration: "", enabled: false }]);
-      setPresentingCompaints([{ disease: "", eye: "", duration: "", enabled: false }]);
+      setSystemHistory([{ disease: "", eye: "B", duration: "", enabled: false }]);
+      setOcularHistory([{ disease: "", eye: "B", duration: "", enabled: false }]);
+      setPresentingCompaints([{ disease: "", eye: "B", duration: "", enabled: false }]);
 
       return;
     }
@@ -109,7 +109,7 @@ function ADDNewVisit() {
 
   // Generic Add Item
   const handleAddItem = (section) => {
-    const newItem = { disease: "", eye: "", duration: "", enabled: false };
+    const newItem = { disease: "", eye: "B", duration: "", enabled: false };
     if (section === "systemic") setSystemHistory([...systemHistory, newItem]);
     if (section === "ocular") setOcularHistory([...ocularHistory, newItem]);
     if (section === "presenting") setPresentingCompaints([...presentingCompaints, newItem]);
@@ -257,18 +257,16 @@ function ADDNewVisit() {
                 className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
               />
 
-              {/* Side dropdown */}
               <select
                 value={item.eye}
                 onChange={(e) =>
                   handleChange("presenting", index, "eye", e.target.value)
                 }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white"
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white cursor-pointer"
               >
-                <option value="">For L/R/B</option>
-                <option value="R">R</option>
-                <option value="L">L</option>
-                <option value="B">B</option>
+                <option value="B">Both (B)</option>
+                <option value="R">Right (R)</option>
+                <option value="L">Left (L)</option>
               </select>
 
               <input
@@ -331,18 +329,16 @@ function ADDNewVisit() {
                 className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
               />
 
-              {/* Side dropdown */}
               <select
                 value={item.eye}
                 onChange={(e) =>
                   handleChange("ocular", index, "eye", e.target.value)
                 }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white"
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white cursor-pointer"
               >
-                <option value="">For L/R/B</option>
-                <option value="R">R</option>
-                <option value="L">L</option>
-                <option value="B">B</option>
+                <option value="B">Both (B)</option>
+                <option value="R">Right (R)</option>
+                <option value="L">Left (L)</option>
               </select>
 
               <input
@@ -405,18 +401,16 @@ function ADDNewVisit() {
                 className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary"
               />
 
-              {/* Side dropdown */}
               <select
                 value={item.eye}
                 onChange={(e) =>
                   handleChange("systemic", index, "eye", e.target.value)
                 }
-                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white"
+                className="w-[33%] border border-primary p-2 rounded-[5px] outline-primary bg-white cursor-pointer"
               >
-                <option value="">For L/R/B</option>
-                <option value="R">R</option>
-                <option value="L">L</option>
-                <option value="B">B</option>
+                <option value="B">Both (B)</option>
+                <option value="R">Right (R)</option>
+                <option value="L">Left (L)</option>
               </select>
 
               <input
