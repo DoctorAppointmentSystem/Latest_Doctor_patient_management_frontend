@@ -570,12 +570,12 @@ function PatientList() {
                 <table className="w-full text-primary border-collapse">
                   <thead className="border-1 border-black bg-gray-100">
                     <tr>
-                      <th className="border-1 border-black p-2">Token</th><th className="border-1 border-black p-2">Name</th><th className="border-1 border-black p-2">Age</th><th className="border-1 border-black p-2">Gender</th><th className="border-1 border-black p-2">Doctor</th><th className="border-1 border-black p-2">Service</th><th className="border-1 border-black p-2">Print Token</th>
+                      <th className="border-1 border-black p-2">Token</th><th className="border-1 border-black p-2">Name</th><th className="border-1 border-black p-2">Age</th><th className="border-1 border-black p-2">Gender</th><th className="border-1 border-black p-2">Doctor</th><th className="border-1 border-black p-2">Service</th><th className="border-1 border-black p-2">Status</th><th className="border-1 border-black p-2">Print Token</th>
                     </tr>
                   </thead>
                   <tbody>
                     {appointmentsLoading ? (
-                      <tr><td colSpan="7" className="p-4 text-center"><Loader /></td></tr>
+                      <tr><td colSpan="8" className="p-4 text-center"><Loader /></td></tr>
                     ) : filteredAppointments.length > 0 ? (
                       filteredAppointments.map((appt) => (
                         <tr
@@ -589,7 +589,15 @@ function PatientList() {
                           <td className="border-1 border-black p-2">{appt.patientId?.gender}</td>
                           <td className="border-1 border-black p-2">{appt.doctor}</td>
                           <td className="border-1 border-black p-2">{appt.serviceType}</td>
-                          {/* Add Visit button removed as per request */}
+                          <td className="border-1 border-black p-2 text-center text-sm font-semibold">
+                            {appt.status === 'Completed' ? (
+                              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full">Completed</span>
+                            ) : appt.status === 'In Progress' ? (
+                              <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">In Progress</span>
+                            ) : (
+                              <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full">Pending</span>
+                            )}
+                          </td>
                           <td className="border-1 border-black p-2 text-center">
                             <button
                               onClick={(e) => {
@@ -604,7 +612,7 @@ function PatientList() {
                         </tr>
                       ))
                     ) : (
-                      <tr><td colSpan="7" className="border-1 border-black p-4 text-center text-gray-500">No appointments match your criteria.</td></tr>
+                      <tr><td colSpan="8" className="border-1 border-black p-4 text-center text-gray-500">No appointments match your criteria.</td></tr>
                     )}
                   </tbody>
                 </table>
