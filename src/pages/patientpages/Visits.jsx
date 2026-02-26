@@ -14,6 +14,7 @@ function Visits({ patientData }) {
   useEffect(() => {
     console.log("Patient Data in useEffect:", patientData);
     const fetchVisits = async () => {
+      if (!patientData || !patientData._id) return; // Prevent API call if no patientId
       try {
         setLoading(true);
         const res = await getVisitsByPatientId(patientData._id);
