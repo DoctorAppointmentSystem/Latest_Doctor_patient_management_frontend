@@ -570,12 +570,12 @@ function PatientList() {
                 <table className="w-full text-primary border-collapse">
                   <thead className="border-1 border-black bg-gray-100">
                     <tr>
-                      <th className="border-1 border-black p-2">Token</th><th className="border-1 border-black p-2">Name</th><th className="border-1 border-black p-2">Age</th><th className="border-1 border-black p-2">Gender</th><th className="border-1 border-black p-2">Doctor</th><th className="border-1 border-black p-2">Service</th><th className="border-1 border-black p-2">Status</th><th className="border-1 border-black p-2">Action</th><th className="border-1 border-black p-2">Print Token</th>
+                      <th className="border-1 border-black p-2">Token</th><th className="border-1 border-black p-2">Name</th><th className="border-1 border-black p-2">Age</th><th className="border-1 border-black p-2">Gender</th><th className="border-1 border-black p-2">Doctor</th><th className="border-1 border-black p-2">Service</th><th className="border-1 border-black p-2">Status</th><th className="border-1 border-black p-2">Print Token</th>
                     </tr>
                   </thead>
                   <tbody>
                     {appointmentsLoading ? (
-                      <tr><td colSpan="9" className="p-4 text-center"><Loader /></td></tr>
+                      <tr><td colSpan="8" className="p-4 text-center"><Loader /></td></tr>
                     ) : filteredAppointments.length > 0 ? (
                       filteredAppointments.map((appt) => (
                         <tr
@@ -623,7 +623,7 @@ function PatientList() {
                         </tr>
                       ))
                     ) : (
-                      <tr><td colSpan="9" className="border-1 border-black p-4 text-center text-gray-500">No appointments match your criteria.</td></tr>
+                      <tr><td colSpan="8" className="border-1 border-black p-4 text-center text-gray-500">No appointments match your criteria.</td></tr>
                     )}
                   </tbody>
                 </table>
