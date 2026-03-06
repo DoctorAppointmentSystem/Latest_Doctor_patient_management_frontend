@@ -146,6 +146,12 @@ function PatientList() {
   };
 
   const handleCreatePatient = async (formData) => {
+    // 1. Basic Validation for required fields
+    if (!formData.patient_name || !formData.phone_number || !formData.age || !formData.gender) {
+      toast.error("Please fill all required fields (Name, Phone, Age, Gender).");
+      return;
+    }
+
     const payload = {
       patient_name: formData.patient_name, father_name: formData.father_name, phone_number: formData.phone_number,
       age: formData.age, gender: formData.gender, date_of_birth: formData.date_of_birth,
@@ -170,7 +176,17 @@ function PatientList() {
         phone_number: "", address: "", city: "", check_nub: "", relation: "Self", guardian_name: "",
         gardian_email: "", gardian_cnic: "", gardian_profession: "", oldmr: "", referenced: "", history: "",
       });
-      setView('appointments');
+      // 2. Set context data for the new patient so the appointment page has it
+      setPatientData({
+        _id: pId,
+        patient_name: formData.patient_name,
+        phone_number: formData.phone_number,
+        age: formData.age,
+        gender: formData.gender,
+      });
+
+      // 3. Navigate directly to Add Appointment page
+      navigate(`/addappointment/${pId}`);
     } catch (error) {
       console.error("Error creating patient:", error);
       const errorMsg = formatError(error);
@@ -479,13 +495,15 @@ function PatientList() {
               <div
                 className="flex items-center justify-between w-full gap-2"
               >
-                <Link
-                  className="bg-primary hover:bg-highlight hover:text-primary py-2 px-4 text-white rounded-lg"
-                  //   onClick={handleCreatePatient(formData)}
-                  onClick={() => handleCreatePatient(formData)}
+                <button
+                  className="bg-primary hover:bg-highlight hover:text-primary py-2 px-4 text-white rounded-lg cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCreatePatient(formData);
+                  }}
                 >
                   Create Patient
-                </Link>
+                </button>
 
                 <button className="bg-highlight py-2 px-4 text-primary rounded-lg">
                   Reset page
