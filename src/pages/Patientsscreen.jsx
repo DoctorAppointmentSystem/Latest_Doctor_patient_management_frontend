@@ -3,6 +3,7 @@ import calculateDOBFromAge from "../services/dobCalculator";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { createPatient, getAllPatients } from "../api/patient";
 import toast from 'react-hot-toast';
+import { formatError } from "../utils/errorHandler";
 
 function Patientscreen() {
   const [patientAdd, setPatientAdd] = useState(false);
@@ -110,7 +111,7 @@ function Patientscreen() {
       navigate(`/appointment`, { state: { serviceType } });
     } catch (error) {
       console.error("Error creating patient:", error);
-      const errorMsg = error.response?.data?.message || error.message || "Failed to create patient";
+      const errorMsg = formatError(error);
       toast.error(errorMsg);
     }
   };

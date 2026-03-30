@@ -5,6 +5,7 @@ import { createVisit, updateVisit } from "../api/visits";
 import { getAllMedicines, createMedicine } from "../api/medicine";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
 import { LoadingOverlay, LoadingButton } from "../components/LoadingSpinner"; // ✅ Loading components
+import { formatError } from "../utils/errorHandler";
 
 export default function PrescriptionPage() {
   // State for the individual medicine being added/edited
@@ -171,7 +172,7 @@ export default function PrescriptionPage() {
     console.log("Final Payload to be sent:", JSON.stringify(payloadPre, null, 2));
     try {
       // ✅ Validate visitId before calling API
-      const currentVisitId = visitData?.visitId;
+      const currentVisitId = visitData?.visitId || visitData?._id;
       if (!currentVisitId || currentVisitId.length !== 24) {
         console.error("Invalid visitId:", currentVisitId);
         toast.error("❌ Visit ID is invalid. Please go back to History and save the visit first.");
@@ -194,7 +195,8 @@ export default function PrescriptionPage() {
       setTimeout(() => navigate("/report"), 1500);
     } catch (err) {
       console.error("Save error:", err);
-      toast.error("❌ " + (err.message || "Failed to save. Please try again.")); // ✅ Toast instead of alert
+      const errorMessage = formatError(err);
+      toast.error("❌ " + errorMessage); // ✅ Toast instead of alert
     } finally {
       setIsLoading(false); // ✅ Stop loading
     }

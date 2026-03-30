@@ -5,6 +5,8 @@ import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import { createVisit, getVisitById, updateVisit } from "../api/visits";
 import EyeGrid from "../components/EyeGrid";
 import { useToast } from "../components/Toast"; // ✅ Toast notifications
+import Loader from "../components/Loader"; // ✅ Centralized Loader
+import { formatError } from "../utils/errorHandler"; // ✅ Friendly Error Messages
 
 /* -------------------- helpers & defaults -------------------- */
 
@@ -229,7 +231,7 @@ const EyeAssessmentPage = () => {
   const { appointmentData, clearAppointmentData } = useContext(AppointmentContext);
   const { toast } = useToast(); // ✅ Toast hook
   const navigate = useNavigate(); // ✅ Initialize hook
-  const visitId = visitData?.visitId;
+  const visitId = visitData?.visitId || visitData?._id;
 
   // ✅ Initialize local state from context if visionAndRefraction exists
   const [visit, setVisit] = useState(() => {
@@ -295,7 +297,10 @@ const EyeAssessmentPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visitId]);
 
+  const [isLoading, setIsLoading] = useState(false); // ✅ Loading state
+
   const handleSubmit = async () => {
+    setIsLoading(true); // Start loading
     try {
       // build merged payload: server values (if any) + UI edits
       const existingVision = serverVisit?.visionAndRefraction || {};
@@ -318,11 +323,21 @@ const EyeAssessmentPage = () => {
         setVisit(prev => ({ ...prev, ...updatedData, visionAndRefraction: buildVisionPayload(updatedData.visionAndRefraction || {}, prev.visionAndRefraction || {}) }));
       }
       toast.success("✅ Vision & Refraction saved successfully!"); // ✅ Toast instead of alert
+
       // ✅ Auto-navigate to next step
-      setTimeout(() => navigate("/patient/examination"), 1500);
+      const role = localStorage.getItem("userRole");
+      if (role === "doctor") {
+        setTimeout(() => navigate("/patient/examination"), 1500);
+      } else {
+        // Refractionist stops here
+        setTimeout(() => navigate("/patientlist"), 1500);
+      }
     } catch (err) {
       console.error("Save error:", err);
-      toast.error("❌ " + (err?.message || "Update failed")); // ✅ Toast instead of alert
+      const friendlyMsg = formatError(err);
+      toast.error("❌ " + friendlyMsg);
+    } finally {
+      setIsLoading(false); // Stop loading
     }
   };
 
@@ -849,7 +864,9 @@ const EyeAssessmentPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 relative w-full">
+      {/* ✅ Full Screen Loader Overlay */}
+      {isLoading && <Loader fullScreen={true} />}
       <div className="max-w-full mx-auto bg-white p-6 rounded-lg shadow-md">
         <ul className="space-y-4">
           {assessments.map((item, index) => (

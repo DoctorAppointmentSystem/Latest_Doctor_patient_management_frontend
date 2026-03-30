@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // ✅ Navigation hook
 import { createVisit, updateVisit } from '../api/visits'; // Assuming your API function is here
 import { AppointmentContext, PatientContext, VisitContext } from '../context'; // Assuming your contexts are here
 import { useToast } from '../components/Toast'; // ✅ Toast notifications
+import { formatError } from "../utils/errorHandler";
 import { FiTrash } from 'react-icons/fi'; // ✅ Delete Icon
 
 
@@ -117,7 +118,7 @@ function Examination() {
   const { patientData } = useContext(PatientContext);
   const { appointmentData } = useContext(AppointmentContext);
   const { visitData, setVisitData } = useContext(VisitContext);
-  const visitId = visitData?.visitId;
+  const visitId = visitData?.visitId || visitData?._id;
   const { toast } = useToast(); // ✅ Toast hook
   const navigate = useNavigate(); // ✅ Initialize hook
 
@@ -220,12 +221,19 @@ function Examination() {
       console.log("Backend response:", response);
 
       toast.success("✅ Examination saved successfully!"); // ✅ Toast instead of alert
-      // ✅ Auto-navigate to next step
-      setTimeout(() => navigate("/patient/diagnosisform"), 1500);
+
+      // ✅ Auto-navigate to next step (Doctor Only)
+      const role = localStorage.getItem("userRole");
+      if (role === "doctor") {
+        setTimeout(() => navigate("/patient/diagnosisform"), 1500);
+      } else {
+        // Refractionist done, go back to patient list or similar
+        setTimeout(() => navigate("/patientlist"), 1500);
+      }
 
     } catch (err) {
       console.error("Save error:", err);
-      const errorMessage = err.response?.data?.message || err.message;
+      const errorMessage = formatError(err);
       toast.error("❌ " + errorMessage); // ✅ Toast instead of alert
     }
     finally {

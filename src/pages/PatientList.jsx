@@ -6,6 +6,7 @@ import Loader from "../components/Loader";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
 import calculateDOBFromAge from "../services/dobCalculator";
 import toast from 'react-hot-toast';
+import { formatError } from "../utils/errorHandler";
 
 function PatientList() {
   const { PatientData, setPatientData, clearPatientData } = useContext(PatientContext);
@@ -145,6 +146,12 @@ function PatientList() {
   };
 
   const handleCreatePatient = async (formData) => {
+    // 1. Basic Validation for required fields
+    if (!formData.patient_name || !formData.phone_number || !formData.age || !formData.gender) {
+      toast.error("Please fill all required fields (Name, Phone, Age, Gender).");
+      return;
+    }
+
     const payload = {
       patient_name: formData.patient_name, father_name: formData.father_name, phone_number: formData.phone_number,
       age: formData.age, gender: formData.gender, date_of_birth: formData.date_of_birth,
@@ -169,10 +176,20 @@ function PatientList() {
         phone_number: "", address: "", city: "", check_nub: "", relation: "Self", guardian_name: "",
         gardian_email: "", gardian_cnic: "", gardian_profession: "", oldmr: "", referenced: "", history: "",
       });
-      setView('appointments');
+      // 2. Set context data for the new patient so the appointment page has it
+      setPatientData({
+        _id: pId,
+        patient_name: formData.patient_name,
+        phone_number: formData.phone_number,
+        age: formData.age,
+        gender: formData.gender,
+      });
+
+      // 3. Navigate directly to Add Appointment page
+      navigate(`/addappointment/${pId}`);
     } catch (error) {
       console.error("Error creating patient:", error);
-      const errorMsg = error.response?.data?.message || error.message || "Failed to create patient";
+      const errorMsg = formatError(error);
       toast.error(errorMsg);
     }
   };
@@ -478,13 +495,15 @@ function PatientList() {
               <div
                 className="flex items-center justify-between w-full gap-2"
               >
-                <Link
-                  className="bg-primary hover:bg-highlight hover:text-primary py-2 px-4 text-white rounded-lg"
-                  //   onClick={handleCreatePatient(formData)}
-                  onClick={() => handleCreatePatient(formData)}
+                <button
+                  className="bg-primary hover:bg-highlight hover:text-primary py-2 px-4 text-white rounded-lg cursor-pointer"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleCreatePatient(formData);
+                  }}
                 >
                   Create Patient
-                </Link>
+                </button>
 
                 <button className="bg-highlight py-2 px-4 text-primary rounded-lg">
                   Reset page
@@ -569,7 +588,7 @@ function PatientList() {
                 <table className="w-full text-primary border-collapse">
                   <thead className="border-1 border-black bg-gray-100">
                     <tr>
-                      <th className="border-1 border-black p-2">Token</th><th className="border-1 border-black p-2">Name</th><th className="border-1 border-black p-2">Age</th><th className="border-1 border-black p-2">Gender</th><th className="border-1 border-black p-2">Doctor</th><th className="border-1 border-black p-2">Service</th><th className="border-1 border-black p-2">Add Visit</th><th className="border-1 border-black p-2">Print Token</th>
+                      <th className="border-1 border-black p-2">Token</th><th className="border-1 border-black p-2">Name</th><th className="border-1 border-black p-2">Age</th><th className="border-1 border-black p-2">Gender</th><th className="border-1 border-black p-2">Doctor</th><th className="border-1 border-black p-2">Service</th><th className="border-1 border-black p-2">Status</th><th className="border-1 border-black p-2">Print Token</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -577,18 +596,35 @@ function PatientList() {
                       <tr><td colSpan="8" className="p-4 text-center"><Loader /></td></tr>
                     ) : filteredAppointments.length > 0 ? (
                       filteredAppointments.map((appt) => (
-                        <tr key={appt._id} className="border-1 border-black">
+                        <tr
+                          key={appt._id}
+                          className="border-1 border-black cursor-pointer hover:bg-highlight transition-colors"
+                          onClick={() => handleAddVisit(appt._id)}
+                        >
                           <td className="border-1 border-black p-2">{appt.manualToken}</td>
                           <td className="border-1 border-black p-2">{appt.patientId?.patient_name}</td>
                           <td className="border-1 border-black p-2">{appt.patientId?.age}</td>
                           <td className="border-1 border-black p-2">{appt.patientId?.gender}</td>
                           <td className="border-1 border-black p-2">{appt.doctor}</td>
                           <td className="border-1 border-black p-2">{appt.serviceType}</td>
-                          <td className="border-1 border-black p-2 text-center">
-                            <button onClick={() => handleAddVisit(appt._id)} className="bg-primary text-white px-3 py-1 rounded hover:bg-highlight hover:text-primary">Add Visit</button>
+                          <td className="border-1 border-black p-2 text-center text-sm font-semibold">
+                            {appt.status === 'Completed' ? (
+                              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full">Completed</span>
+                            ) : appt.status === 'In Progress' ? (
+                              <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">In Progress</span>
+                            ) : (
+                              <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full">Pending</span>
+                            )}
                           </td>
+
                           <td className="border-1 border-black p-2 text-center">
-                            <button onClick={() => handlePrintToken(appt)} className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 mx-auto">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePrintToken(appt);
+                              }}
+                              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 mx-auto"
+                            >
                               🖨️ Print
                             </button>
                           </td>
