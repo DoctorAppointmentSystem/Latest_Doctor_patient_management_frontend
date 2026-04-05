@@ -379,7 +379,14 @@ export default function PrescriptionPage() {
       {isLoading && <LoadingOverlay message="Saving Prescription..." />}
 
       {/* Save Button */}
-      <div className="flex justify-end mt-4">
+      <div className="flex justify-end mt-4 gap-4">
+        <button
+          type="button"
+          onClick={() => navigate(-1)}
+          className="bg-gray-600 text-white font-bold py-3 px-8 rounded-lg hover:bg-gray-700 transition"
+        >
+          ← Back
+        </button>
         <LoadingButton
           loading={isLoading}
           onClick={handleSubmit}

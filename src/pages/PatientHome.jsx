@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, memo, useContext } from "react";
 import { FiMenu, FiX, FiHome, FiUser, FiSettings, FiPieChart, FiBell, FiChevronRight, FiChevronDown, FiChevronLeft } from "react-icons/fi";
 import { create } from "zustand";
-import { Routes, Route, Link, useLocation } from "react-router-dom";
+import { Routes, Route, Link, useLocation, Outlet } from "react-router-dom";
 
 import ADDNewVisit from "./ADDNewVisit";
 import VisionandRefraction from "./VisionandRefraction";
@@ -350,14 +350,7 @@ const PLayout = () => {
         </header>
         <div>
           <div className="px-5">
-            <Routes>
-              <Route path="addnewvisit" element={<ADDNewVisit />} />
-              <Route path="visionandrefraction" element={<VisionandRefraction />} />
-              <Route path="examination" element={<Examination />} />
-              <Route path="/diagnosisform" element={<DiagnosisForm />} />
-              <Route path="Prescriptionpage" element={<PrescriptionPage />} />
-
-            </Routes>
+            <Outlet />
 
 
           </div>

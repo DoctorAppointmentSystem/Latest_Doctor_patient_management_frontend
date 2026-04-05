@@ -40,3 +40,13 @@ export const getNextToken = async () => {
         throw error;
     }
 };
+
+export const deleteAppointment = async (id) => {
+    try {
+        const response = await axiosInstance.delete(`/appointments/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting appointment:", error);
+        throw error;
+    }
+};

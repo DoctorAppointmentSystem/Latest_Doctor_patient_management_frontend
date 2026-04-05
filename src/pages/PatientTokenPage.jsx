@@ -14,22 +14,11 @@ const PatientTokenPage = () => {
     return appointmentData?.manualToken || Math.floor(100 + Math.random() * 900);
   }, [appointmentData]);
 
-  // ✅ Trigger print and redirect after print or cancel
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      window.print();
-    }, 1000);
+  // ✅ Removed onafterprint auto-redirect so the user stays on the page after print dialog closes
 
-    // Redirect to home after print or cancel
-    window.onafterprint = () => {
-      navigate("/");
-    };
-
-    return () => {
-      clearTimeout(timer);
-      window.onafterprint = null; // cleanup event
-    };
-  }, [navigate]);
+  const handlePrint = () => {
+    window.print();
+  };
 
   // Patient & Doctor info
   const doctor = patientData?.doctor || "Doctor Name";
@@ -81,11 +70,30 @@ Cash Paid: ${totalCash}`;
               height: auto;
               margin: auto;
             }
+            .no-print {
+              display: none !important;
+            }
           }
         `}
       </style>
 
-      <div className="min-h-screen flex items-center justify-center bg-white">
+      <div className="min-h-screen flex flex-col items-center justify-center bg-white relative">
+        {/* ✅ NEW: Print Button */}
+        <div className="absolute top-10 no-print flex gap-4">
+          <button 
+            onClick={() => navigate("/")}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-8 rounded-lg shadow-lg flex items-center gap-2 transition-all transition-smooth"
+          >
+            🔙 Back to Dashboard
+          </button>
+          <button 
+            onClick={handlePrint}
+            className="bg-primary hover:bg-highlight hover:text-primary text-white font-bold py-2 px-8 rounded-lg shadow-lg flex items-center gap-2 transition-all transition-smooth"
+          >
+            🖨️ Print Token
+          </button>
+        </div>
+
         <div className="print-area text-center text-black w-[300px] space-y-2 print:w-auto print:text-xs">
           {/* Token */}
           <div>

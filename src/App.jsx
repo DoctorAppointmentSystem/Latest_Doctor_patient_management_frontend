@@ -44,15 +44,31 @@ function isAuthenticated() {
  * A wrapper component to protect routes.
  * If authenticated, it renders the component.
  * If not, it redirects the user to the /login page.
+ * If role-based restriction is needed, it checks the user's role.
  */
-const ProtectedElement = ({ element }) => {
-  if (!isAuthenticated()) {
-    // Redirect to login, replacing the current history entry
+const ProtectedElement = ({ element, allowedRoles = [] }) => {
+  const isAuth = isAuthenticated();
+  
+  if (!isAuth) {
     return <Navigate to="/login" replace />;
   }
-  // Render the protected component
+
+  // Check role if restricted
+  if (allowedRoles.length > 0) {
+    const userRole = getItemWithExpiry('userRole'); // Current role
+    if (!allowedRoles.includes(userRole)) {
+      console.warn(`Unauthorized access attempt to role-protected route. Role: ${userRole}`);
+      return <Navigate to="/" replace />; // Redirect to home/dashboard
+    }
+  }
+
   return element;
 };
+
+// Define standard role access groups
+const CLINICAL_ROLES = ["doctor", "refractionist"];
+const DOCTOR_ONLY = ["doctor"];
+const ALL_ROLES = ["doctor", "refractionist", "receptionist"];
 
 // --- Define the ENTIRE router structure ---
 const router = createBrowserRouter([
@@ -68,7 +84,7 @@ const router = createBrowserRouter([
     children: [
       // ✅ FIXED: Render AppHome as the default home page instead of redirecting
       { index: true, element: <AppHome /> },
-      { path: "/patientlist", element: <PatientList /> },
+      { path: "/patientlist", element: <ProtectedElement element={<PatientList />} allowedRoles={CLINICAL_ROLES} /> },
       { path: "/dailycashreport", element: <DailyCashReport /> },
       { path: "/patientrecentopd", element: <PatientRecentOPD /> },
       { path: "/opd", element: <OPD /> },
@@ -79,19 +95,19 @@ const router = createBrowserRouter([
       { path: "/discounttypes", element: <DiscountTypes /> },
       { path: "/patientscreen", element: <Patientscreen /> },
       { path: "/cashReport", element: <ShowCashReportPage /> },
-      { path: "/expenses", element: <ExpenseEntry /> }, // ✅ NEW
+      { path: "/expenses", element: <ExpenseEntry /> }, 
     ]
   },
   {
     // Protected patient-specific layout routes
-    path: "/patient/*", // ✅ FIXED: Added wildcard for nested routes
+    path: "/patient/*",
     element: <ProtectedElement element={<PLayout />} />,
     children: [
-      { path: "addnewvisit", element: <ADDNewVisit /> },
-      { path: "visionandrefraction", element: <VisionandRefraction /> },
-      { path: "examination", element: <Examination /> },
-      { path: "diagnosisform", element: <DiagnosisForm /> },
-      { path: "Prescriptionpage", element: <PrescriptionPage /> },
+      { path: "addnewvisit", element: <ProtectedElement element={<ADDNewVisit />} allowedRoles={CLINICAL_ROLES} /> },
+      { path: "visionandrefraction", element: <ProtectedElement element={<VisionandRefraction />} allowedRoles={CLINICAL_ROLES} /> },
+      { path: "examination", element: <ProtectedElement element={<Examination />} allowedRoles={CLINICAL_ROLES} /> },
+      { path: "diagnosisform", element: <ProtectedElement element={<DiagnosisForm />} allowedRoles={DOCTOR_ONLY} /> },
+      { path: "Prescriptionpage", element: <ProtectedElement element={<PrescriptionPage />} allowedRoles={DOCTOR_ONLY} /> },
     ]
   },
   {

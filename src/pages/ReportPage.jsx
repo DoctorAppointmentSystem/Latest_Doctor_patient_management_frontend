@@ -164,10 +164,10 @@ export const ReportPage = () => {
         {/* --- Print Button --- */}
         <div className="flex justify-between items-center mb-4 max-w-[210mm] mx-auto print:hidden">
           <button
-            onClick={() => navigate("/patient/Prescriptionpage")}
+            onClick={() => navigate(-1)}
             className="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition"
           >
-            ← Back to Prescription
+            ← Back
           </button>
 
           <button

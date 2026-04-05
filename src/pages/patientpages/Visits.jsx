@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { getVisitsByPatientId } from '../../api/visits';
+import { getVisitsByPatientId, deleteVisit } from '../../api/visits';
 import Loader from '../../components/Loader';
 import { VisitContext } from '../../context';
 import { useNavigate } from 'react-router-dom';
 import { getItemWithExpiry } from '../../services/token';
+import toast from 'react-hot-toast';
 
 function Visits({ patientData }) {
   const [visitsData, setVisitsData] = useState([]);
@@ -28,6 +29,22 @@ function Visits({ patientData }) {
     }
     fetchVisits();
   }, [patientData._id]);
+
+  const handleDeleteVisit = async (visitId) => {
+    if (!window.confirm("Are you sure you want to delete this visit? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await deleteVisit(visitId);
+      toast.success("Visit deleted successfully");
+      // Refresh the list
+      setVisitsData((prev) => prev.filter((v) => v._id !== visitId));
+    } catch (error) {
+      console.error("Error deleting visit:", error);
+      toast.error("Failed to delete visit");
+    }
+  };
 
   if (loading) {
     return <Loader />;
@@ -72,6 +89,7 @@ function Visits({ patientData }) {
               <th className="p-2">Service</th>
               <th className="p-2">Status</th>
               <th className="p-2">Charges</th>
+              <th className="p-2 text-center">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -122,12 +140,34 @@ function Visits({ patientData }) {
                     </span>
                   )}
                 </td>
-                <td className="p-2">
+                 <td className="p-2">
                   {/* Assumes you add 'charges' to your visit object */}
                   {visit.appointmentId.charges}
                 </td>
 
-                {/* Action Column Removed as per user request - Row is clickable */}
+                <td className="p-2 text-center">
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setVisitData({ ...visit, visitId: visit._id });
+                        navigate("/report");
+                      }}
+                      className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                    >
+                      👁️ View
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteVisit(visit._id);
+                      }}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))}
           </tbody>

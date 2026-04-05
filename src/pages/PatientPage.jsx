@@ -15,6 +15,7 @@ import Intial from "./patientpages/Intial";
 import { PatientContext } from "../context";
 import Notes from "./patientpages/Notes";
 import { getVisitsByPatientId } from "../api/visits";
+import { getItemWithExpiry } from "../services/token";
 
 function PatientPage() {
   const { patientData, setPatientData, clearPatientData } = useContext(PatientContext);
@@ -140,7 +141,7 @@ function PatientPage() {
           <button onClick={() => { setPage('profile'), setActive("profile") }} className="border-1 border-primary px-4 mr-4 py-2 rounded-sm text-primary">
             Edit Profile
           </button>
-          {showAddVisit && (
+          {showAddVisit && (getItemWithExpiry("userRole") === "doctor" || getItemWithExpiry("userRole") === "refractionist") && (
             <Link to="/patient/addnewvisit" className="px-4 py-2 rounded-sm text-white bg-green-600 hover:bg-green-700">
               ADD new Visit
             </Link>

@@ -1,6 +1,6 @@
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
-import { getAppointments } from "../api/appointments";
+import { getAppointments, deleteAppointment } from "../api/appointments";
 import { createPatient, getAllPatients } from "../api/patient";
 import Loader from "../components/Loader";
 import { AppointmentContext, PatientContext, VisitContext } from "../context";
@@ -145,6 +145,18 @@ function PatientList() {
     setPatientData({ ...PatientData, _id: id });
   };
 
+  const handleCreateAppointment = (patient) => {
+    localStorage.setItem("selectedPatientId", patient._id);
+    setPatientData({
+      _id: patient._id,
+      patient_name: patient.patient_name,
+      phone_number: patient.phone_number,
+      age: patient.age,
+      gender: patient.gender,
+    });
+    navigate('/appointment');
+  };
+
   const handleCreatePatient = async (formData) => {
     // 1. Basic Validation for required fields
     if (!formData.patient_name || !formData.phone_number || !formData.age || !formData.gender) {
@@ -224,6 +236,21 @@ function PatientList() {
 
     // Navigate to token page
     navigate('/token');
+  };
+
+  const handleDeleteAppointment = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this appointment?")) {
+      return;
+    }
+    try {
+      await deleteAppointment(id);
+      toast.success("Appointment deleted successfully");
+      setTodaysAppointments((prev) => prev.filter((appt) => appt._id !== id));
+      setFilteredAppointments((prev) => prev.filter((appt) => appt._id !== id));
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      toast.error("Failed to delete appointment");
+    }
   };
 
   return (
@@ -536,15 +563,21 @@ function PatientList() {
                 </thead>
                 <tbody>
                   {filteredAllPatients.map((p) => (
-                    <tr key={p._id} className="hover:bg-gray-100">
+                    <tr 
+                      key={p._id} 
+                      className="hover:bg-gray-100 cursor-pointer" 
+                      onClick={() => handleCreateAppointment(p)}
+                    >
                       <td className="p-2 border">{p.patient_name}</td><td className="p-2 border">{p.father_name}</td>
                       <td className="p-2 border">{p.gender}</td><td className="p-2 border">{p.age}</td>
                       <td className="p-2 border">{p.phone_number}</td>
-                      <td className="p-2 border text-primary cursor-pointer">
+                      <td className="p-2 border text-primary" onClick={(e) => e.stopPropagation()}>
                         <Link to={`/patientpage/${p._id}`}
-                          onClick={() => handlePatientDetail(p._id)}
-                          // onClick={() => localStorage.setItem("selectedPatientId", p._id)} 
-                          className="hover:underline">
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePatientDetail(p._id);
+                          }}
+                          className="hover:underline cursor-pointer">
                           View Details
                         </Link>
                       </td>
@@ -623,7 +656,7 @@ function PatientList() {
                                 e.stopPropagation();
                                 handlePrintToken(appt);
                               }}
-                              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 mx-auto"
+                              className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 flex items-center gap-1 mx-auto text-xs"
                             >
                               🖨️ Print
                             </button>

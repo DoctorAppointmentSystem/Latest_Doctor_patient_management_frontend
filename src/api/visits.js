@@ -49,3 +49,13 @@ export const getVisitsByPatientId = async (patientId) => {
         throw error;
     }
 };
+
+export const deleteVisit = async (visitId) => {
+    try {
+        const response = await axiosInstance.delete(`/add-visits/${visitId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error deleting visit:", error);
+        throw error;
+    }
+};

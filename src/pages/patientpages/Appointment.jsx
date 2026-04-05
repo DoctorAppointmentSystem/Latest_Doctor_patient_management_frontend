@@ -1,10 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext } from "react";
 import Loader from "../../components/Loader";
-import { getAppointmentsByPatientId } from "../../api/appointments";
+import { getAppointmentsByPatientId, deleteAppointment } from "../../api/appointments";
+import toast from 'react-hot-toast';
+import { VisitContext } from "../../context";
+import { useNavigate } from "react-router-dom";
 
 function Appointment({ patientData }) {
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { setVisitData } = useContext(VisitContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!patientData?._id) return;
@@ -23,6 +28,21 @@ function Appointment({ patientData }) {
 
     fetchAppointments();
   }, [patientData]);
+
+  const handleDeleteAppointment = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this appointment? This action cannot be undone.")) {
+      return;
+    }
+
+    try {
+      await deleteAppointment(id);
+      toast.success("Appointment deleted successfully");
+      setAppointments((prev) => prev.filter((appt) => appt._id !== id));
+    } catch (error) {
+      console.error("Error deleting appointment:", error);
+      toast.error("Failed to delete appointment");
+    }
+  };
 
   if (loading) return <Loader />;
 
@@ -67,6 +87,7 @@ function Appointment({ patientData }) {
             <th className="border border-black p-2">Charges</th>
             <th className="border border-black p-2">Amount Paid</th>
             <th className="border border-black p-2">Discount</th>
+            <th className="border border-black p-2 text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -106,11 +127,32 @@ function Appointment({ patientData }) {
                     return <span className="text-gray-400">-</span>;
                   })()}
                 </td>
+                <td className="border border-black p-2 text-center">
+                  <div className="flex gap-2 justify-center">
+                    {appt.visitId && (
+                      <button
+                        onClick={() => {
+                          setVisitData({ ...appt, visitId: appt.visitId });
+                          navigate("/report");
+                        }}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                      >
+                        👁️ View
+                      </button>
+                    )}
+                    <button
+                      onClick={() => handleDeleteAppointment(appt._id)}
+                      className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition-colors"
+                    >
+                      🗑️ Delete
+                    </button>
+                  </div>
+                </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan="7" className="text-center p-4">
+              <td colSpan="8" className="text-center p-4">
                 No Appointments Found ❌
               </td>
             </tr>

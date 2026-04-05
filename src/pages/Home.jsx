@@ -94,7 +94,7 @@ const Navigation = memo(({ collapsed }) => {
   // ✅ NEW: Get User Role
   // We can read directly from localStorage here for simplicity since this component might mount before context updates or just use context.
   // Using localStorage directly ensures immediate availability on mount/reload.
-  const userRole = getItemWithExpiry("userRole") || "doctor";
+  const userRole = getItemWithExpiry("userRole") || ""; // Default to empty to prevent accidental access
 
   const allNavItems = [
     { icon: FiHome, label: "Home", pagelink: "/", roles: ["receptionist", "refractionist", "doctor"] },
